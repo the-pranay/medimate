@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Test - MediMate</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 10px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #005a87; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🔐 MediMate Login Test</h1>
+    <p><strong>Server:</strong> http://localhost:3001</p>
+    <p><strong>Status:</strong> <span id="serverStatus">Checking...</span></p>
+
+    <div class="test-section">
+        <h2>Test Patient Login (Fallback)</h2>
+        <p><strong>Email:</strong> patient@test.com</p>
+        <p><strong>Password:</strong> password123</p>
+        <button onclick="testPatientLogin()">Test Patient Login</button>
+        <div id="patientResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Doctor Login (Fallback)</h2>
+        <p><strong>Email:</strong> doctor@test.com</p>
+        <p><strong>Password:</strong> password123</p>
+        <button onclick="testDoctorLogin()">Test Doctor Login</button>
+        <div id="doctorResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Profile Access</h2>
+        <button onclick="testProfile()">Get Profile (after login)</button>
+        <div id="profileResult"></div>
+    </div>
+
+    <script>
+        let authToken = '';
+        const API_BASE = 'http://localhost:3001/api';
+
+        // Check server status
+        fetch(`${API_BASE}/system/health`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('serverStatus').innerHTML = 
+                    `<span style="color: green;">✅ Online</span> - ${data.message || 'Server running'}`;
+            })
+            .catch(error => {
+                document.getElementById('serverStatus').innerHTML = 
+                    `<span style="color: red;">❌ Offline</span> - ${error.message}`;
+            });
+
+        async function testPatientLogin() {
+            const loginData = {
+                email: "patient@test.com",
+                password: "password123"
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    authToken = result.data.token;
+                    document.getElementById('patientResult').innerHTML = 
+                        `<div class="result success">✅ SUCCESS\n${JSON.stringify(result, null, 2)}</div>`;
+                } else {
+                    document.getElementById('patientResult').innerHTML = 
+                        `<div class="result error">❌ FAILED\n${JSON.stringify(result, null, 2)}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('patientResult').innerHTML = 
+                    `<div class="result error">❌ ERROR\n${error.message}</div>`;
+            }
+        }
+
+        async function testDoctorLogin() {
+            const loginData = {
+                email: "doctor@test.com",
+                password: "password123"
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    authToken = result.data.token;
+                    document.getElementById('doctorResult').innerHTML = 
+                        `<div class="result success">✅ SUCCESS\n${JSON.stringify(result, null, 2)}</div>`;
+                } else {
+                    document.getElementById('doctorResult').innerHTML = 
+                        `<div class="result error">❌ FAILED\n${JSON.stringify(result, null, 2)}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('doctorResult').innerHTML = 
+                    `<div class="result error">❌ ERROR\n${error.message}</div>`;
+            }
+        }
+
+        async function testProfile() {
+            if (!authToken) {
+                document.getElementById('profileResult').innerHTML = 
+                    '<div class="result error">❌ Please login first to get auth token</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/users/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('profileResult').innerHTML = 
+                        `<div class="result success">✅ PROFILE LOADED\n${JSON.stringify(result, null, 2)}</div>`;
+                } else {
+                    document.getElementById('profileResult').innerHTML = 
+                        `<div class="result error">❌ FAILED\n${JSON.stringify(result, null, 2)}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('profileResult').innerHTML = 
+                    `<div class="result error">❌ ERROR\n${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

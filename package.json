@@ -2,6 +2,7 @@
   "name": "medimate",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -9,19 +10,30 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "date-fns": "^3.3.1",
+    "framer-motion": "^11.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.363.0",
+    "mongodb": "^6.17.0",
+    "mongoose": "^8.16.1",
+    "next": "15.3.4",
+    "nodemailer": "^7.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.4"
+    "react-hook-form": "^7.49.3",
+    "react-hot-toast": "^2.5.2",
+    "tailwind-merge": "^2.2.1",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4"
   }
 }
