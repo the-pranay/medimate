@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Heart, Stethoscope, Users, Activity, ArrowRight, Shield, Zap, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Heart, Stethoscope, Users, Activity, ArrowRight, Shield, Zap, Sparkles, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 
