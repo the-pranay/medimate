@@ -64,6 +64,8 @@ const fallbackUsers = [
 export async function POST(request) {
   try {
     const { email, password } = await request.json();
+    
+    console.log('🔍 Login attempt for:', email);
 
     // Validate required fields
     if (!email || !password) {
@@ -80,16 +82,24 @@ export async function POST(request) {
     try {
       const connection = await connectDB();
       if (connection) {
-        console.log('🔍 Attempting database login for:', email);
+        console.log('✅ Database connected, searching for user:', email);
         
         // Find user by email in database
         user = await User.findOne({ email });
+        
+        if (!user) {
+          console.log('❌ User not found in database, falling back to demo users');
+          usedFallback = true;
+          user = fallbackUsers.find(u => u.email === email && u.isActive);
+        }
       } else {
-        console.log('⚠️ Database connection not available, using fallback login for:', email);
+        console.log('⚠️ Database connection not available, using fallback users');
         usedFallback = true;
+        user = fallbackUsers.find(u => u.email === email && u.isActive);
       }
     } catch (dbError) {
-      console.log('⚠️ Database connection failed, using fallback login for:', email);
+      console.log('⚠️ Database error:', dbError.message);
+      console.log('Using fallback users for:', email);
       usedFallback = true;
       
       // Find user in fallback data
@@ -97,11 +107,14 @@ export async function POST(request) {
     }
 
     if (!user) {
+      console.log('❌ User not found in database or fallback users');
       return NextResponse.json(
         { success: false, message: 'Invalid credentials' },
         { status: 401, headers: corsHeaders }
       );
     }
+
+    console.log('✅ User found:', user.email, 'Mode:', usedFallback ? 'fallback' : 'database');
 
     // Check if user is active (for database users)
     if (!usedFallback && !user.isActive) {
@@ -114,6 +127,7 @@ export async function POST(request) {
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      console.log('❌ Invalid password for user:', email);
       return NextResponse.json(
         { success: false, message: 'Invalid credentials' },
         { status: 401, headers: corsHeaders }
@@ -159,7 +173,7 @@ export async function POST(request) {
     }, { headers: corsHeaders });
 
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Login error:', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500, headers: corsHeaders }

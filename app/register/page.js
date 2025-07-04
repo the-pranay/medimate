@@ -104,17 +104,17 @@ function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-white via-green-50 to-blue-50 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-pink-900/20 to-blue-900/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-100/50 via-white/80 to-blue-100/50"></div>
         
         {/* Animated Particles */}
         <div className="absolute inset-0">
-          {[...Array(60)].map((_, i) => (
+          {[...Array(40)].map((_, i) => (
             <div
               key={i}
-              className="absolute bg-white rounded-full opacity-10 animate-float"
+              className="absolute bg-green-300/20 rounded-full opacity-30 animate-float"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -129,12 +129,12 @@ function RegisterForm() {
         
         {/* Medical Icons Background */}
         <div className="absolute inset-0 pointer-events-none">
-          <Heart className="absolute top-32 left-16 w-6 h-6 text-pink-500/20 animate-pulse" />
+          <Heart className="absolute top-32 left-16 w-6 h-6 text-green-500/20 animate-pulse" />
           <Stethoscope className="absolute top-48 right-32 w-8 h-8 text-blue-500/20 animate-bounce" />
           <Activity className="absolute bottom-48 left-32 w-7 h-7 text-green-500/20 animate-pulse" />
-          <Shield className="absolute bottom-32 right-16 w-6 h-6 text-purple-500/20 animate-bounce" />
-          <Users className="absolute top-2/3 left-1/4 w-5 h-5 text-teal-500/20 animate-pulse" />
-          <Sparkles className="absolute top-1/3 right-1/4 w-6 h-6 text-yellow-500/20 animate-bounce" />
+          <Shield className="absolute bottom-32 right-16 w-6 h-6 text-blue-500/20 animate-bounce" />
+          <Users className="absolute top-2/3 left-1/4 w-5 h-5 text-green-600/20 animate-pulse" />
+          <Sparkles className="absolute top-1/3 right-1/4 w-6 h-6 text-blue-600/20 animate-bounce" />
         </div>
       </div>
 
@@ -144,36 +144,36 @@ function RegisterForm() {
           <div className="text-center">
             <div className="flex justify-center mb-6">
               <div 
-                className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 p-4 rounded-full shadow-2xl transform transition-all duration-500 hover:scale-110 hover:rotate-12"
+                className="relative bg-gradient-to-r from-green-500 via-blue-500 to-green-600 p-4 rounded-full shadow-2xl transform transition-all duration-500 hover:scale-110 hover:rotate-12"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
               >
                 <Users className={`w-8 h-8 text-white transition-all duration-300 ${isHovered ? 'animate-pulse' : ''}`} />
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-full blur-lg opacity-50 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500 via-blue-500 to-green-600 rounded-full blur-lg opacity-50 animate-pulse"></div>
               </div>
             </div>
             
-            <Link href="/" className="text-5xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent hover:from-purple-500 hover:via-pink-500 hover:to-blue-500 transition-all duration-300">
+            <Link href="/" className="text-5xl font-black bg-gradient-to-r from-green-600 via-blue-600 to-green-700 bg-clip-text text-transparent hover:from-green-700 hover:via-blue-700 hover:to-green-800 transition-all duration-300">
               MediMate
             </Link>
             
-            <h2 className="mt-6 text-3xl font-extrabold text-white animate-fade-in">
+            <h2 className="mt-6 text-3xl font-extrabold text-gray-800 animate-fade-in">
               Join MediMate! 🏥
             </h2>
-            <p className="mt-2 text-lg text-gray-300 animate-fade-in-delay">
+            <p className="mt-2 text-lg text-gray-600 animate-fade-in-delay">
               Ready to make a difference in healthcare? Let's create your medical profile!
             </p>
           </div>
 
           {/* Glass Card with Neon Effect */}
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-            <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-gray-700/50">
+            <div className="absolute -inset-1 bg-gradient-to-r from-green-500 via-blue-500 to-green-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-green-200/50">
               
               <form className="space-y-6" onSubmit={handleSubmit}>
                 {/* Role Selection */}
                 <div className="text-center mb-8">
-                  <p className="text-gray-300 mb-4 text-sm">Choose your account type:</p>
+                  <p className="text-gray-700 mb-4 text-sm font-medium">Choose your account type:</p>
                   <div className="flex justify-center space-x-4">
                     <button
                       type="button"
@@ -181,7 +181,7 @@ function RegisterForm() {
                       className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 ${
                         formData.role === 'patient'
                           ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg transform scale-105'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
                       }`}
                     >
                       <Heart className="w-5 h-5" />
@@ -193,7 +193,7 @@ function RegisterForm() {
                       className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 ${
                         formData.role === 'doctor'
                           ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg transform scale-105'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
                       }`}
                     >
                       <Stethoscope className="w-5 h-5" />
@@ -212,68 +212,68 @@ function RegisterForm() {
                     
                     {/* Name */}
                     <div className="group">
-                      <label className="block text-sm font-medium text-gray-300 mb-2 group-hover:text-purple-400 transition-colors">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-hover:text-purple-600 transition-colors">
                         Full Name 🏷️
                       </label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-colors z-10" />
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 group-hover:text-purple-600 transition-colors z-10" />
                         <input
                           name="name"
                           type="text"
                           required
                           value={formData.name}
                           onChange={handleChange}
-                          className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                          className="w-full pl-10 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                           placeholder="Enter your full name"
                         />
-                        {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
+                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                       </div>
                     </div>
 
                     {/* Email */}
                     <div className="group">
-                      <label className="block text-sm font-medium text-gray-300 mb-2 group-hover:text-blue-400 transition-colors">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-hover:text-blue-600 transition-colors">
                         Email Address ✉️
                       </label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-hover:text-blue-400 transition-colors z-10" />
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 group-hover:text-blue-600 transition-colors z-10" />
                         <input
                           name="email"
                           type="email"
                           required
                           value={formData.email}
                           onChange={handleChange}
-                          className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                          className="w-full pl-10 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                           placeholder="your.email@medimate.com"
                         />
-                        {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                       </div>
                     </div>
 
                     {/* Phone */}
                     <div className="group">
-                      <label className="block text-sm font-medium text-gray-300 mb-2 group-hover:text-green-400 transition-colors">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-hover:text-green-600 transition-colors">
                         Phone Number 📞
                       </label>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-hover:text-green-400 transition-colors z-10" />
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 group-hover:text-green-600 transition-colors z-10" />
                         <input
                           name="phone"
                           type="tel"
                           required
                           value={formData.phone}
                           onChange={handleChange}
-                          className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                          className="w-full pl-10 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                           placeholder="Your contact number"
                         />
-                        {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
+                        {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                       </div>
                     </div>
 
                     {/* Age & Gender */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="group">
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Age 🎂
                         </label>
                         <input
@@ -282,14 +282,14 @@ function RegisterForm() {
                           required
                           value={formData.age}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                          className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                           placeholder="25"
                         />
-                        {errors.age && <p className="text-red-400 text-xs mt-1">{errors.age}</p>}
+                        {errors.age && <p className="text-red-500 text-xs mt-1">{errors.age}</p>}
                       </div>
 
                       <div className="group">
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Gender 🚻
                         </label>
                         <select
@@ -297,14 +297,14 @@ function RegisterForm() {
                           required
                           value={formData.gender}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                          className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                         >
                           <option value="">Select</option>
                           <option value="male">Male</option>
                           <option value="female">Female</option>
                           <option value="other">Other</option>
                         </select>
-                        {errors.gender && <p className="text-red-400 text-xs mt-1">{errors.gender}</p>}
+                        {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
                       </div>
                     </div>
                   </div>
@@ -318,71 +318,71 @@ function RegisterForm() {
 
                     {/* Password */}
                     <div className="group">
-                      <label className="block text-sm font-medium text-gray-300 mb-2 group-hover:text-purple-400 transition-colors">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-hover:text-purple-600 transition-colors">
                         Password 🔐
                       </label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-colors z-10" />
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 group-hover:text-purple-600 transition-colors z-10" />
                         <input
                           name="password"
                           type={showPassword ? 'text' : 'password'}
                           required
                           value={formData.password}
                           onChange={handleChange}
-                          className="w-full pl-10 pr-12 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                          className="w-full pl-10 pr-12 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                           placeholder="Your secret power"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 hover:text-purple-400 transition-colors z-10"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 hover:text-purple-600 transition-colors z-10"
                         >
                           {showPassword ? <EyeOff /> : <Eye />}
                         </button>
-                        {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                       </div>
                     </div>
 
                     {/* Confirm Password */}
                     <div className="group">
-                      <label className="block text-sm font-medium text-gray-300 mb-2 group-hover:text-pink-400 transition-colors">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-hover:text-pink-600 transition-colors">
                         Confirm Password 🔒
                       </label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-hover:text-pink-400 transition-colors z-10" />
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 group-hover:text-pink-600 transition-colors z-10" />
                         <input
                           name="confirmPassword"
                           type={showConfirmPassword ? 'text' : 'password'}
                           required
                           value={formData.confirmPassword}
                           onChange={handleChange}
-                          className="w-full pl-10 pr-12 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                          className="w-full pl-10 pr-12 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                           placeholder="Confirm your secret power"
                         />
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 hover:text-pink-400 transition-colors z-10"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 hover:text-pink-600 transition-colors z-10"
                         >
                           {showConfirmPassword ? <EyeOff /> : <Eye />}
                         </button>
-                        {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
+                        {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
                       </div>
                     </div>
 
                     {/* Address */}
                     <div className="group">
-                      <label className="block text-sm font-medium text-gray-300 mb-2 group-hover:text-teal-400 transition-colors">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 group-hover:text-teal-600 transition-colors">
                         Address 📍
                       </label>
                       <div className="relative">
-                        <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-hover:text-teal-400 transition-colors z-10" />
+                        <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-500 group-hover:text-teal-600 transition-colors z-10" />
                         <textarea
                           name="address"
                           value={formData.address}
                           onChange={handleChange}
                           rows={3}
-                          className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                          className="w-full pl-10 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                           placeholder="Your address"
                         />
                       </div>
@@ -390,15 +390,15 @@ function RegisterForm() {
 
                     {/* Doctor-specific fields */}
                     {formData.role === 'doctor' && (
-                      <div className="space-y-4 pt-4 border-t border-gray-700">
-                        <h4 className="text-md font-medium text-blue-400 flex items-center">
+                      <div className="space-y-4 pt-4 border-t border-gray-300">
+                        <h4 className="text-md font-medium text-blue-600 flex items-center">
                           <Stethoscope className="w-4 h-4 mr-2" />
                           Doctor Credentials
                         </h4>
                         
                         {/* Specialization */}
                         <div className="group">
-                          <label className="block text-sm font-medium text-gray-300 mb-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
                             Specialization 🏥
                           </label>
                           <input
@@ -406,16 +406,16 @@ function RegisterForm() {
                             type="text"
                             value={formData.specialization}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                            className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                             placeholder="e.g., Cardiology, Pediatrics"
                           />
-                          {errors.specialization && <p className="text-red-400 text-xs mt-1">{errors.specialization}</p>}
+                          {errors.specialization && <p className="text-red-500 text-xs mt-1">{errors.specialization}</p>}
                         </div>
 
                         {/* Experience & License */}
                         <div className="grid grid-cols-2 gap-4">
                           <div className="group">
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                               Experience (years) 📅
                             </label>
                             <input
@@ -423,14 +423,14 @@ function RegisterForm() {
                               type="number"
                               value={formData.experience}
                               onChange={handleChange}
-                              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                              className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                               placeholder="5"
                             />
-                            {errors.experience && <p className="text-red-400 text-xs mt-1">{errors.experience}</p>}
+                            {errors.experience && <p className="text-red-500 text-xs mt-1">{errors.experience}</p>}
                           </div>
 
                           <div className="group">
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                               License Number 📜
                             </label>
                             <input
@@ -438,10 +438,10 @@ function RegisterForm() {
                               type="text"
                               value={formData.licenseNumber}
                               onChange={handleChange}
-                              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                              className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                               placeholder="MD123456"
                             />
-                            {errors.licenseNumber && <p className="text-red-400 text-xs mt-1">{errors.licenseNumber}</p>}
+                            {errors.licenseNumber && <p className="text-red-500 text-xs mt-1">{errors.licenseNumber}</p>}
                           </div>
                         </div>
                       </div>
@@ -476,9 +476,9 @@ function RegisterForm() {
               </form>
 
               <div className="mt-8 text-center">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-600">
                   Already part of the squad?{' '}
-                  <Link href="/login" className="font-medium text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text hover:from-purple-500 hover:to-pink-500 transition-all duration-300">
+                  <Link href="/login" className="font-medium text-transparent bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text hover:from-green-700 hover:to-blue-700 transition-all duration-300">
                     Sign in here! 🎯
                   </Link>
                 </p>

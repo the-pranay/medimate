@@ -76,17 +76,17 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-white via-green-50 to-blue-50 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-100/50 via-white/80 to-blue-100/50"></div>
         
         {/* Animated Particles */}
         <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
+          {[...Array(30)].map((_, i) => (
             <div
               key={i}
-              className="absolute bg-white rounded-full opacity-10 animate-float"
+              className="absolute bg-green-300/20 rounded-full opacity-30 animate-float"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -101,10 +101,10 @@ function LoginForm() {
         
         {/* Medical Icons Background */}
         <div className="absolute inset-0 pointer-events-none">
-          <Heart className="absolute top-20 left-20 w-8 h-8 text-red-500/20 animate-pulse" />
+          <Heart className="absolute top-20 left-20 w-8 h-8 text-green-500/20 animate-pulse" />
           <Stethoscope className="absolute top-40 right-40 w-10 h-10 text-blue-500/20 animate-bounce" />
           <Activity className="absolute bottom-40 left-40 w-6 h-6 text-green-500/20 animate-pulse" />
-          <Shield className="absolute bottom-20 right-20 w-8 h-8 text-purple-500/20 animate-bounce" />
+          <Shield className="absolute bottom-20 right-20 w-8 h-8 text-blue-500/20 animate-bounce" />
         </div>
       </div>
 
@@ -114,37 +114,37 @@ function LoginForm() {
           <div className="text-center">
             <div className="flex justify-center mb-6">
               <div 
-                className="relative bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-4 rounded-full shadow-2xl transform transition-all duration-500 hover:scale-110 hover:rotate-12"
+                className="relative bg-gradient-to-r from-green-500 via-blue-500 to-green-600 p-4 rounded-full shadow-2xl transform transition-all duration-500 hover:scale-110 hover:rotate-12"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
               >
                 <Heart className={`w-8 h-8 text-white transition-all duration-300 ${isHovered ? 'animate-pulse' : ''}`} />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-lg opacity-50 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500 via-blue-500 to-green-600 rounded-full blur-lg opacity-50 animate-pulse"></div>
               </div>
             </div>
             
-            <Link href="/" className="text-5xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent hover:from-blue-500 hover:via-purple-500 hover:to-pink-500 transition-all duration-300">
+            <Link href="/" className="text-5xl font-black bg-gradient-to-r from-green-600 via-blue-600 to-green-700 bg-clip-text text-transparent hover:from-green-700 hover:via-blue-700 hover:to-green-800 transition-all duration-300">
               MediMate
             </Link>
             
-            <h2 className="mt-6 text-3xl font-extrabold text-white animate-fade-in">
+            <h2 className="mt-6 text-3xl font-extrabold text-gray-800 animate-fade-in">
               Welcome Back! 🩺
             </h2>
-            <p className="mt-2 text-lg text-gray-300 animate-fade-in-delay">
+            <p className="mt-2 text-lg text-gray-600 animate-fade-in-delay">
               Ready to save lives today? Let's get you signed in!
             </p>
           </div>
 
           {/* Glass Card with Neon Effect */}
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-            <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-gray-700/50">
+            <div className="absolute -inset-1 bg-gradient-to-r from-green-500 via-blue-500 to-green-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-green-200/50">
               
               {message && (
-                <div className="mb-6 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/50 rounded-lg p-4 backdrop-blur-sm">
+                <div className="mb-6 bg-gradient-to-r from-green-100 to-emerald-100 border border-green-300 rounded-lg p-4 backdrop-blur-sm">
                   <div className="flex items-center">
-                    <AlertCircle className="h-5 w-5 text-green-400 mr-3" />
-                    <p className="text-sm text-green-300">{message}</p>
+                    <AlertCircle className="h-5 w-5 text-green-600 mr-3" />
+                    <p className="text-sm text-green-700">{message}</p>
                   </div>
                 </div>
               )}
@@ -153,11 +153,11 @@ function LoginForm() {
                 <div className="space-y-4">
                   {/* Email Field */}
                   <div className="group">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2 group-hover:text-blue-400 transition-colors">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2 group-hover:text-green-600 transition-colors">
                       Email Address ✉️
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-hover:text-blue-400 transition-colors z-10" />
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 group-hover:text-green-600 transition-colors z-10" />
                       <input
                         id="email"
                         name="email"
@@ -166,20 +166,20 @@ function LoginForm() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                        className="w-full pl-10 pr-4 py-3 bg-white/80 border border-green-200 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                         placeholder="Enter your medical email"
                       />
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-green-100/20 via-blue-100/20 to-green-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     </div>
                   </div>
 
                   {/* Password Field */}
                   <div className="group">
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2 group-hover:text-purple-400 transition-colors">
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2 group-hover:text-blue-600 transition-colors">
                       Password 🔐
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-colors z-10" />
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 group-hover:text-blue-600 transition-colors z-10" />
                       <input
                         id="password"
                         name="password"
@@ -188,17 +188,17 @@ function LoginForm() {
                         required
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-12 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-gray-800/70"
+                        className="w-full pl-10 pr-12 py-3 bg-white/80 border border-green-200 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                         placeholder="Enter your secret code"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 hover:text-purple-400 transition-colors z-10"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 hover:text-blue-600 transition-colors z-10"
                       >
                         {showPassword ? <EyeOff /> : <Eye />}
                       </button>
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-100/20 via-green-100/20 to-blue-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     </div>
                   </div>
                 </div>
@@ -211,22 +211,22 @@ function LoginForm() {
                       type="checkbox"
                       checked={formData.rememberMe}
                       onChange={handleChange}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-800"
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded bg-white"
                     />
-                    <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-300">
+                    <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-600">
                       Remember my credentials
                     </label>
                   </div>
-                  <Link href="/forgot-password" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+                  <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
                     Forgot your powers?
                   </Link>
                 </div>
 
                 {error && (
-                  <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 backdrop-blur-sm">
+                  <div className="bg-red-100 border border-red-300 rounded-lg p-4 backdrop-blur-sm">
                     <div className="flex items-center">
-                      <AlertCircle className="h-5 w-5 text-red-400 mr-3" />
-                      <p className="text-sm text-red-300">{error}</p>
+                      <AlertCircle className="h-5 w-5 text-red-600 mr-3" />
+                      <p className="text-sm text-red-700">{error}</p>
                     </div>
                   </div>
                 )}
@@ -235,7 +235,7 @@ function LoginForm() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-lg font-bold rounded-xl text-white bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-lg font-bold rounded-xl text-white bg-gradient-to-r from-green-600 via-blue-600 to-green-700 hover:from-green-700 hover:via-blue-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                     {loading ? (
@@ -246,45 +246,12 @@ function LoginForm() {
                   </span>
                   {loading ? 'Signing In...' : 'Sign In to Continue 🩺'}
                 </button>
-
-                {/* Demo Buttons */}
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormData({
-                        email: 'patient@demo.com',
-                        password: 'demo123',
-                        rememberMe: false
-                      });
-                    }}
-                    className="group relative flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 transform hover:scale-105"
-                  >
-                    <Users className="mr-2 h-4 w-4" />
-                    Patient Demo 🏥
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormData({
-                        email: 'doctor@demo.com',
-                        password: 'demo123',
-                        rememberMe: false
-                      });
-                    }}
-                    className="group relative flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105"
-                  >
-                    <Stethoscope className="mr-2 h-4 w-4" />
-                    Doctor Demo 👨‍⚕️
-                  </button>
-                </div>
               </form>
 
               <div className="mt-8 text-center">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-600">
                   New to our squad?{' '}
-                  <Link href="/register" className="font-medium text-transparent bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text hover:from-blue-500 hover:to-purple-500 transition-all duration-300">
+                  <Link href="/register" className="font-medium text-transparent bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text hover:from-green-700 hover:to-blue-700 transition-all duration-300">
                     Join the mission! 🎯
                   </Link>
                 </p>
@@ -299,8 +266,8 @@ function LoginForm() {
 
 export default function Login() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-white via-green-50 to-blue-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
     </div>}>
       <LoginForm />
     </Suspense>
