@@ -29,6 +29,41 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Filter out browser extension console spam
+              if (typeof window !== 'undefined') {
+                const originalLog = console.log;
+                const originalError = console.error;
+                
+                console.log = function(...args) {
+                  const message = args.join(' ');
+                  if (message.includes('getEmbedInfo') || 
+                      message.includes('NO OEMBED') || 
+                      message.includes('content.js') ||
+                      message.includes('Iterable')) {
+                    return; // Skip these browser extension errors
+                  }
+                  originalLog.apply(console, args);
+                };
+                
+                console.error = function(...args) {
+                  const message = args.join(' ');
+                  if (message.includes('getEmbedInfo') || 
+                      message.includes('NO OEMBED') || 
+                      message.includes('content.js') ||
+                      message.includes('Iterable')) {
+                    return; // Skip these browser extension errors
+                  }
+                  originalError.apply(console, args);
+                };
+              }
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}

@@ -24,144 +24,43 @@ export default function Messages() {
   const [selectedChat, setSelectedChat] = useState(null);
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-
-  const [conversations, setConversations] = useState([
-    {
-      id: 1,
-      doctor: {
-        name: 'Dr. Sarah Wilson',
-        specialization: 'Cardiologist',
-        avatar: null,
-        online: true
-      },
-      lastMessage: {
-        text: 'Your blood test results are normal. Continue with the prescribed medication.',
-        time: '2 hours ago',
-        sender: 'doctor'
-      },
-      unreadCount: 2,
-      messages: [
-        {
-          id: 1,
-          text: 'Hello Dr. Wilson, I have received my blood test results.',
-          time: '2025-06-25T10:30:00Z',
-          sender: 'patient'
-        },
-        {
-          id: 2,
-          text: 'Thank you for uploading the results. Let me review them.',
-          time: '2025-06-25T10:45:00Z',
-          sender: 'doctor'
-        },
-        {
-          id: 3,
-          text: 'Your blood test results are normal. Continue with the prescribed medication.',
-          time: '2025-06-25T11:00:00Z',
-          sender: 'doctor'
-        },
-        {
-          id: 4,
-          text: 'Should I continue with the same dosage?',
-          time: '2025-06-25T11:15:00Z',
-          sender: 'patient'
-        },
-        {
-          id: 5,
-          text: 'Yes, continue with the same dosage. We will monitor your progress in the next appointment.',
-          time: '2025-06-25T11:30:00Z',
-          sender: 'doctor'
-        }
-      ]
-    },
-    {
-      id: 2,
-      doctor: {
-        name: 'Dr. Michael Chen',
-        specialization: 'Dermatologist',
-        avatar: null,
-        online: false
-      },
-      lastMessage: {
-        text: 'Please apply the prescribed cream twice daily.',
-        time: '1 day ago',
-        sender: 'doctor'
-      },
-      unreadCount: 0,
-      messages: [
-        {
-          id: 1,
-          text: 'Doctor, I have some concerns about the skin condition.',
-          time: '2025-06-24T14:20:00Z',
-          sender: 'patient'
-        },
-        {
-          id: 2,
-          text: 'Please describe the symptoms you are experiencing.',
-          time: '2025-06-24T14:35:00Z',
-          sender: 'doctor'
-        },
-        {
-          id: 3,
-          text: 'The redness has increased and there is some itching.',
-          time: '2025-06-24T14:40:00Z',
-          sender: 'patient'
-        },
-        {
-          id: 4,
-          text: 'Please apply the prescribed cream twice daily and avoid direct sunlight. If symptoms persist, please schedule an appointment.',
-          time: '2025-06-24T15:00:00Z',
-          sender: 'doctor'
-        }
-      ]
-    },
-    {
-      id: 3,
-      doctor: {
-        name: 'Dr. Priya Sharma',
-        specialization: 'Pediatrician',
-        avatar: null,
-        online: true
-      },
-      lastMessage: {
-        text: 'The vaccination schedule looks good.',
-        time: '3 days ago',
-        sender: 'doctor'
-      },
-      unreadCount: 0,
-      messages: [
-        {
-          id: 1,
-          text: 'Hello Dr. Sharma, I wanted to discuss the vaccination schedule for my child.',
-          time: '2025-06-22T09:15:00Z',
-          sender: 'patient'
-        },
-        {
-          id: 2,
-          text: 'Of course! How old is your child and what vaccines are you concerned about?',
-          time: '2025-06-22T09:30:00Z',
-          sender: 'doctor'
-        },
-        {
-          id: 3,
-          text: 'My child is 2 years old. I want to make sure we are on track with all vaccinations.',
-          time: '2025-06-22T09:35:00Z',
-          sender: 'patient'
-        },
-        {
-          id: 4,
-          text: 'The vaccination schedule looks good. Please bring the vaccination card in the next appointment for review.',
-          time: '2025-06-22T09:45:00Z',
-          sender: 'doctor'
-        }
-      ]
-    }
-  ]);
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const userRole = localStorage.getItem('userRole');
     if (!userRole) {
       router.push('/login');
+      return;
     }
+
+    // Fetch conversations from database
+    const fetchConversations = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/messages/conversations');
+        if (!response.ok) {
+          throw new Error('Failed to fetch conversations');
+        }
+        
+        const data = await response.json();
+        if (data.success) {
+          setConversations(data.data || []);
+        } else {
+          throw new Error(data.error || 'Failed to fetch conversations');
+        }
+      } catch (err) {
+        console.error('Error fetching conversations:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConversations();
   }, [router]);
 
   useEffect(() => {
@@ -173,38 +72,66 @@ export default function Messages() {
     conv.doctor.specialization.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedChat) return;
 
-    const message = {
-      id: selectedChat.messages.length + 1,
-      text: newMessage.trim(),
-      time: new Date().toISOString(),
-      sender: 'patient'
-    };
-
-    const updatedConversations = conversations.map(conv =>
-      conv.id === selectedChat.id
-        ? {
-            ...conv,
-            messages: [...conv.messages, message],
-            lastMessage: {
-              text: message.text,
-              time: 'Just now',
-              sender: 'patient'
-            }
-          }
-        : conv
-    );
-
-    setConversations(updatedConversations);
-    
-    // Update selected chat
-    const updatedSelectedChat = updatedConversations.find(conv => conv.id === selectedChat.id);
-    setSelectedChat(updatedSelectedChat);
-    
+    const messageText = newMessage.trim();
     setNewMessage('');
+
+    try {
+      const response = await fetch('/api/messages/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          conversationId: selectedChat.id,
+          message: messageText,
+          sender: 'patient'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        // Update local state with the new message
+        const message = {
+          id: data.data.id,
+          text: messageText,
+          time: new Date().toISOString(),
+          sender: 'patient'
+        };
+
+        const updatedConversations = conversations.map(conv =>
+          conv.id === selectedChat.id
+            ? {
+                ...conv,
+                messages: [...conv.messages, message],
+                lastMessage: {
+                  text: message.text,
+                  time: 'Just now',
+                  sender: 'patient'
+                }
+              }
+            : conv
+        );
+
+        setConversations(updatedConversations);
+        
+        // Update selected chat with the new message
+        setSelectedChat(prev => ({
+          ...prev,
+          messages: [...prev.messages, message]
+        }));
+      }
+    } catch (err) {
+      console.error('Error sending message:', err);
+      setNewMessage(messageText); // Restore the message if sending failed
+    }
   };
 
   const formatTime = (timeString) => {
@@ -261,7 +188,16 @@ export default function Messages() {
 
           {/* Conversations */}
           <div className="flex-1 overflow-y-auto">
-            {filteredConversations.length > 0 ? (
+            {loading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : error ? (
+              <div className="p-4 text-center text-red-500">
+                <p className="text-sm">Error loading conversations</p>
+                <p className="text-xs mt-1">{error}</p>
+              </div>
+            ) : filteredConversations.length > 0 ? (
               filteredConversations.map((conversation) => (
                 <div
                   key={conversation.id}

@@ -105,6 +105,7 @@ export const AuthProvider = ({ children }) => {
           const user = localStorage.getItem('user');
 
           if (token && user) {
+            console.log('🔄 AuthContext: Loading user from localStorage');
             dispatch({
               type: AUTH_ACTIONS.LOAD_USER,
               payload: {
@@ -113,6 +114,7 @@ export const AuthProvider = ({ children }) => {
               },
             });
           } else {
+            console.log('🔄 AuthContext: No user in localStorage, logging out');
             dispatch({ type: AUTH_ACTIONS.LOGOUT });
           }
         } else {
@@ -175,6 +177,8 @@ export const AuthProvider = ({ children }) => {
       
       if (response.success) {
         const { user, token } = response.data;
+        
+        console.log('🎉 Registration successful, storing user:', user.role);
         
         // Store in localStorage
         if (typeof window !== 'undefined') {

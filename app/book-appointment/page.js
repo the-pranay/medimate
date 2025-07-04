@@ -25,56 +25,31 @@ export default function BookAppointment() {
   const [appointmentType, setAppointmentType] = useState('');
   const [notes, setNotes] = useState('');
 
-  const [doctors] = useState([
-    {
-      id: 1,
-      name: 'Dr. Sarah Wilson',
-      specialization: 'Cardiologist',
-      experience: 8,
-      rating: 4.8,
-      reviews: 124,
-      location: 'Mumbai Central Hospital',
-      image: '/api/placeholder/80/80',
-      availability: 'Available today',
-      consultationFee: 800
-    },
-    {
-      id: 2,
-      name: 'Dr. Michael Chen',
-      specialization: 'Dermatologist',
-      experience: 6,
-      rating: 4.7,
-      reviews: 98,
-      location: 'Skin Care Clinic',
-      image: '/api/placeholder/80/80',
-      availability: 'Available tomorrow',
-      consultationFee: 600
-    },
-    {
-      id: 3,
-      name: 'Dr. Priya Sharma',
-      specialization: 'Pediatrician',
-      experience: 10,
-      rating: 4.9,
-      reviews: 156,
-      location: 'Children\'s Hospital',
-      image: '/api/placeholder/80/80',
-      availability: 'Available today',
-      consultationFee: 700
-    },
-    {
-      id: 4,
-      name: 'Dr. Rajesh Kumar',
-      specialization: 'Orthopedic',
-      experience: 12,
-      rating: 4.6,
-      reviews: 89,
-      location: 'Bone & Joint Center',
-      image: '/api/placeholder/80/80',
-      availability: 'Available in 2 days',
-      consultationFee: 900
-    }
-  ]);
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch doctors from API
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await fetch('/api/appointments/doctors');
+        if (response.ok) {
+          const data = await response.json();
+          setDoctors(data.data || []);
+        } else {
+          setError('Failed to load doctors');
+        }
+      } catch (error) {
+        console.error('Error fetching doctors:', error);
+        setError('Failed to load doctors');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('');

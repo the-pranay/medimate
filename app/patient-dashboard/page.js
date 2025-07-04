@@ -25,105 +25,96 @@ import ThemedDashboard from '../components/ui/ThemedDashboard';
 
 export default function PatientDashboard() {
   const router = useRouter();
-  const [user, setUser] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '+91 9876543210',
-    age: 29,
-    gender: 'Male',
-    address: 'Mumbai, MH'
-  });
+  const [user, setUser] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      doctor: 'Dr. Sarah Wilson',
-      specialization: 'Cardiologist',
-      date: '2025-06-28',
-      time: '10:30 AM',
-      status: 'confirmed',
-      type: 'Regular Checkup'
-    },
-    {
-      id: 2,
-      doctor: 'Dr. Michael Chen',
-      specialization: 'Dermatologist',
-      date: '2025-07-02',
-      time: '2:00 PM',
-      status: 'pending',
-      type: 'Skin Consultation'
-    },
-    {
-      id: 3,
-      doctor: 'Dr. Sarah Wilson',
-      specialization: 'Cardiologist',
-      date: '2025-06-20',
-      time: '11:00 AM',
-      status: 'completed',
-      type: 'Follow-up'
-    }
-  ]);
-
-  const [reports, setReports] = useState([
-    {
-      id: 1,
-      title: 'Blood Test Report',
-      doctor: 'Dr. Sarah Wilson',
-      date: '2025-06-20',
-      type: 'Lab Report',
-      status: 'available'
-    },
-    {
-      id: 2,
-      title: 'ECG Report',
-      doctor: 'Dr. Sarah Wilson',
-      date: '2025-06-15',
-      type: 'Test Report',
-      status: 'available'
-    },
-    {
-      id: 3,
-      title: 'Prescription',
-      doctor: 'Dr. Michael Chen',
-      date: '2025-06-10',
-      type: 'Prescription',
-      status: 'available'
-    }
-  ]);
-
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      doctor: 'Dr. Sarah Wilson',
-      message: 'Your blood test results are normal. Continue with the prescribed medication.',
-      date: '2025-06-21',
-      read: false
-    },
-    {
-      id: 2,
-      doctor: 'Dr. Michael Chen',
-      message: 'Please apply the prescribed cream twice daily and avoid direct sunlight.',
-      date: '2025-06-19',
-      read: true
-    }
-  ]);
-
+  // Fetch user data and dashboard data
   useEffect(() => {
-    // Check if user is logged in
-    const userRole = localStorage.getItem('userRole');
-    if (!userRole || userRole !== 'patient') {
-      router.push('/login');
-    }
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const userRole = localStorage.getItem('userRole');
+        
+        if (!token || userRole !== 'patient') {
+          router.push('/login');
+          return;
+        }
+
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        };
+
+        // Fetch user profile
+        const userResponse = await fetch('/api/users/profile', { headers });
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUser(userData.data);
+        }
+
+        // Fetch appointments
+        const appointmentsResponse = await fetch('/api/appointments', { headers });
+        if (appointmentsResponse.ok) {
+          const appointmentsData = await appointmentsResponse.json();
+          setAppointments(appointmentsData.data || []);
+        }
+
+        // Fetch medical reports
+        const reportsResponse = await fetch('/api/medical-records/reports', { headers });
+        if (reportsResponse.ok) {
+          const reportsData = await reportsResponse.json();
+          setReports(reportsData.data || []);
+        }
+
+        // Fetch messages/conversations
+        const messagesResponse = await fetch('/api/messages/conversations', { headers });
+        if (messagesResponse.ok) {
+          const messagesData = await messagesResponse.json();
+          setMessages(messagesData.data || []);
+        }
+
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        setError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
   }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('userRole');
-    router.push('/');
+    localStorage.removeItem('token');
+    router.push('/login');
   };
+
+  // Calculate dashboard statistics
+  const upcomingAppointments = appointments.filter(apt => {
+    const appointmentDate = new Date(apt.appointmentDate);
+    const today = new Date();
+    return appointmentDate >= today && (apt.status === 'scheduled' || apt.status === 'confirmed');
+  });
+
+  const unreadMessages = messages.filter(msg => msg.unreadCount > 0);
+  const thisMonthAppointments = appointments.filter(apt => {
+    const appointmentDate = new Date(apt.appointmentDate);
+    const today = new Date();
+    return appointmentDate.getMonth() === today.getMonth() && 
+           appointmentDate.getFullYear() === today.getFullYear();
+  });
+
+  const recentReports = reports.slice(0, 3);
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'confirmed':
+      case 'scheduled':
         return 'bg-green-100 text-green-800';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
@@ -136,12 +127,32 @@ export default function PatientDashboard() {
     }
   };
 
-  const upcomingAppointments = appointments.filter(apt => 
-    new Date(apt.date) >= new Date() && apt.status !== 'cancelled'
-  );
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const recentReports = reports.slice(0, 3);
-  const unreadMessages = messages.filter(msg => !msg.read);
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ThemedDashboard role="patient">
@@ -223,7 +234,7 @@ export default function PatientDashboard() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-2xl font-bold text-orange-600">3</p>
+                <p className="text-2xl font-bold text-orange-600">{thisMonthAppointments.length}</p>
               </div>
             </div>
           </div>
@@ -250,16 +261,22 @@ export default function PatientDashboard() {
                 {upcomingAppointments.length > 0 ? (
                   <div className="space-y-4">
                     {upcomingAppointments.map((appointment) => (
-                      <div key={appointment.id} className="border border-gray-200 rounded-lg p-4">
+                      <div key={appointment._id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <h3 className="font-semibold text-gray-900">{appointment.doctor}</h3>
-                            <p className="text-sm text-gray-600">{appointment.specialization}</p>
+                            <h3 className="font-semibold text-gray-900">
+                              {appointment.doctor?.name || 'Unknown Doctor'}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {appointment.doctor?.specialization || 'General'}
+                            </p>
                             <div className="flex items-center mt-2 text-sm text-gray-500">
                               <Calendar className="h-4 w-4 mr-1" />
-                              {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
+                              {new Date(appointment.appointmentDate).toLocaleDateString()} at {appointment.appointmentTime}
                             </div>
-                            <p className="text-sm text-gray-600 mt-1">{appointment.type}</p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {appointment.reasonForVisit || appointment.type || 'Consultation'}
+                            </p>
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status)}`}>
@@ -302,15 +319,22 @@ export default function PatientDashboard() {
                 {recentReports.length > 0 ? (
                   <div className="space-y-4">
                     {recentReports.map((report) => (
-                      <div key={report.id} className="border border-gray-200 rounded-lg p-4">
+                      <div key={report._id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <h3 className="font-semibold text-gray-900">{report.title}</h3>
-                            <p className="text-sm text-gray-600">by {report.doctor}</p>
+                            <h3 className="font-semibold text-gray-900">
+                              {report.reportType || 'Medical Report'}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              by {report.doctor?.name || 'Unknown Doctor'}
+                            </p>
                             <div className="flex items-center mt-2 text-sm text-gray-500">
                               <FileText className="h-4 w-4 mr-1" />
-                              {new Date(report.date).toLocaleDateString()} • {report.type}
+                              {new Date(report.createdAt).toLocaleDateString()} • {report.reportType}
                             </div>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {report.diagnosis || report.notes || 'No details available'}
+                            </p>
                           </div>
                           <div className="flex items-center space-x-2">
                             <button className="p-2 text-gray-400 hover:text-gray-600">
@@ -344,28 +368,30 @@ export default function PatientDashboard() {
                   <User className="h-5 w-5 text-gray-400 mr-3" />
                   <div>
                     <p className="text-sm text-gray-600">Name</p>
-                    <p className="font-medium">{user.name}</p>
+                    <p className="font-medium">{user?.name || 'Not provided'}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <Phone className="h-5 w-5 text-gray-400 mr-3" />
                   <div>
                     <p className="text-sm text-gray-600">Phone</p>
-                    <p className="font-medium">{user.phone}</p>
+                    <p className="font-medium">{user?.phone || 'Not provided'}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 text-gray-400 mr-3" />
                   <div>
                     <p className="text-sm text-gray-600">Location</p>
-                    <p className="font-medium">{user.address}</p>
+                    <p className="font-medium">{user?.address || 'Not provided'}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <User className="h-5 w-5 text-gray-400 mr-3" />
                   <div>
                     <p className="text-sm text-gray-600">Age & Gender</p>
-                    <p className="font-medium">{user.age} years, {user.gender}</p>
+                    <p className="font-medium">
+                      {user?.age || 'N/A'} years, {user?.gender || 'Not specified'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -393,17 +419,26 @@ export default function PatientDashboard() {
               <div className="p-6">
                 {messages.length > 0 ? (
                   <div className="space-y-4">
-                    {messages.slice(0, 3).map((message) => (
-                      <div key={message.id} className={`p-3 rounded-lg ${!message.read ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}>
+                    {messages.slice(0, 3).map((conversation) => (
+                      <div key={conversation._id} className={`p-3 rounded-lg ${conversation.unreadCount > 0 ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}>
                         <div className="flex items-center justify-between mb-2">
-                          <p className="font-medium text-sm text-gray-900">{message.doctor}</p>
+                          <p className="font-medium text-sm text-gray-900">
+                            {conversation.participantDetails?.find(p => p.role === 'doctor')?.name || 'Doctor'}
+                          </p>
                           <span className="text-xs text-gray-500">
-                            {new Date(message.date).toLocaleDateString()}
+                            {conversation.lastMessage?.timestamp ? 
+                              new Date(conversation.lastMessage.timestamp).toLocaleDateString() : 
+                              'No messages'
+                            }
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 line-clamp-2">{message.message}</p>
-                        {!message.read && (
-                          <span className="inline-block mt-2 text-xs text-blue-600 font-medium">New</span>
+                        <p className="text-sm text-gray-600 line-clamp-2">
+                          {conversation.lastMessage?.content || 'No messages yet'}
+                        </p>
+                        {conversation.unreadCount > 0 && (
+                          <span className="inline-block mt-2 text-xs text-blue-600 font-medium">
+                            {conversation.unreadCount} new message{conversation.unreadCount > 1 ? 's' : ''}
+                          </span>
                         )}
                       </div>
                     ))}

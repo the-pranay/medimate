@@ -32,14 +32,21 @@ function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isHovered, setIsHovered] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user && !loading && !isRedirecting) {
+      console.log('🔄 Register page: Redirecting authenticated user:', user.role);
+      setIsRedirecting(true);
       const redirectPath = user.role === 'doctor' ? '/doctor-dashboard' : '/patient-dashboard';
-      router.push(redirectPath);
+      
+      // Add a small delay to prevent rapid redirects
+      setTimeout(() => {
+        router.replace(redirectPath);
+      }, 100);
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, loading, router, isRedirecting]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -92,8 +99,9 @@ function RegisterForm() {
       const result = await registerUser(formData);
       
       if (result.success) {
-        toast.success('Registration successful! Please check your email to verify your account.');
-        router.push('/login?message=Registration successful! Please sign in.');
+        toast.success('Registration successful! Welcome to MediMate!');
+        // Don't manually redirect - let the useEffect handle it based on user role
+        // The useEffect will automatically redirect to the appropriate dashboard
       } else {
         toast.error(result.message || 'Registration failed');
       }

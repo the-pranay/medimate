@@ -1,37 +1,8 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-
-// Mock appointments data (shared with other appointment routes)
-let appointments = [
-  {
-    id: '1',
-    patientId: '1',
-    doctorId: '1',
-    doctorName: 'Dr. Sarah Wilson',
-    specialization: 'Cardiologist',
-    date: '2025-01-02',
-    time: '10:00 AM',
-    type: 'Consultation',
-    status: 'confirmed',
-    notes: 'Follow-up for hypertension',
-    consultationFee: 800,
-    createdAt: '2025-01-01T00:00:00.000Z',
-  },
-  {
-    id: '2',
-    patientId: '1',
-    doctorId: '3',
-    doctorName: 'Dr. Priya Sharma',
-    specialization: 'Pediatrician',
-    date: '2025-01-05',
-    time: '2:00 PM',
-    type: 'Regular Checkup',
-    status: 'pending',
-    notes: 'Child vaccination appointment',
-    consultationFee: 700,
-    createdAt: '2025-01-01T00:00:00.000Z',
-  },
-];
+import connectDB from '../../../lib/mongodb';
+import Appointment from '../../../lib/models/Appointment';
+import User from '../../../lib/models/User';
 
 // Helper function to verify JWT token
 const verifyToken = (authorization) => {
@@ -47,6 +18,8 @@ const verifyToken = (authorization) => {
 
 export async function POST(request) {
   try {
+    await connectDB();
+    
     const authorization = request.headers.get('Authorization');
     const decoded = verifyToken(authorization);
     
@@ -60,27 +33,39 @@ export async function POST(request) {
     const appointmentData = await request.json();
     const {
       doctorId,
-      doctorName,
-      specialization,
       date,
       time,
+      reasonForVisit,
+      symptoms,
       type,
       notes,
       consultationFee,
     } = appointmentData;
 
     // Validate required fields
-    if (!doctorId || !date || !time || !type) {
+    if (!doctorId || !date || !time || !reasonForVisit) {
       return NextResponse.json(
         { success: false, message: 'Missing required appointment details' },
         { status: 400 }
       );
     }
 
+    // Check if doctor exists
+    const doctor = await User.findById(doctorId);
+    if (!doctor || doctor.role !== 'doctor') {
+      return NextResponse.json(
+        { success: false, message: 'Doctor not found' },
+        { status: 404 }
+      );
+    }
+
     // Check if slot is already booked
-    const existingAppointment = appointments.find(
-      apt => apt.doctorId === doctorId && apt.date === date && apt.time === time
-    );
+    const existingAppointment = await Appointment.findOne({
+      doctor: doctorId,
+      appointmentDate: new Date(date),
+      appointmentTime: time,
+      status: { $in: ['scheduled', 'confirmed', 'in-progress'] }
+    });
 
     if (existingAppointment) {
       return NextResponse.json(
@@ -90,22 +75,28 @@ export async function POST(request) {
     }
 
     // Create new appointment
-    const newAppointment = {
-      id: Date.now().toString(),
-      patientId: decoded.userId,
-      doctorId,
-      doctorName,
-      specialization,
-      date,
-      time,
-      type,
-      status: 'pending',
-      notes: notes || '',
+    const newAppointment = new Appointment({
+      patient: decoded.userId,
+      doctor: doctorId,
+      appointmentDate: new Date(date),
+      appointmentTime: time,
+      reasonForVisit,
+      symptoms: symptoms || [],
+      type: type || 'offline',
+      status: 'scheduled',
+      notes: {
+        patient: notes || '',
+        doctor: '',
+        admin: ''
+      },
       consultationFee: consultationFee || 0,
-      createdAt: new Date().toISOString(),
-    };
+    });
 
-    appointments.push(newAppointment);
+    await newAppointment.save();
+
+    // Populate doctor and patient info
+    await newAppointment.populate('doctor', 'name email specialization');
+    await newAppointment.populate('patient', 'name email phone');
 
     return NextResponse.json({
       success: true,
@@ -124,6 +115,8 @@ export async function POST(request) {
 
 export async function GET(request) {
   try {
+    await connectDB();
+    
     const authorization = request.headers.get('Authorization');
     const decoded = verifyToken(authorization);
     
@@ -137,30 +130,45 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const doctorId = searchParams.get('doctorId');
+    const patientId = searchParams.get('patientId');
+    const today = searchParams.get('today'); // Get today's appointments
 
-    let userAppointments = appointments;
+    let query = {};
 
     // Filter by user role
     if (decoded.role === 'patient') {
-      userAppointments = appointments.filter(apt => apt.patientId === decoded.userId);
+      query.patient = decoded.userId;
     } else if (decoded.role === 'doctor') {
-      userAppointments = appointments.filter(apt => apt.doctorId === decoded.userId);
+      query.doctor = decoded.userId;
     }
 
-    // Filter by status
+    // Additional filters
     if (status) {
-      userAppointments = userAppointments.filter(apt => apt.status === status);
+      query.status = status;
+    }
+    if (doctorId) {
+      query.doctor = doctorId;
+    }
+    if (patientId) {
+      query.patient = patientId;
+    }
+    if (today === 'true') {
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      query.appointmentDate = { $gte: startOfDay, $lte: endOfDay };
     }
 
-    // Filter by doctor
-    if (doctorId) {
-      userAppointments = userAppointments.filter(apt => apt.doctorId === doctorId);
-    }
+    const appointments = await Appointment.find(query)
+      .populate('doctor', 'name email specialization phone')
+      .populate('patient', 'name email phone age gender')
+      .sort({ appointmentDate: 1, appointmentTime: 1 });
 
     return NextResponse.json({
       success: true,
-      data: userAppointments,
-      total: userAppointments.length,
+      data: appointments,
+      total: appointments.length,
     });
 
   } catch (error) {

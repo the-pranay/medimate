@@ -27,114 +27,108 @@ import ThemedDashboard from '../components/ui/ThemedDashboard';
 
 export default function DoctorDashboard() {
   const router = useRouter();
-  const [doctor, setDoctor] = useState({
-    name: 'Dr. Sarah Wilson',
-    email: 'sarah.wilson@medimate.com',
-    phone: '+91 9876543210',
-    specialization: 'Cardiologist',
-    experience: 8,
-    licenseNumber: 'MH12345',
-    rating: 4.8,
-    totalPatients: 156
-  });
-
-  const [todayAppointments, setTodayAppointments] = useState([
-    {
-      id: 1,
-      patient: 'John Doe',
-      time: '10:30 AM',
-      type: 'Regular Checkup',
-      status: 'confirmed',
-      phone: '+91 9876543210',
-      age: 29,
-      gender: 'Male'
-    },
-    {
-      id: 2,
-      patient: 'Jane Smith',
-      time: '11:00 AM',
-      type: 'Follow-up',
-      status: 'confirmed',
-      phone: '+91 9876543211',
-      age: 34,
-      gender: 'Female'
-    },
-    {
-      id: 3,
-      patient: 'Mike Johnson',
-      time: '2:00 PM',
-      type: 'Consultation',
-      status: 'pending',
-      phone: '+91 9876543212',
-      age: 45,
-      gender: 'Male'
-    },
-    {
-      id: 4,
-      patient: 'Lisa Brown',
-      time: '3:30 PM',
-      type: 'Regular Checkup',
-      status: 'pending',
-      phone: '+91 9876543213',
-      age: 28,
-      gender: 'Female'
-    }
-  ]);
-
-  const [pendingReports, setPendingReports] = useState([
-    {
-      id: 1,
-      patient: 'John Doe',
-      type: 'Blood Test Report',
-      uploadedDate: '2025-06-25',
-      status: 'pending_review'
-    },
-    {
-      id: 2,
-      patient: 'Jane Smith',
-      type: 'ECG Report',
-      uploadedDate: '2025-06-24',
-      status: 'pending_review'
-    }
-  ]);
-
-  const [recentMessages, setRecentMessages] = useState([
-    {
-      id: 1,
-      patient: 'John Doe',
-      message: 'Doctor, I have some questions about my medication.',
-      time: '2 hours ago',
-      unread: true
-    },
-    {
-      id: 2,
-      patient: 'Jane Smith',
-      message: 'Thank you for the prescription. Feeling much better!',
-      time: '1 day ago',
-      unread: false
-    }
-  ]);
-
+  const [doctor, setDoctor] = useState(null);
+  const [todayAppointments, setTodayAppointments] = useState([]);
+  const [pendingReports, setPendingReports] = useState([]);
+  const [recentMessages, setRecentMessages] = useState([]);
   const [stats, setStats] = useState({
-    todayAppointments: 4,
-    completedToday: 1,
-    pendingReports: 2,
-    totalPatients: 156,
-    monthlyAppointments: 67,
-    rating: 4.8
+    totalPatients: 0,
+    completedAppointments: 0,
+    activeReports: 0,
+    unreadMessages: 0
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetch doctor data and dashboard data
   useEffect(() => {
-    // Check if user is logged in as doctor
-    const userRole = localStorage.getItem('userRole');
-    if (!userRole || userRole !== 'doctor') {
-      router.push('/login');
-    }
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const userRole = localStorage.getItem('userRole');
+        
+        if (!token || userRole !== 'doctor') {
+          router.push('/login');
+          return;
+        }
+
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        };
+
+        // Fetch doctor profile
+        const doctorResponse = await fetch('/api/users/profile', { headers });
+        if (doctorResponse.ok) {
+          const doctorData = await doctorResponse.json();
+          setDoctor(doctorData.data);
+        }
+
+        // Fetch today's appointments
+        const appointmentsResponse = await fetch('/api/appointments?today=true', { headers });
+        if (appointmentsResponse.ok) {
+          const appointmentsData = await appointmentsResponse.json();
+          setTodayAppointments(appointmentsData.data || []);
+        }
+
+        // Fetch all appointments for stats
+        const allAppointmentsResponse = await fetch('/api/appointments', { headers });
+        if (allAppointmentsResponse.ok) {
+          const allAppointmentsData = await allAppointmentsResponse.json();
+          const allAppointments = allAppointmentsData.data || [];
+          
+          // Calculate stats
+          const completedAppointments = allAppointments.filter(apt => apt.status === 'completed').length;
+          const uniquePatients = [...new Set(allAppointments.map(apt => apt.patient?._id))].filter(id => id).length;
+          
+          setStats(prev => ({
+            ...prev,
+            totalPatients: uniquePatients,
+            completedAppointments: completedAppointments,
+            todayAppointments: appointmentsData?.data?.length || 0
+          }));
+        }
+
+        // Fetch medical reports
+        const reportsResponse = await fetch('/api/medical-records/reports', { headers });
+        if (reportsResponse.ok) {
+          const reportsData = await reportsResponse.json();
+          const reports = reportsData.data || [];
+          setPendingReports(reports.filter(report => report.status === 'active'));
+          setStats(prev => ({
+            ...prev,
+            activeReports: reports.filter(report => report.status === 'active').length
+          }));
+        }
+
+        // Fetch messages/conversations
+        const messagesResponse = await fetch('/api/messages/conversations', { headers });
+        if (messagesResponse.ok) {
+          const messagesData = await messagesResponse.json();
+          const conversations = messagesData.data || [];
+          setRecentMessages(conversations);
+          const unreadCount = conversations.reduce((total, conv) => total + (conv.unreadCount || 0), 0);
+          setStats(prev => ({
+            ...prev,
+            unreadMessages: unreadCount
+          }));
+        }
+
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        setError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
   }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('userRole');
-    router.push('/');
+    localStorage.removeItem('token');
+    router.push('/login');
   };
 
   const handleAppointmentAction = (appointmentId, action) => {
@@ -165,6 +159,33 @@ export default function DoctorDashboard() {
   const unreadMessages = recentMessages.filter(msg => msg.unread);
   const confirmedAppointments = todayAppointments.filter(apt => apt.status === 'confirmed');
   const pendingAppointments = todayAppointments.filter(apt => apt.status === 'pending');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ThemedDashboard role="doctor">

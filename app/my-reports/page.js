@@ -20,68 +20,13 @@ import Footer from '../components/ui/Footer';
 
 export default function MyReports() {
   const router = useRouter();
-  const [reports, setReports] = useState([
-    {
-      id: 1,
-      title: 'Blood Test Report',
-      doctor: 'Dr. Sarah Wilson',
-      date: '2025-06-20',
-      type: 'Lab Report',
-      status: 'reviewed',
-      fileUrl: '#',
-      notes: 'All values are within normal range. Continue current medication.',
-      size: '1.2 MB'
-    },
-    {
-      id: 2,
-      title: 'ECG Report',
-      doctor: 'Dr. Sarah Wilson',
-      date: '2025-06-15',
-      type: 'Test Report',
-      status: 'reviewed',
-      fileUrl: '#',
-      notes: 'Heart rhythm appears normal. Regular exercise recommended.',
-      size: '856 KB'
-    },
-    {
-      id: 3,
-      title: 'Chest X-Ray',
-      doctor: 'Dr. Michael Chen',
-      date: '2025-06-10',
-      type: 'Imaging',
-      status: 'pending',
-      fileUrl: '#',
-      notes: null,
-      size: '2.4 MB'
-    },
-    {
-      id: 4,
-      title: 'Prescription',
-      doctor: 'Dr. Sarah Wilson',
-      date: '2025-06-08',
-      type: 'Prescription',
-      status: 'reviewed',
-      fileUrl: '#',
-      notes: 'Take medication as prescribed. Follow up in 2 weeks.',
-      size: '324 KB'
-    },
-    {
-      id: 5,
-      title: 'Blood Sugar Report',
-      doctor: 'Dr. Priya Sharma',
-      date: '2025-06-05',
-      type: 'Lab Report',
-      status: 'reviewed',
-      fileUrl: '#',
-      notes: 'Slightly elevated. Dietary changes recommended.',
-      size: '678 KB'
-    }
-  ]);
-
+  const [reports, setReports] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const reportTypes = ['All Types', 'Lab Report', 'Test Report', 'Imaging', 'Prescription'];
   const statusOptions = ['All Status', 'reviewed', 'pending'];
@@ -91,7 +36,35 @@ export default function MyReports() {
     const userRole = localStorage.getItem('userRole');
     if (!userRole) {
       router.push('/login');
+      return;
     }
+
+    // Fetch reports from database
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/medical-records/reports');
+        if (!response.ok) {
+          throw new Error('Failed to fetch reports');
+        }
+        
+        const data = await response.json();
+        if (data.success) {
+          setReports(data.data || []);
+        } else {
+          throw new Error(data.error || 'Failed to fetch reports');
+        }
+      } catch (err) {
+        console.error('Error fetching reports:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
   }, [router]);
 
   const getStatusColor = (status) => {
@@ -190,45 +163,77 @@ export default function MyReports() {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <FileText className="h-8 w-8 text-blue-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Reports</p>
-                <p className="text-2xl font-bold text-gray-900">{reports.length}</p>
-              </div>
-            </div>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <Eye className="h-8 w-8 text-green-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Reviewed</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {reports.filter(r => r.status === 'reviewed').length}
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <Calendar className="h-8 w-8 text-yellow-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending Review</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {reports.filter(r => r.status === 'pending').length}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
 
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center">
+              <div className="text-red-600">
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-red-800">Error loading reports</p>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Content - only show when not loading */}
+        {!loading && (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center">
+                  <FileText className="h-8 w-8 text-blue-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Total Reports</p>
+                    <p className="text-2xl font-bold text-gray-900">{reports.length}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center">
+                  <Eye className="h-8 w-8 text-green-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Reviewed</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {reports.filter(r => r.status === 'reviewed').length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center">
+                  <Calendar className="h-8 w-8 text-yellow-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Pending Review</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {reports.filter(r => r.status === 'pending').length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Filters and Reports - only show when not loading */}
+        {!loading && (
+          <div>
+            {/* Filters */}
+            <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -366,6 +371,8 @@ export default function MyReports() {
             <li>• Reports will be reviewed by your assigned doctor</li>
           </ul>
         </div>
+        </div>
+        )}
       </div>
     </div>
     

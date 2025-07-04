@@ -1,54 +1,8 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-
-// Mock medical reports data
-let medicalReports = [
-  {
-    id: '1',
-    patientId: '1',
-    title: 'Blood Test Report',
-    type: 'Lab Report',
-    doctor: 'Dr. Sarah Wilson',
-    date: '2024-12-15',
-    category: 'Blood Test',
-    status: 'completed',
-    description: 'Complete blood count and lipid profile',
-    fileUrl: '/mock-reports/blood-test-1.pdf',
-    findings: ['Cholesterol: 180 mg/dL (Normal)', 'Hemoglobin: 14.2 g/dL (Normal)', 'Blood Sugar: 95 mg/dL (Normal)'],
-    recommendations: ['Continue current diet', 'Regular exercise recommended'],
-    createdAt: '2024-12-15T10:30:00.000Z',
-  },
-  {
-    id: '2',
-    patientId: '1',
-    title: 'Chest X-Ray Report',
-    type: 'Imaging',
-    doctor: 'Dr. Michael Chen',
-    date: '2024-12-10',
-    category: 'X-Ray',
-    status: 'completed',
-    description: 'Chest X-ray examination for respiratory assessment',
-    fileUrl: '/mock-reports/chest-xray-1.pdf',
-    findings: ['Clear lung fields', 'Normal heart size', 'No abnormal shadows'],
-    recommendations: ['No immediate action required', 'Follow-up in 6 months'],
-    createdAt: '2024-12-10T14:20:00.000Z',
-  },
-  {
-    id: '3',
-    patientId: '1',
-    title: 'ECG Report',
-    type: 'Cardiac Test',
-    doctor: 'Dr. Sarah Wilson',
-    date: '2024-12-05',
-    category: 'ECG',
-    status: 'completed',
-    description: 'Electrocardiogram for cardiac rhythm assessment',
-    fileUrl: '/mock-reports/ecg-1.pdf',
-    findings: ['Normal sinus rhythm', 'Rate: 72 bpm', 'No ST changes'],
-    recommendations: ['Continue cardiac medications', 'Regular monitoring'],
-    createdAt: '2024-12-05T09:15:00.000Z',
-  },
-];
+import connectDB from '../../../../lib/mongodb';
+import MedicalReport from '../../../../lib/models/MedicalReport';
+import User from '../../../../lib/models/User';
 
 // Helper function to verify JWT token
 const verifyToken = (authorization) => {
@@ -62,8 +16,11 @@ const verifyToken = (authorization) => {
   }
 };
 
+// GET medical reports
 export async function GET(request) {
   try {
+    await connectDB();
+    
     const authorization = request.headers.get('Authorization');
     const decoded = verifyToken(authorization);
     
@@ -75,49 +32,44 @@ export async function GET(request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
-    const doctor = searchParams.get('doctor');
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
+    const patientId = searchParams.get('patientId');
+    const doctorId = searchParams.get('doctorId');
+    const status = searchParams.get('status');
+    const reportType = searchParams.get('type');
 
-    let userReports = medicalReports;
+    let query = {};
 
-    // Filter by user role and ID
+    // Filter by user role
     if (decoded.role === 'patient') {
-      userReports = medicalReports.filter(report => report.patientId === decoded.userId);
+      query.patient = decoded.userId;
     } else if (decoded.role === 'doctor') {
-      userReports = medicalReports.filter(report => report.doctor.includes(decoded.userId));
+      query.doctor = decoded.userId;
     }
 
-    // Apply filters
-    if (category) {
-      userReports = userReports.filter(report => 
-        report.category.toLowerCase().includes(category.toLowerCase())
-      );
+    // Additional filters
+    if (patientId) {
+      query.patient = patientId;
+    }
+    if (doctorId) {
+      query.doctor = doctorId;
+    }
+    if (status) {
+      query.status = status;
+    }
+    if (reportType) {
+      query.reportType = reportType;
     }
 
-    if (doctor) {
-      userReports = userReports.filter(report => 
-        report.doctor.toLowerCase().includes(doctor.toLowerCase())
-      );
-    }
-
-    if (startDate) {
-      userReports = userReports.filter(report => 
-        new Date(report.date) >= new Date(startDate)
-      );
-    }
-
-    if (endDate) {
-      userReports = userReports.filter(report => 
-        new Date(report.date) <= new Date(endDate)
-      );
-    }
+    const reports = await MedicalReport.find(query)
+      .populate('patient', 'name email phone')
+      .populate('doctor', 'name email specialization')
+      .populate('appointment', 'appointmentDate appointmentTime')
+      .sort({ createdAt: -1 });
 
     return NextResponse.json({
       success: true,
-      data: userReports,
-      total: userReports.length,
+      data: reports,
+      total: reports.length,
     });
 
   } catch (error) {
@@ -129,8 +81,11 @@ export async function GET(request) {
   }
 }
 
+// POST create medical report
 export async function POST(request) {
   try {
+    await connectDB();
+    
     const authorization = request.headers.get('Authorization');
     const decoded = verifyToken(authorization);
     
@@ -141,53 +96,78 @@ export async function POST(request) {
       );
     }
 
-    const formData = await request.formData();
-    const title = formData.get('title');
-    const type = formData.get('type');
-    const category = formData.get('category');
-    const description = formData.get('description');
-    const doctor = formData.get('doctor') || 'Self-uploaded';
-    const file = formData.get('file');
+    // Only doctors can create reports
+    if (decoded.role !== 'doctor') {
+      return NextResponse.json(
+        { success: false, message: 'Only doctors can create medical reports' },
+        { status: 403 }
+      );
+    }
 
-    if (!title || !type || !category) {
+    const reportData = await request.json();
+    const {
+      patientId,
+      appointmentId,
+      reportType,
+      diagnosis,
+      symptoms,
+      prescription,
+      testResults,
+      recommendations,
+      followUpDate,
+      notes
+    } = reportData;
+
+    // Validate required fields
+    if (!patientId || !reportType || !diagnosis) {
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // In a real application, you would:
-    // 1. Validate file type and size
-    // 2. Upload file to cloud storage (AWS S3, Cloudinary, etc.)
-    // 3. Store file metadata in database
-    // 4. Scan for sensitive data and encrypt if needed
+    // Check if patient exists
+    const patient = await User.findById(patientId);
+    if (!patient || patient.role !== 'patient') {
+      return NextResponse.json(
+        { success: false, message: 'Patient not found' },
+        { status: 404 }
+      );
+    }
 
-    const newReport = {
-      id: Date.now().toString(),
-      patientId: decoded.userId,
-      title,
-      type,
-      category,
-      description: description || '',
-      doctor,
-      date: new Date().toISOString().split('T')[0],
-      status: 'completed',
-      fileUrl: file ? `/uploads/${file.name}` : null,
-      findings: [],
-      recommendations: [],
-      createdAt: new Date().toISOString(),
-    };
+    // Create new medical report
+    const newReport = new MedicalReport({
+      patient: patientId,
+      doctor: decoded.userId,
+      appointment: appointmentId || null,
+      reportType,
+      diagnosis,
+      symptoms: symptoms || [],
+      prescription: prescription || [],
+      testResults: testResults || [],
+      recommendations: recommendations || '',
+      followUpDate: followUpDate ? new Date(followUpDate) : null,
+      notes: notes || '',
+      status: 'active'
+    });
 
-    medicalReports.push(newReport);
+    await newReport.save();
+
+    // Populate data for response
+    await newReport.populate('patient', 'name email phone');
+    await newReport.populate('doctor', 'name email specialization');
+    if (appointmentId) {
+      await newReport.populate('appointment', 'appointmentDate appointmentTime');
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'Medical report uploaded successfully',
+      message: 'Medical report created successfully',
       data: newReport,
     });
 
   } catch (error) {
-    console.error('Upload medical report error:', error);
+    console.error('Create medical report error:', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }

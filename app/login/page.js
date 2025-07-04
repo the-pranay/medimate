@@ -21,14 +21,21 @@ function LoginForm() {
   
   const [showPassword, setShowPassword] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user && !loading && !isRedirecting) {
+      console.log('🔄 Login page: Redirecting authenticated user:', user.role);
+      setIsRedirecting(true);
       const redirectPath = user.role === 'doctor' ? '/doctor-dashboard' : '/patient-dashboard';
-      router.push(redirectPath);
+      
+      // Add a small delay to prevent rapid redirects
+      setTimeout(() => {
+        router.replace(redirectPath);
+      }, 100);
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, loading, router, isRedirecting]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
