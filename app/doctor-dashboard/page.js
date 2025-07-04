@@ -215,7 +215,7 @@ export default function DoctorDashboard() {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-                Good morning, {doctor.name.split(' ')[1]}! 👨‍⚕️
+                Good morning, {doctor?.name?.split(' ')[1] || doctor?.name || 'Doctor'}! 👨‍⚕️
               </h1>
               <p className="text-gray-600 mt-2">Your patients depend on your expertise</p>
             </div>
@@ -402,11 +402,11 @@ export default function DoctorDashboard() {
                 <div className="h-16 w-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
                   <User className="h-8 w-8 text-white" />
                 </div>
-                <h4 className="font-semibold text-gray-900">{doctor.name}</h4>
-                <p className="text-sm text-gray-600">{doctor.specialization}</p>
+                <h4 className="font-semibold text-gray-900">{doctor?.name || 'Doctor'}</h4>
+                <p className="text-sm text-gray-600">{doctor?.specialization || 'Specialist'}</p>
                 <div className="flex items-center justify-center mt-2">
                   <Award className="h-4 w-4 text-yellow-400 mr-1" />
-                  <span className="text-sm font-medium">{doctor.rating}</span>
+                  <span className="text-sm font-medium">{doctor?.rating || '0'}</span>
                 </div>
               </div>
               <div className="space-y-2 text-sm">

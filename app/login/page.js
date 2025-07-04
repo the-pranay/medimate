@@ -26,9 +26,9 @@ function LoginForm() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user && !loading && !isRedirecting) {
-      console.log('🔄 Login page: Redirecting authenticated user:', user.role);
+      console.log('🔄 Login page: Redirecting authenticated user:', user?.role || 'unknown');
       setIsRedirecting(true);
-      const redirectPath = user.role === 'doctor' ? '/doctor-dashboard' : '/patient-dashboard';
+      const redirectPath = user?.role === 'doctor' ? '/doctor-dashboard' : '/patient-dashboard';
       
       // Add a small delay to prevent rapid redirects
       setTimeout(() => {
@@ -69,7 +69,7 @@ function LoginForm() {
         toast.success('Login successful!');
         
         // Redirect based on user role
-        const redirectPath = result.data.user.role === 'doctor' 
+        const redirectPath = result.data.user?.role === 'doctor' 
           ? '/doctor-dashboard' 
           : '/patient-dashboard';
         router.push(redirectPath);

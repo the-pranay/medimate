@@ -97,11 +97,11 @@ export default function BookAppointment() {
   ];
 
   const filteredDoctors = doctors.filter(doctor => {
-    const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doctor.specialization.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = doctor?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doctor?.specialization?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSpecialization = selectedSpecialization === '' || 
                                  selectedSpecialization === 'All Specializations' ||
-                                 doctor.specialization === selectedSpecialization;
+                                 doctor?.specialization === selectedSpecialization;
     return matchesSearch && matchesSpecialization;
   });
 
@@ -222,12 +222,12 @@ export default function BookAppointment() {
                       <User className="h-8 w-8 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">{doctor.name}</h3>
-                      <p className="text-sm text-gray-600">{doctor.specialization}</p>
+                      <h3 className="font-semibold text-gray-900">{doctor?.name || 'Doctor'}</h3>
+                      <p className="text-sm text-gray-600">{doctor?.specialization || 'Specialist'}</p>
                       <div className="flex items-center mt-1">
                         <Star className="h-4 w-4 text-yellow-400 fill-current" />
                         <span className="text-sm text-gray-600 ml-1">
-                          {doctor.rating} ({doctor.reviews} reviews)
+                          {doctor?.rating || '0'} ({doctor?.reviews || '0'} reviews)
                         </span>
                       </div>
                       <div className="flex items-center mt-1 text-sm text-gray-500">
@@ -270,8 +270,8 @@ export default function BookAppointment() {
                 <User className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">{selectedDoctor.name}</h2>
-                <p className="text-gray-600">{selectedDoctor.specialization}</p>
+                <h2 className="text-xl font-semibold text-gray-900">{selectedDoctor?.name || 'Doctor'}</h2>
+                <p className="text-gray-600">{selectedDoctor?.specialization || 'Specialist'}</p>
               </div>
             </div>
 
@@ -381,13 +381,13 @@ export default function BookAppointment() {
                       <User className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{selectedDoctor.name}</p>
-                      <p className="text-sm text-gray-600">{selectedDoctor.specialization}</p>
+                      <p className="font-medium text-gray-900">{selectedDoctor?.name || 'Doctor'}</p>
+                      <p className="text-sm text-gray-600">{selectedDoctor?.specialization || 'Specialist'}</p>
                     </div>
                   </div>
                   <div className="flex items-center text-sm text-gray-500">
                     <MapPin className="h-4 w-4 mr-1" />
-                    {selectedDoctor.location}
+                    {selectedDoctor?.location || 'Location not specified'}
                   </div>
                 </div>
 

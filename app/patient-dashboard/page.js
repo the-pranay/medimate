@@ -182,7 +182,7 @@ export default function PatientDashboard() {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                Welcome back, {user.name.split(' ')[0]}! 🩺
+                Welcome back, {user?.name?.split(' ')[0] || 'User'}! 🩺
               </h1>
               <p className="text-gray-600 mt-2">Your health journey continues here</p>
             </div>

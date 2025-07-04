@@ -102,17 +102,33 @@ export const AuthProvider = ({ children }) => {
         // Only run on client side
         if (typeof window !== 'undefined') {
           const token = localStorage.getItem('authToken');
-          const user = localStorage.getItem('user');
+          const userStr = localStorage.getItem('user');
 
-          if (token && user) {
-            console.log('🔄 AuthContext: Loading user from localStorage');
-            dispatch({
-              type: AUTH_ACTIONS.LOAD_USER,
-              payload: {
-                token,
-                user: JSON.parse(user),
-              },
-            });
+          if (token && userStr) {
+            try {
+              const user = JSON.parse(userStr);
+              // Validate that user object has required properties
+              if (user && typeof user === 'object' && user.id) {
+                console.log('🔄 AuthContext: Loading user from localStorage');
+                dispatch({
+                  type: AUTH_ACTIONS.LOAD_USER,
+                  payload: {
+                    token,
+                    user,
+                  },
+                });
+              } else {
+                console.log('🔄 AuthContext: Invalid user data in localStorage, clearing');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                dispatch({ type: AUTH_ACTIONS.LOGOUT });
+              }
+            } catch (parseError) {
+              console.error('Error parsing user data from localStorage:', parseError);
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('user');
+              dispatch({ type: AUTH_ACTIONS.LOGOUT });
+            }
           } else {
             console.log('🔄 AuthContext: No user in localStorage, logging out');
             dispatch({ type: AUTH_ACTIONS.LOGOUT });
@@ -122,6 +138,11 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error loading user:', error);
+        // Clear potentially corrupted data
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('user');
+        }
         dispatch({ type: AUTH_ACTIONS.LOGOUT });
       }
     };
@@ -178,7 +199,7 @@ export const AuthProvider = ({ children }) => {
       if (response.success) {
         const { user, token } = response.data;
         
-        console.log('🎉 Registration successful, storing user:', user.role);
+        console.log('🎉 Registration successful, storing user:', user?.role || 'unknown');
         
         // Store in localStorage
         if (typeof window !== 'undefined') {

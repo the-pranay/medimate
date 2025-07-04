@@ -68,8 +68,8 @@ export default function Messages() {
   }, [selectedChat?.messages]);
 
   const filteredConversations = conversations.filter(conv =>
-    conv.doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conv.doctor.specialization.toLowerCase().includes(searchTerm.toLowerCase())
+    conv?.doctor?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    conv?.doctor?.specialization?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSendMessage = async (e) => {
@@ -218,9 +218,9 @@ export default function Messages() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-gray-900 truncate">
-                          {conversation.doctor.name}
+                          {conversation?.doctor?.name || 'Doctor'}
                         </h3>
-                        {conversation.unreadCount > 0 && (
+                        {conversation?.unreadCount > 0 && (
                           <span className="bg-blue-500 text-white text-xs font-medium px-2 py-1 rounded-full">
                             {conversation.unreadCount}
                           </span>
@@ -265,10 +265,10 @@ export default function Messages() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">
-                        {selectedChat.doctor.name}
+                        {selectedChat?.doctor?.name || 'Doctor'}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        {selectedChat.doctor.specialization} • {selectedChat.doctor.online ? 'Online' : 'Offline'}
+                        {selectedChat?.doctor?.specialization || 'Specialist'} • {selectedChat?.doctor?.online ? 'Online' : 'Offline'}
                       </p>
                     </div>
                   </div>
