@@ -5,29 +5,38 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { getTheme } from '../../../lib/themes';
 
 export default function ThemedDashboard({ children, role }) {
-  const { user } = useAuth();
+  const authContext = useAuth();
   const [theme, setTheme] = useState(null);
 
   useEffect(() => {
-    const userRole = user?.role || role || 'patient';
-    setTheme(getTheme(userRole));
-  }, [user, role]);
+    try {
+      // Get role from multiple sources for robustness
+      const userRole = authContext?.user?.role || role || 'patient';
+      console.log('🎨 ThemedDashboard: Setting theme for role:', userRole);
+      
+      const selectedTheme = getTheme(userRole);
+      console.log('🎨 ThemedDashboard: Theme selected:', selectedTheme);
+      
+      setTheme(selectedTheme);
+    } catch (error) {
+      console.error('🎨 ThemedDashboard: Error setting theme:', error);
+      // Fallback to default theme
+      setTheme(getTheme('patient'));
+    }
+  }, [authContext?.user, role]);
 
-  if (!theme) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  // Always render something, even if theme is not ready
+  const themeToUse = theme || getTheme('patient');
+  
+  console.log('🎨 ThemedDashboard: Rendering with theme:', themeToUse?.name);
 
   return (
     <div 
-      className={`min-h-screen bg-gradient-to-br ${theme.gradient}`}
+      className={`min-h-screen bg-gradient-to-br ${themeToUse.gradient}`}
       style={{
-        '--theme-primary': theme.primary,
-        '--theme-secondary': theme.secondary,
-        '--theme-accent': theme.accent,
+        '--theme-primary': themeToUse.primary,
+        '--theme-secondary': themeToUse.secondary,
+        '--theme-accent': themeToUse.accent,
       }}
     >
       {children}

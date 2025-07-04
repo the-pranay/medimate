@@ -36,13 +36,44 @@ export default function PatientDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const userRole = localStorage.getItem('userRole');
+        console.log('🔍 Patient Dashboard: Starting data fetch...');
         
-        if (!token || userRole !== 'patient') {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        const userRole = localStorage.getItem('userRole');
+        const userStr = localStorage.getItem('user');
+        
+        console.log('🔍 Patient Dashboard: Checking auth...', {
+          hasToken: !!token,
+          userRole: userRole,
+          hasUser: !!userStr
+        });
+        
+        // Try to get role from stored user object if userRole is not set
+        let role = userRole;
+        if (!role && userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            role = user.role;
+            console.log('🔍 Patient Dashboard: Got role from user object:', role);
+          } catch (e) {
+            console.error('🔍 Patient Dashboard: Error parsing user from localStorage:', e);
+          }
+        }
+        
+        if (!token) {
+          console.log('🔍 Patient Dashboard: No token found, redirecting to login');
           router.push('/login');
           return;
         }
+        
+        if (role && role !== 'patient') {
+          console.log('🔍 Patient Dashboard: User is not a patient, redirecting to correct dashboard');
+          const redirectPath = role === 'doctor' ? '/doctor-dashboard' : '/login';
+          router.push(redirectPath);
+          return;
+        }
+        
+        console.log('🔍 Patient Dashboard: Auth check passed, fetching data...');
 
         const headers = {
           'Authorization': `Bearer ${token}`,

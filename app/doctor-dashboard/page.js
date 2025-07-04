@@ -44,13 +44,44 @@ export default function DoctorDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const userRole = localStorage.getItem('userRole');
+        console.log('🔍 Doctor Dashboard: Starting data fetch...');
         
-        if (!token || userRole !== 'doctor') {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        const userRole = localStorage.getItem('userRole');
+        const userStr = localStorage.getItem('user');
+        
+        console.log('🔍 Doctor Dashboard: Checking auth...', {
+          hasToken: !!token,
+          userRole: userRole,
+          hasUser: !!userStr
+        });
+        
+        // Try to get role from stored user object if userRole is not set
+        let role = userRole;
+        if (!role && userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            role = user.role;
+            console.log('🔍 Doctor Dashboard: Got role from user object:', role);
+          } catch (e) {
+            console.error('🔍 Doctor Dashboard: Error parsing user from localStorage:', e);
+          }
+        }
+        
+        if (!token) {
+          console.log('🔍 Doctor Dashboard: No token found, redirecting to login');
           router.push('/login');
           return;
         }
+        
+        if (role && role !== 'doctor') {
+          console.log('🔍 Doctor Dashboard: User is not a doctor, redirecting to correct dashboard');
+          const redirectPath = role === 'patient' ? '/patient-dashboard' : '/login';
+          router.push(redirectPath);
+          return;
+        }
+        
+        console.log('🔍 Doctor Dashboard: Auth check passed, fetching data...');
 
         const headers = {
           'Authorization': `Bearer ${token}`,
@@ -58,13 +89,28 @@ export default function DoctorDashboard() {
         };
 
         // Fetch doctor profile
+        console.log('🔍 Doctor Dashboard: Fetching profile...');
         const doctorResponse = await fetch('/api/users/profile', { headers });
         if (doctorResponse.ok) {
           const doctorData = await doctorResponse.json();
-          setDoctor(doctorData.data);
+          console.log('🔍 Doctor Dashboard: Profile fetched:', doctorData.success);
+          if (doctorData.success) {
+            setDoctor(doctorData.data);
+            
+            // Double-check that this is actually a doctor
+            if (doctorData.data.role !== 'doctor') {
+              console.log('🔍 Doctor Dashboard: Profile shows user is not a doctor, redirecting');
+              const redirectPath = doctorData.data.role === 'patient' ? '/patient-dashboard' : '/login';
+              router.push(redirectPath);
+              return;
+            }
+          }
+        } else {
+          console.error('🔍 Doctor Dashboard: Profile fetch failed:', doctorResponse.status);
         }
 
         // Fetch today's appointments
+        console.log('🔍 Doctor Dashboard: Fetching appointments...');
         const appointmentsResponse = await fetch('/api/appointments?today=true', { headers });
         if (appointmentsResponse.ok) {
           const appointmentsData = await appointmentsResponse.json();
@@ -166,12 +212,20 @@ export default function DoctorDashboard() {
   const confirmedAppointments = todayAppointments.filter(apt => apt.status === 'confirmed');
   const pendingAppointments = todayAppointments.filter(apt => apt.status === 'pending');
 
+  console.log('🔍 Doctor Dashboard: Rendering dashboard', {
+    loading,
+    error,
+    doctor: doctor ? 'loaded' : 'null',
+    appointmentsCount: todayAppointments.length
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
+          <p className="text-gray-600">Loading your doctor dashboard...</p>
+          <p className="text-sm text-gray-500 mt-2">Please wait while we fetch your data</p>
         </div>
       </div>
     );
@@ -180,14 +234,30 @@ export default function DoctorDashboard() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
-            Retry
-          </button>
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.728-.833-2.498 0L4.316 15.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <p className="text-red-600 mb-4 font-semibold">{error}</p>
+          <p className="text-gray-600 mb-6 text-sm">
+            We're having trouble loading your dashboard. This might be due to a network issue or server problem.
+          </p>
+          <div className="space-x-4">
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Retry
+            </button>
+            <button 
+              onClick={() => router.push('/login')} 
+              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Back to Login
+            </button>
+          </div>
         </div>
       </div>
     );
