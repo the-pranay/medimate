@@ -111,11 +111,12 @@ export default function DoctorDashboard() {
 
         // Fetch today's appointments
         console.log('🔍 Doctor Dashboard: Fetching appointments...');
+        let validAppointments = [];
         const appointmentsResponse = await fetch('/api/appointments?today=true', { headers });
         if (appointmentsResponse.ok) {
           const appointmentsData = await appointmentsResponse.json();
           // Filter out appointments with null doctor or patient
-          const validAppointments = (appointmentsData.data || []).filter(apt => 
+          validAppointments = (appointmentsData.data || []).filter(apt => 
             apt && apt.patient && apt.doctor
           );
           setTodayAppointments(validAppointments);
