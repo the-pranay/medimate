@@ -17,18 +17,25 @@ export async function OPTIONS(request) {
 
 export async function POST(request) {
   try {
+    console.log('📝 Registration request received');
+    
     const connection = await connectDB();
     if (!connection) {
+      console.error('❌ Database connection failed');
       return NextResponse.json(
         { success: false, message: 'Database connection not available' },
         { status: 503, headers: corsHeaders }
       );
     }
 
-    const { name, email, password, phone, role, ...additionalData } = await request.json();
+    const requestData = await request.json();
+    console.log('📋 Request data:', JSON.stringify(requestData, null, 2));
+    
+    const { name, email, password, phone, role, ...additionalData } = requestData;
 
     // Validate required fields
     if (!name || !email || !password || !phone || !role) {
+      console.error('❌ Missing required fields:', { name: !!name, email: !!email, password: !!password, phone: !!phone, role: !!role });
       return NextResponse.json(
         { success: false, message: 'All required fields must be provided' },
         { status: 400, headers: corsHeaders }
@@ -38,6 +45,7 @@ export async function POST(request) {
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('❌ User already exists:', email);
       return NextResponse.json(
         { success: false, message: 'User already exists with this email' },
         { status: 400, headers: corsHeaders }
@@ -47,6 +55,7 @@ export async function POST(request) {
     // Hash password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
+    console.log('🔒 Password hashed successfully');
 
     // Create user object
     const userData = {
@@ -60,9 +69,12 @@ export async function POST(request) {
       isActive: true,
     };
 
+    console.log('👤 Creating user with data:', JSON.stringify({...userData, password: '[HIDDEN]'}, null, 2));
+
     // Create user in database
     const newUser = new User(userData);
     await newUser.save();
+    console.log('✅ User created successfully:', newUser._id);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -79,6 +91,7 @@ export async function POST(request) {
     const userResponse = newUser.toObject();
     delete userResponse.password;
 
+    console.log('🎉 Registration successful for:', email);
     return NextResponse.json({
       success: true,
       message: 'User registered successfully',
@@ -89,9 +102,10 @@ export async function POST(request) {
     }, { headers: corsHeaders });
 
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('💥 Registration error:', error);
+    console.error('Error stack:', error.stack);
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { success: false, message: 'Internal server error', error: error.message },
       { status: 500, headers: corsHeaders }
     );
   }
