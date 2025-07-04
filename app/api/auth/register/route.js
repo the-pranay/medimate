@@ -57,17 +57,24 @@ export async function POST(request) {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     console.log('🔒 Password hashed successfully');
 
-    // Create user object
+    // Create user object - filter out empty/undefined values for doctor-specific fields
     const userData = {
       name,
       email,
       password: hashedPassword,
       phone,
       role,
-      ...additionalData,
       isVerified: false,
       isActive: true,
     };
+
+    // Add additional data, filtering out empty strings and undefined values
+    Object.keys(additionalData).forEach(key => {
+      const value = additionalData[key];
+      if (value !== '' && value !== null && value !== undefined) {
+        userData[key] = value;
+      }
+    });
 
     console.log('👤 Creating user with data:', JSON.stringify({...userData, password: '[HIDDEN]'}, null, 2));
 

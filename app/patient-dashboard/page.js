@@ -22,6 +22,7 @@ import {
   Shield
 } from 'lucide-react';
 import ThemedDashboard from '../components/ui/ThemedDashboard';
+import DashboardNavbar from '../components/ui/DashboardNavbar';
 
 export default function PatientDashboard() {
   const router = useRouter();
@@ -191,6 +192,12 @@ export default function PatientDashboard() {
 
   return (
     <ThemedDashboard role="patient">
+      {/* Dashboard Navigation */}
+      <DashboardNavbar 
+        user={user} 
+        userRole="patient" 
+        onLogout={handleLogout}
+      />
       
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -312,11 +319,25 @@ export default function PatientDashboard() {
                             <p className="text-sm text-gray-600 mt-1">
                               {appointment.reasonForVisit || appointment.type || 'Consultation'}
                             </p>
+                            {appointment.consultationFee && (
+                              <p className="text-sm font-medium text-blue-600 mt-1">
+                                Fee: ₹{appointment.consultationFee}
+                              </p>
+                            )}
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status)}`}>
                               {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
                             </span>
+                            {appointment.payment && (
+                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                appointment.payment.status === 'paid' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {appointment.payment.status === 'paid' ? 'Paid' : 'Pending Payment'}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -517,7 +538,6 @@ export default function PatientDashboard() {
           </div>
         </div>
       </div>
-      
       
     </ThemedDashboard>
   );

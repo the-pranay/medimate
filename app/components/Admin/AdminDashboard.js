@@ -25,6 +25,7 @@ import {
   Zap
 } from 'lucide-react';
 import ThemedDashboard from '../ui/ThemedDashboard';
+import DashboardNavbar from '../ui/DashboardNavbar';
 
 export default function AdminDashboard() {
   const [systemStatus, setSystemStatus] = useState(null);
@@ -119,6 +120,12 @@ export default function AdminDashboard() {
 
   return (
     <ThemedDashboard role="admin">
+      {/* Dashboard Navigation */}
+      <DashboardNavbar 
+        user={{ name: 'Admin', role: 'admin' }} 
+        userRole="admin" 
+      />
+      
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 text-purple-100 animate-pulse">
@@ -404,6 +411,7 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+      
     </ThemedDashboard>
   );
 }

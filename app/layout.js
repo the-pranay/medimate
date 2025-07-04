@@ -2,8 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '../contexts/AuthContext';
-import Navbar from './components/ui/Navbar';
-import Footer from './components/ui/Footer';
+import ClientLayout from './components/ClientLayout';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -69,11 +68,9 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning={true}
       >
         <AuthProvider>
-          <Navbar />
-          <main className="min-h-screen">
+          <ClientLayout>
             {children}
-          </main>
-          <Footer />
+          </ClientLayout>
           <Toaster position="top-right" />
         </AuthProvider>
       </body>

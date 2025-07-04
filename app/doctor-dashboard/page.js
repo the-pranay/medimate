@@ -24,6 +24,7 @@ import {
   Shield
 } from 'lucide-react';
 import ThemedDashboard from '../components/ui/ThemedDashboard';
+import DashboardNavbar from '../components/ui/DashboardNavbar';
 
 export default function DoctorDashboard() {
   const router = useRouter();
@@ -184,14 +185,44 @@ export default function DoctorDashboard() {
     router.push('/login');
   };
 
-  const handleAppointmentAction = (appointmentId, action) => {
-    setTodayAppointments(prev => 
-      prev.map(apt => 
-        (apt._id || apt.id) === appointmentId 
-          ? { ...apt, status: action === 'approve' ? 'confirmed' : 'cancelled' }
-          : apt
-      )
-    );
+  const handleAppointmentAction = async (appointmentId, action) => {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      const status = action === 'approve' ? 'confirmed' : 'cancelled';
+      
+      const response = await fetch(`/api/appointments/${appointmentId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // Update local state
+          setTodayAppointments(prev => 
+            prev.map(apt => 
+              (apt._id || apt.id) === appointmentId 
+                ? { ...apt, status: status }
+                : apt
+            )
+          );
+          
+          // Show success message
+          alert(`Appointment ${status} successfully!`);
+        } else {
+          throw new Error(result.message || 'Failed to update appointment');
+        }
+      } else {
+        throw new Error('Failed to update appointment status');
+      }
+    } catch (error) {
+      console.error('Error updating appointment:', error);
+      alert('Error updating appointment: ' + error.message);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -266,6 +297,12 @@ export default function DoctorDashboard() {
 
   return (
     <ThemedDashboard role="doctor">
+      {/* Dashboard Navigation */}
+      <DashboardNavbar 
+        user={doctor} 
+        userRole="doctor" 
+        onLogout={handleLogout}
+      />
       
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -292,7 +329,7 @@ export default function DoctorDashboard() {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-                Good morning, {doctor?.name?.split(' ')[1] || doctor?.name || 'Doctor'}! 👨‍⚕️
+                Welcome, {doctor?.name?.split(' ')[1] || doctor?.name || 'Doctor'}! 👨‍⚕️
               </h1>
               <p className="text-gray-600 mt-2">Your patients depend on your expertise</p>
             </div>
@@ -604,7 +641,6 @@ export default function DoctorDashboard() {
           </div>
         </div>
       </div>
-      
       
     </ThemedDashboard>
   );

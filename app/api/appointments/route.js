@@ -90,6 +90,11 @@ export async function POST(request) {
         admin: ''
       },
       consultationFee: consultationFee || 0,
+      payment: {
+        amount: consultationFee || 0,
+        status: 'pending',
+        method: 'card'
+      }
     });
 
     await newAppointment.save();

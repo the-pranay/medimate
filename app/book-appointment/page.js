@@ -129,26 +129,144 @@ export default function BookAppointment() {
 
   const handleBookAppointment = async () => {
     const appointmentData = {
-      doctor: selectedDoctor,
+      doctorId: selectedDoctor._id,
       date: selectedDate,
       time: selectedTime,
+      reasonForVisit: appointmentType,
+      symptoms: [],
       type: appointmentType,
-      notes: notes
+      notes: notes,
+      consultationFee: selectedDoctor.consultationFee
     };
 
     try {
-      // Here you would make an API call to book the appointment
       console.log('Booking appointment:', appointmentData);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       
-      // Redirect to success page or dashboard
-      router.push('/patient-dashboard?message=Appointment booked successfully!');
+      // First, create the appointment
+      const appointmentResponse = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(appointmentData)
+      });
+
+      if (!appointmentResponse.ok) {
+        throw new Error('Failed to create appointment');
+      }
+
+      const appointmentResult = await appointmentResponse.json();
+      
+      if (!appointmentResult.success) {
+        throw new Error(appointmentResult.message || 'Failed to create appointment');
+      }
+
+      const appointmentId = appointmentResult.data._id;
+
+      // Create Razorpay order
+      const paymentOrderResponse = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          appointmentId: appointmentId,
+          amount: selectedDoctor.consultationFee,
+          doctorId: selectedDoctor._id
+        })
+      });
+
+      if (!paymentOrderResponse.ok) {
+        throw new Error('Failed to create payment order');
+      }
+
+      const paymentOrderResult = await paymentOrderResponse.json();
+      
+      if (!paymentOrderResult.success) {
+        throw new Error(paymentOrderResult.message || 'Failed to create payment order');
+      }
+
+      // Initialize Razorpay payment
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: paymentOrderResult.data.amount,
+        currency: 'INR',
+        name: 'MediMate',
+        description: `Consultation with Dr. ${selectedDoctor.name}`,
+        order_id: paymentOrderResult.data.id,
+        handler: async function (response) {
+          try {
+            // Verify payment
+            const verifyResponse = await fetch('/api/payments/verify', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                appointmentId: appointmentId
+              })
+            });
+
+            if (verifyResponse.ok) {
+              const verifyResult = await verifyResponse.json();
+              if (verifyResult.success) {
+                router.push('/patient-dashboard?message=Appointment booked and paid successfully!');
+              } else {
+                throw new Error('Payment verification failed');
+              }
+            } else {
+              throw new Error('Payment verification failed');
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            alert('Payment verification failed. Please contact support.');
+          }
+        },
+        prefill: {
+          name: 'Patient Name',
+          email: 'patient@example.com',
+          contact: '9999999999'
+        },
+        theme: {
+          color: '#3B82F6'
+        }
+      };
+
+      // Check if Razorpay is loaded
+      if (typeof window !== 'undefined' && window.Razorpay) {
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } else {
+        // Fallback: redirect to payment page or show error
+        console.error('Razorpay SDK not loaded');
+        alert('Payment gateway not available. Please try again.');
+      }
+      
     } catch (error) {
       console.error('Error booking appointment:', error);
+      alert('Error booking appointment: ' + error.message);
     }
   };
+
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center mb-8">
