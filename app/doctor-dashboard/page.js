@@ -68,14 +68,20 @@ export default function DoctorDashboard() {
         const appointmentsResponse = await fetch('/api/appointments?today=true', { headers });
         if (appointmentsResponse.ok) {
           const appointmentsData = await appointmentsResponse.json();
-          setTodayAppointments(appointmentsData.data || []);
+          // Filter out appointments with null doctor or patient
+          const validAppointments = (appointmentsData.data || []).filter(apt => 
+            apt && apt.patient && apt.doctor
+          );
+          setTodayAppointments(validAppointments);
         }
 
         // Fetch all appointments for stats
         const allAppointmentsResponse = await fetch('/api/appointments', { headers });
         if (allAppointmentsResponse.ok) {
           const allAppointmentsData = await allAppointmentsResponse.json();
-          const allAppointments = allAppointmentsData.data || [];
+          const allAppointments = (allAppointmentsData.data || []).filter(apt => 
+            apt && apt.patient && apt.doctor
+          );
           
           // Calculate stats
           const completedAppointments = allAppointments.filter(apt => apt.status === 'completed').length;
@@ -85,7 +91,7 @@ export default function DoctorDashboard() {
             ...prev,
             totalPatients: uniquePatients,
             completedAppointments: completedAppointments,
-            todayAppointments: appointmentsData?.data?.length || 0
+            todayAppointments: validAppointments?.length || 0
           }));
         }
 
@@ -134,7 +140,7 @@ export default function DoctorDashboard() {
   const handleAppointmentAction = (appointmentId, action) => {
     setTodayAppointments(prev => 
       prev.map(apt => 
-        apt.id === appointmentId 
+        (apt._id || apt.id) === appointmentId 
           ? { ...apt, status: action === 'approve' ? 'confirmed' : 'cancelled' }
           : apt
       )
@@ -292,7 +298,7 @@ export default function DoctorDashboard() {
                 {todayAppointments.length > 0 ? (
                   <div className="space-y-4">
                     {todayAppointments.map((appointment) => (
-                      <div key={appointment.id} className="border border-gray-200 rounded-lg p-4">
+                      <div key={appointment._id || appointment.id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="flex items-center space-x-3">
@@ -300,17 +306,17 @@ export default function DoctorDashboard() {
                                 <User className="h-5 w-5 text-white" />
                               </div>
                               <div>
-                                <h3 className="font-semibold text-gray-900">{appointment.patient}</h3>
-                                <p className="text-sm text-gray-600">{appointment.age} years, {appointment.gender}</p>
+                                <h3 className="font-semibold text-gray-900">{appointment.patient?.name || 'Unknown Patient'}</h3>
+                                <p className="text-sm text-gray-600">{appointment.patient?.age || 'N/A'} years, {appointment.patient?.gender || 'N/A'}</p>
                               </div>
                             </div>
                             <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500">
                               <div className="flex items-center">
                                 <Clock className="h-4 w-4 mr-1" />
-                                {appointment.time}
+                                {appointment.appointmentTime || appointment.time || 'N/A'}
                               </div>
                               <span>•</span>
-                              <span>{appointment.type}</span>
+                              <span>{appointment.type || appointment.reasonForVisit || 'General'}</span>
                             </div>
                           </div>
                           <div className="flex items-center space-x-3">
@@ -320,13 +326,13 @@ export default function DoctorDashboard() {
                             {appointment.status === 'pending' && (
                               <div className="flex space-x-2">
                                 <button
-                                  onClick={() => handleAppointmentAction(appointment.id, 'approve')}
+                                  onClick={() => handleAppointmentAction(appointment._id || appointment.id, 'approve')}
                                   className="p-1 text-green-600 hover:text-green-700"
                                 >
                                   <CheckCircle className="h-5 w-5" />
                                 </button>
                                 <button
-                                  onClick={() => handleAppointmentAction(appointment.id, 'decline')}
+                                  onClick={() => handleAppointmentAction(appointment._id || appointment.id, 'decline')}
                                   className="p-1 text-red-600 hover:text-red-700"
                                 >
                                   <XCircle className="h-5 w-5" />
@@ -412,11 +418,11 @@ export default function DoctorDashboard() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Experience</span>
-                  <span className="font-medium">{doctor.experience} years</span>
+                  <span className="font-medium">{doctor?.experience || '0'} years</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">License</span>
-                  <span className="font-medium">{doctor.licenseNumber}</span>
+                  <span className="font-medium">{doctor?.licenseNumber || 'Not provided'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Total Patients</span>

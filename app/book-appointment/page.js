@@ -96,7 +96,10 @@ export default function BookAppointment() {
     '05:00 PM', '05:30 PM'
   ];
 
-  const filteredDoctors = doctors.filter(doctor => {
+  const filteredDoctors = (doctors || []).filter(doctor => {
+    // Filter out null/undefined doctors
+    if (!doctor || typeof doctor !== 'object') return false;
+    
     const matchesSearch = doctor?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          doctor?.specialization?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSpecialization = selectedSpecialization === '' || 
@@ -232,13 +235,13 @@ export default function BookAppointment() {
                       </div>
                       <div className="flex items-center mt-1 text-sm text-gray-500">
                         <MapPin className="h-4 w-4 mr-1" />
-                        {doctor.location}
+                        {doctor?.location || 'Location not specified'}
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-semibold text-gray-900">₹{doctor.consultationFee}</p>
-                      <p className="text-sm text-green-600">{doctor.availability}</p>
-                      <p className="text-xs text-gray-500">{doctor.experience} years exp.</p>
+                      <p className="text-lg font-semibold text-gray-900">₹{doctor?.consultationFee || '0'}</p>
+                      <p className="text-sm text-green-600">{doctor?.availability || 'Available'}</p>
+                      <p className="text-xs text-gray-500">{doctor?.experience || '0'} years exp.</p>
                     </div>
                   </div>
                 </div>

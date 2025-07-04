@@ -101,14 +101,14 @@ export const AuthProvider = ({ children }) => {
       try {
         // Only run on client side
         if (typeof window !== 'undefined') {
-          const token = localStorage.getItem('authToken');
-          const userStr = localStorage.getItem('user');
+          let token = localStorage.getItem('authToken') || localStorage.getItem('token');
+          let userStr = localStorage.getItem('user');
 
           if (token && userStr) {
             try {
               const user = JSON.parse(userStr);
               // Validate that user object has required properties
-              if (user && typeof user === 'object' && user.id) {
+              if (user && typeof user === 'object' && user._id) {
                 console.log('🔄 AuthContext: Loading user from localStorage');
                 dispatch({
                   type: AUTH_ACTIONS.LOAD_USER,
@@ -120,13 +120,17 @@ export const AuthProvider = ({ children }) => {
               } else {
                 console.log('🔄 AuthContext: Invalid user data in localStorage, clearing');
                 localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
                 localStorage.removeItem('user');
+                localStorage.removeItem('userRole');
                 dispatch({ type: AUTH_ACTIONS.LOGOUT });
               }
             } catch (parseError) {
               console.error('Error parsing user data from localStorage:', parseError);
               localStorage.removeItem('authToken');
+              localStorage.removeItem('token');
               localStorage.removeItem('user');
+              localStorage.removeItem('userRole');
               dispatch({ type: AUTH_ACTIONS.LOGOUT });
             }
           } else {
@@ -141,7 +145,9 @@ export const AuthProvider = ({ children }) => {
         // Clear potentially corrupted data
         if (typeof window !== 'undefined') {
           localStorage.removeItem('authToken');
+          localStorage.removeItem('token');
           localStorage.removeItem('user');
+          localStorage.removeItem('userRole');
         }
         dispatch({ type: AUTH_ACTIONS.LOGOUT });
       }
@@ -163,7 +169,9 @@ export const AuthProvider = ({ children }) => {
         // Store in localStorage
         if (typeof window !== 'undefined') {
           localStorage.setItem('authToken', token);
+          localStorage.setItem('token', token); // For compatibility
           localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('userRole', user.role); // For compatibility
         }
 
         dispatch({
@@ -204,7 +212,9 @@ export const AuthProvider = ({ children }) => {
         // Store in localStorage
         if (typeof window !== 'undefined') {
           localStorage.setItem('authToken', token);
+          localStorage.setItem('token', token); // For compatibility
           localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('userRole', user.role); // For compatibility
         }
 
         dispatch({
@@ -240,7 +250,9 @@ export const AuthProvider = ({ children }) => {
       // Clear localStorage
       if (typeof window !== 'undefined') {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('userRole');
       }
       
       dispatch({ type: AUTH_ACTIONS.LOGOUT });

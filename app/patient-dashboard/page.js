@@ -60,7 +60,11 @@ export default function PatientDashboard() {
         const appointmentsResponse = await fetch('/api/appointments', { headers });
         if (appointmentsResponse.ok) {
           const appointmentsData = await appointmentsResponse.json();
-          setAppointments(appointmentsData.data || []);
+          // Filter out appointments with null doctor or patient
+          const validAppointments = (appointmentsData.data || []).filter(apt => 
+            apt && apt.patient && apt.doctor
+          );
+          setAppointments(validAppointments);
         }
 
         // Fetch medical reports
