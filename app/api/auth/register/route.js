@@ -17,7 +17,13 @@ export async function OPTIONS(request) {
 
 export async function POST(request) {
   try {
-    await connectDB();
+    const connection = await connectDB();
+    if (!connection) {
+      return NextResponse.json(
+        { success: false, message: 'Database connection not available' },
+        { status: 503, headers: corsHeaders }
+      );
+    }
 
     const { name, email, password, phone, role, ...additionalData } = await request.json();
 

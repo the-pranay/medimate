@@ -78,11 +78,16 @@ export async function POST(request) {
 
     // Try to connect to database first
     try {
-      await connectDB();
-      console.log('🔍 Attempting database login for:', email);
-      
-      // Find user by email in database
-      user = await User.findOne({ email });
+      const connection = await connectDB();
+      if (connection) {
+        console.log('🔍 Attempting database login for:', email);
+        
+        // Find user by email in database
+        user = await User.findOne({ email });
+      } else {
+        console.log('⚠️ Database connection not available, using fallback login for:', email);
+        usedFallback = true;
+      }
     } catch (dbError) {
       console.log('⚠️ Database connection failed, using fallback login for:', email);
       usedFallback = true;

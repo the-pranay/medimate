@@ -4,7 +4,17 @@ import connectDB from '../../../../lib/mongodb';
 export async function GET() {
   try {
     // Test database connection
-    await connectDB();
+    const connection = await connectDB();
+    if (!connection) {
+      return NextResponse.json({
+        success: false,
+        message: 'Database connection not available - environment variables not set',
+        data: {
+          connection: 'Skipped',
+          timestamp: new Date().toISOString()
+        }
+      }, { status: 503 });
+    }
     
     return NextResponse.json({
       success: true,
