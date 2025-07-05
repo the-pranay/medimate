@@ -1,9 +1,65 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import connectDB from '../../../../lib/mongodb';
-import Message from '../../../../lib/models/Message';
+import Message, { Conversation } from '../../../../lib/models/Message';
 import User from '../../../../lib/models/User';
 import mongoose from 'mongoose';
+
+// Simple conversation system using a single collection
+// For demo purposes, we'll use a simple structure
+
+const demoConversations = [
+  {
+    id: '1',
+    participants: ['patient1', 'doctor1'],
+    doctor: { name: 'Dr. John Smith', specialization: 'Cardiology', online: true },
+    lastMessage: { text: 'How are you feeling today?', time: '2 hours ago', sender: 'doctor' },
+    unreadCount: 0,
+    messages: [
+      {
+        id: '1',
+        text: 'Hello Doctor, I need help with my chest pain.',
+        time: '2024-01-01T10:00:00.000Z',
+        sender: 'patient',
+        senderName: 'John Doe',
+        read: true
+      },
+      {
+        id: '2',
+        text: 'I understand. Can you describe the pain?',
+        time: '2024-01-01T10:05:00.000Z',
+        sender: 'doctor',
+        senderName: 'Dr. John Smith',
+        read: true
+      }
+    ]
+  },
+  {
+    id: '2',
+    participants: ['patient1', 'doctor2'],
+    doctor: { name: 'Dr. Sarah Johnson', specialization: 'General Medicine', online: false },
+    lastMessage: { text: 'Your test results are ready.', time: '1 day ago', sender: 'doctor' },
+    unreadCount: 1,
+    messages: [
+      {
+        id: '3',
+        text: 'When will my test results be ready?',
+        time: '2024-01-01T08:00:00.000Z',
+        sender: 'patient',
+        senderName: 'John Doe',
+        read: true
+      },
+      {
+        id: '4',
+        text: 'Your test results are ready. Please check your reports.',
+        time: '2024-01-01T14:00:00.000Z',
+        sender: 'doctor',
+        senderName: 'Dr. Sarah Johnson',
+        read: false
+      }
+    ]
+  }
+];
 
 // Helper function to verify JWT token
 const verifyToken = (authorization) => {
@@ -32,45 +88,17 @@ export async function GET(request) {
       );
     }
 
-    // Get all conversations where user is a participant
-    const conversations = await Message.aggregate([
-      {
-        $match: {
-          participants: decoded.userId
-        }
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'participants',
-          foreignField: '_id',
-          as: 'participantDetails'
-        }
-      },
-      {
-        $addFields: {
-          lastMessage: {
-            $arrayElemAt: ['$messages', -1]
-          },
-          unreadCount: {
-            $size: {
-              $filter: {
-                input: '$messages',
-                cond: {
-                  $and: [
-                    { $ne: ['$$this.sender', new mongoose.Types.ObjectId(decoded.userId)] },
-                    { $eq: ['$$this.read', false] }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      },
-      {
-        $sort: { 'lastMessage.timestamp': -1 }
-      }
-    ]);
+    // For demo, return static conversations
+    // In production, you would query the database based on user ID
+    const conversations = demoConversations.map(conv => ({
+      ...conv,
+      // Add user-specific data
+      _id: conv.id,
+      participantDetails: [
+        { name: 'Current User', role: decoded.role },
+        { name: conv.doctor.name, role: 'doctor' }
+      ]
+    }));
 
     return NextResponse.json({
       success: true,
@@ -111,43 +139,30 @@ export async function POST(request) {
       );
     }
 
-    // Check if participant exists
-    const participant = await User.findById(participantId);
-    if (!participant) {
-      return NextResponse.json(
-        { success: false, message: 'Participant not found' },
-        { status: 404 }
-      );
-    }
-
-    // Check if conversation already exists
-    const existingConversation = await Message.findOne({
-      participants: { $all: [decoded.userId, participantId] }
-    });
-
-    if (existingConversation) {
-      return NextResponse.json({
-        success: true,
-        message: 'Conversation already exists',
-        data: existingConversation,
-      });
-    }
-
-    // Create new conversation
-    const newConversation = new Message({
+    // For demo, create a new conversation
+    const newConversation = {
+      _id: 'conv_' + Date.now(),
       participants: [decoded.userId, participantId],
       messages: initialMessage ? [{
-        sender: decoded.userId,
-        content: initialMessage,
-        timestamp: new Date(),
+        id: 'msg_' + Date.now(),
+        text: initialMessage,
+        time: new Date().toISOString(),
+        sender: decoded.role,
+        senderName: decoded.name || 'User',
         read: false
-      }] : []
-    });
-
-    await newConversation.save();
-
-    // Populate participant details
-    await newConversation.populate('participants', 'name email role specialization');
+      }] : [],
+      doctor: {
+        name: 'Dr. Demo',
+        specialization: 'General Medicine',
+        online: true
+      },
+      lastMessage: initialMessage ? {
+        text: initialMessage,
+        time: 'Just now',
+        sender: decoded.role
+      } : null,
+      unreadCount: 0
+    };
 
     return NextResponse.json({
       success: true,

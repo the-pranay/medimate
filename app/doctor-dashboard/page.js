@@ -180,8 +180,13 @@ export default function DoctorDashboard() {
   }, [router]);
 
   const handleLogout = () => {
+    // Clear all authentication data
     localStorage.removeItem('userRole');
     localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    
+    // Redirect to login page
     router.push('/login');
   };
 
@@ -329,7 +334,7 @@ export default function DoctorDashboard() {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-                Welcome, {doctor?.name?.split(' ')[1] || doctor?.name || 'Doctor'}! 👨‍⚕️
+                Welcome, Dr. {doctor?.name?.split(' ')[1] || doctor?.name || 'Doctor'}! 👨‍⚕️
               </h1>
               <p className="text-gray-600 mt-2">Your patients depend on your expertise</p>
             </div>

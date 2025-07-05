@@ -157,15 +157,17 @@ export default function DashboardNavbar({ user, userRole, onLogout }) {
               {isProfileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                   <Link
-                    href="/profile"
+                    href={userRole === 'doctor' ? '/doctor-dashboard/profile' : userRole === 'patient' ? '/patient-dashboard/profile' : '/admin-dashboard/profile'}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    onClick={() => setIsProfileMenuOpen(false)}
                   >
                     <User className="w-4 h-4" />
                     <span>Profile</span>
                   </Link>
                   <Link
-                    href="/settings"
+                    href={userRole === 'doctor' ? '/doctor-dashboard/settings' : userRole === 'patient' ? '/patient-dashboard/settings' : '/admin-dashboard/settings'}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    onClick={() => setIsProfileMenuOpen(false)}
                   >
                     <Settings className="w-4 h-4" />
                     <span>Settings</span>

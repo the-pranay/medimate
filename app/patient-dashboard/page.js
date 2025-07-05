@@ -125,8 +125,13 @@ export default function PatientDashboard() {
   }, [router]);
 
   const handleLogout = () => {
+    // Clear all authentication data
     localStorage.removeItem('userRole');
     localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    
+    // Redirect to login page
     router.push('/login');
   };
 

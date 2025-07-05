@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { User, Camera } from 'lucide-react';
 import { userAPI } from '../../../lib/api';
-import { useAuth } from '../../../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 const ProfileEdit = ({ userRole = 'patient' }) => {
-  const { user } = useAuth();
+  const [user, setUser] = useState(null);
   const [profile, setProfile] = useState({
     name: '',
     phone: '',
@@ -14,6 +14,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
     age: '',
     gender: 'other',
     bloodGroup: '',
+    profilePicture: null,
     emergencyContact: {
       name: '',
       phone: '',
@@ -29,15 +30,33 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
 
   // Load profile data
   useEffect(() => {
     const loadProfile = async () => {
       try {
         setLoading(true);
+        
+        // Get user from localStorage
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const userData = JSON.parse(userStr);
+            setUser(userData);
+          } catch (e) {
+            console.error('Error parsing user data:', e);
+          }
+        }
+        
         const response = await userAPI.getProfile();
         if (response.success) {
           setProfile(response.data);
+          // Set photo preview if profile picture exists
+          if (response.data.profilePicture) {
+            setPhotoPreview(response.data.profilePicture);
+          }
         }
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -47,10 +66,71 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
       }
     };
 
-    if (user) {
-      loadProfile();
+    loadProfile();
+  }, []);
+
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
     }
-  }, [user]);
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setPhotoUploading(true);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPhotoPreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+
+      // Upload photo
+      const formData = new FormData();
+      formData.append('profilePicture', file);
+
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      const response = await fetch('/api/users/upload-photo', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setProfile(prev => ({
+            ...prev,
+            profilePicture: result.data.profilePicture
+          }));
+          toast.success('Profile photo uploaded successfully!');
+        } else {
+          throw new Error(result.message || 'Failed to upload photo');
+        }
+      } else {
+        throw new Error('Failed to upload photo');
+      }
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      toast.error('Failed to upload photo');
+      // Reset preview on error
+      setPhotoPreview(profile.profilePicture);
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -165,6 +245,43 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Profile Photo Section */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative">
+            <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 border-4 border-white shadow-lg">
+              {photoPreview ? (
+                <img
+                  src={photoPreview}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <User className="w-12 h-12 text-gray-400" />
+                </div>
+              )}
+            </div>
+            <label className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full cursor-pointer shadow-lg transition-colors">
+              <Camera className="w-4 h-4" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+                disabled={photoUploading}
+              />
+            </label>
+            {photoUploading && (
+              <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+              </div>
+            )}
+          </div>
+          <p className="mt-2 text-sm text-gray-500">
+            Click the camera icon to upload a new photo
+          </p>
+        </div>
+
         {/* Common Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>

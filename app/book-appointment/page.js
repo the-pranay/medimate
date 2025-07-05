@@ -128,13 +128,22 @@ export default function BookAppointment() {
   };
 
   const handleBookAppointment = async () => {
+    // Map appointment type to valid enum values
+    const typeMapping = {
+      'Regular Checkup': 'offline',
+      'Follow-up': 'offline',
+      'Consultation': 'offline',
+      'Emergency': 'emergency',
+      'Second Opinion': 'offline'
+    };
+
     const appointmentData = {
       doctorId: selectedDoctor._id,
       date: selectedDate,
       time: selectedTime,
       reasonForVisit: appointmentType,
       symptoms: [],
-      type: appointmentType,
+      type: typeMapping[appointmentType] || 'offline',
       notes: notes,
       consultationFee: selectedDoctor.consultationFee
     };
