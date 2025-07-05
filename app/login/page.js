@@ -173,7 +173,7 @@ function LoginForm() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 bg-white/80 border border-green-200 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
+                        className="w-full pl-10 pr-4 py-3 bg-white/80 border border-green-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                         placeholder="Enter your medical email"
                       />
                       <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-green-100/20 via-blue-100/20 to-green-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
@@ -195,7 +195,7 @@ function LoginForm() {
                         required
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-12 py-3 bg-white/80 border border-green-200 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
+                        className="w-full pl-10 pr-12 py-3 bg-white/80 border border-green-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                         placeholder="Enter your secret code"
                       />
                       <button

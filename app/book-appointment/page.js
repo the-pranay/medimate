@@ -128,6 +128,12 @@ export default function BookAppointment() {
   };
 
   const handleBookAppointment = async () => {
+    // Validate required fields
+    if (!selectedDoctor || !selectedDate || !selectedTime || !appointmentType) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
     // Map appointment type to valid enum values
     const typeMapping = {
       'Regular Checkup': 'offline',
@@ -145,7 +151,7 @@ export default function BookAppointment() {
       symptoms: [],
       type: typeMapping[appointmentType] || 'offline',
       notes: notes,
-      consultationFee: selectedDoctor.consultationFee
+      consultationFee: selectedDoctor.consultationFee || 500
     };
 
     try {
@@ -153,6 +159,12 @@ export default function BookAppointment() {
       
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       
+      if (!token) {
+        setError('Please log in to book an appointment');
+        router.push('/login');
+        return;
+      }
+
       // First, create the appointment
       const appointmentResponse = await fetch('/api/appointments', {
         method: 'POST',
@@ -163,12 +175,12 @@ export default function BookAppointment() {
         body: JSON.stringify(appointmentData)
       });
 
-      if (!appointmentResponse.ok) {
-        throw new Error('Failed to create appointment');
-      }
-
       const appointmentResult = await appointmentResponse.json();
       
+      if (!appointmentResponse.ok) {
+        throw new Error(appointmentResult.message || `HTTP error! status: ${appointmentResponse.status}`);
+      }
+
       if (!appointmentResult.success) {
         throw new Error(appointmentResult.message || 'Failed to create appointment');
       }
@@ -331,7 +343,7 @@ export default function BookAppointment() {
                   placeholder="Search by doctor name or specialization..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 />
               </div>
               

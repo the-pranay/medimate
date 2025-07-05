@@ -7,16 +7,16 @@ import Footer from './ui/Footer';
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
   
-  // Don't show main navbar on dashboard pages
-  const isDashboardPage = pathname?.includes('-dashboard') || pathname?.includes('/admin');
+  // Only show navbar and footer on the homepage
+  const isHomePage = pathname === '/';
   
   return (
     <>
-      {!isDashboardPage && <Navbar />}
+      {isHomePage && <Navbar />}
       <main className="min-h-screen">
         {children}
       </main>
-      {!isDashboardPage && <Footer />}
+      {isHomePage && <Footer />}
     </>
   );
 }

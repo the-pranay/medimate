@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { 
   Users, 
@@ -22,7 +23,10 @@ import {
   Filter,
   Heart,
   Award,
-  Zap
+  Zap,
+  UserCheck,
+  FileSearch,
+  Cog
 } from 'lucide-react';
 import ThemedDashboard from '../ui/ThemedDashboard';
 import DashboardNavbar from '../ui/DashboardNavbar';
@@ -410,6 +414,36 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-lg shadow mt-8">
+          <div className="p-6 border-b">
+            <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Link href="/admin-users" className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
+                <UserCheck className="w-5 h-5 text-blue-600 mr-3" />
+                <span className="font-medium text-gray-900">Manage Users</span>
+              </Link>
+              <Link href="/admin-reports" className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
+                <FileSearch className="w-5 h-5 text-green-600 mr-3" />
+                <span className="font-medium text-gray-900">View Reports</span>
+              </Link>
+              <Link href="/admin-settings" className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
+                <Cog className="w-5 h-5 text-purple-600 mr-3" />
+                <span className="font-medium text-gray-900">Settings</span>
+              </Link>
+              <button
+                onClick={fetchSystemStatus}
+                className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer"
+              >
+                <RefreshCw className="w-5 h-5 text-orange-600 mr-3" />
+                <span className="font-medium text-gray-900">Refresh Status</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       
     </ThemedDashboard>
