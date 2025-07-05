@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardNavbar from '../../components/ui/DashboardNavbar';
+import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { Users, Search, Filter, Edit, Trash2, UserCheck, UserX } from 'lucide-react';
 
 export default function AdminUsers() {

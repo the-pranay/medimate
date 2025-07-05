@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardNavbar from '../../components/ui/DashboardNavbar';
+import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { Calendar, Clock, User, MapPin, Plus } from 'lucide-react';
 
 export default function PatientAppointments() {

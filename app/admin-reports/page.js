@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardNavbar from '../../components/ui/DashboardNavbar';
+import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { FileText, Download, TrendingUp, Users, Calendar, Activity } from 'lucide-react';
 
 export default function AdminReports() {

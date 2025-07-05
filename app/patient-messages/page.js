@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardNavbar from '../../components/ui/DashboardNavbar';
+import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { MessageCircle, Send, Search, User, Clock } from 'lucide-react';
 
 export default function PatientMessages() {
