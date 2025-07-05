@@ -1,4 +1,9 @@
-// Payment utility functions for handling Razorpay errors and alternative payment methods
+// Payment utility functions for handling Razorpay errors and webhooks
+
+// Payment gateway configurations
+export const PAYMENT_GATEWAYS = {
+  RAZORPAY: 'razorpay'
+};
 
 export const PAYMENT_ERROR_TYPES = {
   INTERNATIONAL_CARD: 'international_card',
@@ -37,13 +42,14 @@ export const getPaymentErrorMessage = (errorType, originalMessage = '') => {
     case PAYMENT_ERROR_TYPES.INTERNATIONAL_CARD:
       return {
         title: 'International Card Not Supported',
-        message: 'International cards are not supported by Razorpay. Please use an Indian card or alternative payment method.',
+        message: 'International cards are not supported by Razorpay. Please use Indian payment methods or contact support for assistance.',
         suggestions: [
           'Use Indian debit/credit cards (Visa, Mastercard, RuPay)',
           'Pay via UPI (Google Pay, PhonePe, Paytm)',
           'Use Net Banking from any Indian bank',
           'Pay via digital wallets (Paytm, MobiKwik)',
-          'Contact support for international payment assistance'
+          'Contact support for assistance with international payments',
+          'Consider using a friend/family member\'s Indian card'
         ]
       };
       
@@ -157,4 +163,22 @@ export const supportInfo = {
   phone: '+91-8000-XXX-XXX',
   whatsapp: '+91-8000-XXX-XXX',
   hours: 'Monday to Friday, 9 AM to 6 PM IST'
+};
+
+// Function to detect if user might be international
+export const detectInternationalUser = () => {
+  if (typeof window === 'undefined') return false;
+  
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const isIndianTimezone = timezone.includes('Asia/Kolkata') || timezone.includes('Asia/Calcutta');
+  
+  return !isIndianTimezone;
+};
+
+// Function to get recommended payment gateway
+export const getRecommendedPaymentGateway = (userPreference = null) => {
+  if (userPreference) return userPreference;
+  
+  const isInternational = detectInternationalUser();
+  return isInternational ? PAYMENT_GATEWAYS.STRIPE : PAYMENT_GATEWAYS.RAZORPAY;
 };

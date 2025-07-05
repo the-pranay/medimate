@@ -106,6 +106,18 @@ export async function POST(request) {
 
     const order = await razorpay.orders.create(options);
 
+    // Update appointment with order details for webhook tracking
+    appointment.payment = {
+      ...appointment.payment,
+      orderId: order.id,
+      amount: order.amount / 100, // Convert back to rupees
+      currency: order.currency,
+      status: 'pending',
+      createdAt: new Date()
+    };
+    
+    await appointment.save();
+
     return NextResponse.json({
       success: true,
       data: {

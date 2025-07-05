@@ -428,29 +428,29 @@ export default function PatientDashboard() {
                 <div className="flex items-center">
                   <User className="h-5 w-5 text-gray-400 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-600">Name</p>
-                    <p className="font-medium">{user?.name || 'Not provided'}</p>
+                    <p className="text-sm text-gray-800">Name</p>
+                    <p className="font-medium text-gray-800">{user?.name || 'Not provided'}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <Phone className="h-5 w-5 text-gray-400 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-600">Phone</p>
-                    <p className="font-medium">{user?.phone || 'Not provided'}</p>
+                    <p className="text-sm text-gray-800">Phone</p>
+                    <p className="font-medium text-gray-800">{user?.phone || 'Not provided'}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 text-gray-400 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-600">Location</p>
-                    <p className="font-medium">{user?.address || 'Not provided'}</p>
+                    <p className="text-sm text-gray-800">Location</p>
+                    <p className="font-medium text-gray-800">{user?.address || 'Not provided'}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <User className="h-5 w-5 text-gray-400 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-600">Age & Gender</p>
-                    <p className="font-medium">
+                    <p className="text-sm text-gray-800">Age & Gender</p>
+                    <p className="font-medium text-gray-800">
                       {user?.age || 'N/A'} years, {user?.gender || 'Not specified'}
                     </p>
                   </div>

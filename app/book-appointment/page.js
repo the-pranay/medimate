@@ -316,10 +316,43 @@ export default function BookAppointment() {
       if (typeof window !== 'undefined' && window.Razorpay) {
         const rzp = new window.Razorpay(options);
         
-        // Handle payment errors
+        // Handle payment errors - Enhanced error handling
         rzp.on('payment.failed', function (response) {
           console.error('Payment failed:', response.error);
-          handlePaymentError(response);
+          console.log('Full error response:', response);
+          
+          // Check specifically for international card errors
+          const errorDescription = response.error?.description?.toLowerCase() || '';
+          const errorReason = response.error?.reason?.toLowerCase() || '';
+          const errorCode = response.error?.code || '';
+          
+          // Enhanced detection for international card errors
+          if (errorDescription.includes('international') || 
+              errorDescription.includes('foreign') ||
+              errorReason.includes('international') ||
+              errorDescription.includes('not supported') ||
+              errorCode === 'BAD_REQUEST_ERROR' ||
+              errorDescription.includes('card not supported') ||
+              errorDescription.includes('issuer not supported')) {
+            
+            console.log('International card error detected');
+            const errorInfo = getPaymentErrorMessage('international_card');
+            setError(errorInfo);
+            setShowPaymentError(true);
+          } else {
+            // Handle other payment errors
+            console.log('Other payment error detected:', {
+              code: errorCode,
+              description: errorDescription,
+              reason: errorReason
+            });
+            handlePaymentError(response);
+          }
+        });
+        
+        // Handle modal dismissal
+        rzp.on('payment.cancel', function() {
+          console.log('Payment cancelled by user');
         });
         
         rzp.open();
@@ -484,7 +517,7 @@ export default function BookAppointment() {
               <select
                 value={selectedSpecialization}
                 onChange={(e) => setSelectedSpecialization(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 {specializations.map((spec) => (
                   <option key={spec} value={spec}>{spec}</option>
@@ -675,23 +708,23 @@ export default function BookAppointment() {
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-4">Appointment Details</h3>y-
+                  <h3 className="font-semibold text-gray-900 mb-4">Appointment Details</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-800">Date:</span>
-                      <span className="font-medium">{new Date(selectedDate).toLocaleDateString()}</span>
+                      <span className="font-medium text-gray-800">{new Date(selectedDate).toLocaleDateString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-800">Time:</span>
-                      <span className="font-medium">{selectedTime}</span>
+                      <span className="font-medium text-gray-800">{selectedTime}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-800">Type:</span>
-                      <span className="font-medium">{appointmentType}</span>
+                      <span className="font-medium text-gray-800">{appointmentType}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-800">Consultation Fee:</span>
-                      <span className="font-medium">₹{selectedDoctor.consultationFee}</span>
+                      <span className="font-medium text-gray-800">₹{selectedDoctor.consultationFee}</span>
                     </div>
                   </div>
                 </div>
@@ -732,8 +765,36 @@ export default function BookAppointment() {
                   <span className="font-medium">Wallets:</span>
                   <span>Paytm, MobiKwik, Freecharge</span>
                 </div>
-                <div className="mt-2 text-xs">
-                  <strong>Note:</strong> International cards are not supported. For international payments, please contact support.
+              </div>
+              
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-start space-x-2">
+                  <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-amber-800 mb-1">International Cards</p>
+                    <p className="text-amber-700">
+                      International cards are not supported by Razorpay. If you're using an international card, 
+                      please contact our support team for alternative payment arrangements.
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <a 
+                        href="mailto:support@medimate.com" 
+                        className="inline-flex items-center text-xs bg-amber-600 text-white px-2 py-1 rounded hover:bg-amber-700 transition-colors"
+                      >
+                        <ExternalLink className="h-3 w-3 mr-1" />
+                        Email Support
+                      </a>
+                      <a 
+                        href="https://wa.me/919876543210" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-colors"
+                      >
+                        <ExternalLink className="h-3 w-3 mr-1" />
+                        WhatsApp
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
