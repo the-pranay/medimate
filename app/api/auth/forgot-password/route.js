@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import connectDB from '../../../../lib/mongodb';
 import User from '../../../../lib/models/User';

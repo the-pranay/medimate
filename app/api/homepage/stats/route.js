@@ -35,13 +35,6 @@ export async function GET() {
       ? Math.round((completedAppointments / totalAppointments) * 100)
       : 0;
 
-    // Get recent activity
-    const recentAppointments = await Appointment.find()
-      .populate('patient', 'name')
-      .populate('doctor', 'name')
-      .sort({ createdAt: -1 })
-      .limit(5);
-
     // Get active doctors (those with appointments in last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
