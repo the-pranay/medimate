@@ -13,8 +13,11 @@ import {
   Star,
   CheckCircle,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  AlertCircle,
+  ExternalLink
 } from 'lucide-react';
+import { identifyPaymentError, getPaymentErrorMessage, razorpayConfig, supportInfo } from '../utils/paymentHelpers';
 
 export default function BookAppointment() {
   const router = useRouter();
@@ -28,6 +31,7 @@ export default function BookAppointment() {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showPaymentError, setShowPaymentError] = useState(false);
 
   // Fetch doctors from API
   useEffect(() => {
@@ -258,19 +262,31 @@ export default function BookAppointment() {
             alert('Payment verification failed. Please contact support.');
           }
         },
-        prefill: {
-          name: 'Patient Name',
-          email: 'patient@example.com',
-          contact: '9999999999'
+        modal: {
+          ondismiss: function() {
+            console.log('Payment cancelled by user');
+          },
+          ...razorpayConfig.modal
         },
-        theme: {
-          color: '#3B82F6'
-        }
+        prefill: {
+          name: user?.name || 'Patient Name',
+          email: user?.email || 'patient@example.com',
+          contact: user?.phone || '9999999999'
+        },
+        theme: razorpayConfig.theme,
+        ...razorpayConfig.config
       };
 
       // Check if Razorpay is loaded
       if (typeof window !== 'undefined' && window.Razorpay) {
         const rzp = new window.Razorpay(options);
+        
+        // Handle payment errors
+        rzp.on('payment.failed', function (response) {
+          console.error('Payment failed:', response.error);
+          handlePaymentError(response);
+        });
+        
         rzp.open();
       } else {
         // Fallback: redirect to payment page or show error
@@ -284,6 +300,26 @@ export default function BookAppointment() {
     }
   };
 
+  // Payment error handlers
+  const showInternationalCardError = () => {
+    const errorInfo = getPaymentErrorMessage('international_card');
+    setError(errorInfo);
+    setShowPaymentError(true);
+  };
+
+  const showGenericPaymentError = (message) => {
+    const errorInfo = getPaymentErrorMessage('generic_error', message);
+    setError(errorInfo);
+    setShowPaymentError(true);
+  };
+
+  const handlePaymentError = (errorResponse) => {
+    const errorType = identifyPaymentError(errorResponse);
+    const errorInfo = getPaymentErrorMessage(errorType, errorResponse?.error?.description);
+    setError(errorInfo);
+    setShowPaymentError(true);
+  };
+
   // Load Razorpay script
   useEffect(() => {
     const script = document.createElement('script');
@@ -295,6 +331,67 @@ export default function BookAppointment() {
       document.body.removeChild(script);
     };
   }, []);
+
+  // Payment Error Modal Component
+  const PaymentErrorModal = () => {
+    if (!showPaymentError) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center mb-4">
+            <AlertCircle className="w-6 h-6 text-red-600 mr-3" />
+            <h3 className="text-lg font-semibold text-red-600">{error?.title || 'Payment Error'}</h3>
+          </div>
+          
+          <p className="text-gray-700 mb-4">{error?.message}</p>
+          
+          {error?.suggestions && (
+            <div className="mb-6">
+              <h4 className="font-medium text-gray-900 mb-3">What you can do:</h4>
+              <ul className="text-sm text-gray-600 space-y-2">
+                {error.suggestions.map((suggestion, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-blue-500 mr-2 mt-1">•</span>
+                    <span>{suggestion}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <h4 className="font-medium text-gray-900 mb-2">Need Help?</h4>
+            <div className="text-sm text-gray-600 space-y-1">
+              <p>Email: <a href={`mailto:${supportInfo.email}`} className="text-blue-600 hover:underline">{supportInfo.email}</a></p>
+              <p>Phone: <span className="font-medium">{supportInfo.phone}</span></p>
+              <p>WhatsApp: <span className="font-medium">{supportInfo.whatsapp}</span></p>
+              <p className="text-xs text-gray-500 mt-2">{supportInfo.hours}</p>
+            </div>
+          </div>
+          
+          <div className="flex space-x-3">
+            <button
+              onClick={() => setShowPaymentError(false)}
+              className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Close
+            </button>
+            <button
+              onClick={() => {
+                setShowPaymentError(false);
+                // Retry payment
+                handleBookAppointment();
+              }}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center mb-8">
@@ -319,6 +416,8 @@ export default function BookAppointment() {
 
   return (
     <div className="min-h-screen">
+      {/* Payment Error Modal */}
+      <PaymentErrorModal />
       
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 pt-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -578,6 +677,32 @@ export default function BookAppointment() {
               />
             </div>
 
+            {/* Payment Information */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <h4 className="font-medium text-blue-900 mb-2">Supported Payment Methods</h4>
+              <div className="text-sm text-blue-800 space-y-1">
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">Indian Cards:</span>
+                  <span>Visa, Mastercard, RuPay, American Express</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">UPI:</span>
+                  <span>Google Pay, PhonePe, Paytm, BHIM</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">Net Banking:</span>
+                  <span>All major Indian banks</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">Wallets:</span>
+                  <span>Paytm, MobiKwik, Freecharge</span>
+                </div>
+                <div className="mt-2 text-xs">
+                  <strong>Note:</strong> International cards are not supported. For international payments, please contact support.
+                </div>
+              </div>
+            </div>
+
             {/* Payment Summary */}
             <div className="border-t pt-6">
               <div className="flex justify-between items-center mb-4">
@@ -598,9 +723,8 @@ export default function BookAppointment() {
             </p>
           </div>
         )}
+        </div>
       </div>
-    </div>
-      
     </div>
   );
 }
