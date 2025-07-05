@@ -32,6 +32,7 @@ export default function BookAppointment() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showPaymentError, setShowPaymentError] = useState(false);
+  const [user, setUser] = useState(null);
 
   // Fetch doctors from API
   useEffect(() => {
@@ -113,10 +114,22 @@ export default function BookAppointment() {
   });
 
   useEffect(() => {
-    // Check if user is logged in
+    // Check if user is logged in and fetch user data
     const userRole = localStorage.getItem('userRole');
+    const userData = localStorage.getItem('user');
+    
     if (!userRole) {
       router.push('/login');
+      return;
+    }
+    
+    // Set user data from localStorage if available
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
     }
   }, [router]);
 
@@ -136,6 +149,28 @@ export default function BookAppointment() {
     if (!selectedDoctor || !selectedDate || !selectedTime || !appointmentType) {
       setError('Please fill in all required fields');
       return;
+    }
+
+    // Check if user is logged in
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    if (!token) {
+      setError('Please log in to book an appointment');
+      router.push('/login');
+      return;
+    }
+
+    // Ensure user data is available
+    if (!user) {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        try {
+          const parsedUser = JSON.parse(userData);
+          setUser(parsedUser);
+          console.log('User data loaded:', parsedUser);
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+        }
+      }
     }
 
     // Map appointment type to valid enum values
@@ -161,14 +196,6 @@ export default function BookAppointment() {
     try {
       console.log('Booking appointment:', appointmentData);
       
-      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-      
-      if (!token) {
-        setError('Please log in to book an appointment');
-        router.push('/login');
-        return;
-      }
-
       // First, create the appointment
       const appointmentResponse = await fetch('/api/appointments', {
         method: 'POST',
@@ -222,6 +249,14 @@ export default function BookAppointment() {
         throw new Error('Payment configuration not available');
       }
 
+      // Debug user data for prefill
+      console.log('User data for payment prefill:', {
+        user: user,
+        name: user?.name || 'Patient',
+        email: user?.email || 'patient@medimate.com',
+        contact: user?.phone || user?.phoneNumber || '9999999999'
+      });
+
       // Initialize Razorpay payment
       const options = {
         key: razorpayKey,
@@ -269,9 +304,9 @@ export default function BookAppointment() {
           ...razorpayConfig.modal
         },
         prefill: {
-          name: user?.name || 'Patient Name',
-          email: user?.email || 'patient@example.com',
-          contact: user?.phone || '9999999999'
+          name: user?.name || 'Patient',
+          email: user?.email || 'patient@medimate.com',
+          contact: user?.phone || user?.phoneNumber || '9999999999'
         },
         theme: razorpayConfig.theme,
         ...razorpayConfig.config
@@ -640,22 +675,22 @@ export default function BookAppointment() {
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-4">Appointment Details</h3>
+                  <h3 className="font-semibold text-gray-900 mb-4">Appointment Details</h3>y-
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Date:</span>
+                      <span className="text-gray-800">Date:</span>
                       <span className="font-medium">{new Date(selectedDate).toLocaleDateString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Time:</span>
+                      <span className="text-gray-800">Time:</span>
                       <span className="font-medium">{selectedTime}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Type:</span>
+                      <span className="text-gray-800">Type:</span>
                       <span className="font-medium">{appointmentType}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Consultation Fee:</span>
+                      <span className="text-gray-800">Consultation Fee:</span>
                       <span className="font-medium">₹{selectedDoctor.consultationFee}</span>
                     </div>
                   </div>
