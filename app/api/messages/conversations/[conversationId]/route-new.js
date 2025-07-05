@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import connectDB from '../../../../lib/mongodb';
-import Message, { Conversation } from '../../../../lib/models/Message';
-import User from '../../../../lib/models/User';
+import connectDB from '../../../../../lib/mongodb';
+import Message, { Conversation } from '../../../../../lib/models/Message';
+import User from '../../../../../lib/models/User';
 
 // Helper function to verify JWT token
 const verifyToken = (authorization) => {
@@ -16,8 +16,8 @@ const verifyToken = (authorization) => {
   }
 };
 
-// POST send message
-export async function POST(request) {
+// GET messages in a conversation
+export async function GET(request, { params }) {
   try {
     await connectDB();
     
@@ -31,11 +31,79 @@ export async function POST(request) {
       );
     }
 
-    const { conversationId, content, messageType = 'text' } = await request.json();
+    const { conversationId } = params;
 
-    if (!conversationId || !content || !content.trim()) {
+    // Verify user is participant in conversation
+    const conversation = await Conversation.findOne({
+      _id: conversationId,
+      'participants.user': decoded.userId,
+      isActive: true
+    });
+
+    if (!conversation) {
       return NextResponse.json(
-        { success: false, message: 'Conversation ID and message content are required' },
+        { success: false, message: 'Conversation not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get messages in conversation
+    const messages = await Message.find({
+      conversation: conversationId
+    })
+    .populate('sender', 'name email role specialization')
+    .populate('recipient', 'name email role specialization')
+    .sort({ createdAt: 1 });
+
+    // Mark messages as read
+    await Message.updateMany(
+      {
+        conversation: conversationId,
+        recipient: decoded.userId,
+        isRead: false
+      },
+      {
+        isRead: true,
+        readAt: new Date()
+      }
+    );
+
+    return NextResponse.json({
+      success: true,
+      data: messages,
+      total: messages.length,
+    });
+
+  } catch (error) {
+    console.error('Get messages error:', error);
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// POST send message to conversation
+export async function POST(request, { params }) {
+  try {
+    await connectDB();
+    
+    const authorization = request.headers.get('Authorization');
+    const decoded = verifyToken(authorization);
+    
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const { conversationId } = params;
+    const { content, messageType = 'text' } = await request.json();
+
+    if (!content || !content.trim()) {
+      return NextResponse.json(
+        { success: false, message: 'Message content is required' },
         { status: 400 }
       );
     }

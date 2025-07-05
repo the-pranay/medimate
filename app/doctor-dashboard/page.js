@@ -21,7 +21,8 @@ import {
   Stethoscope,
   Activity,
   Heart,
-  Shield
+  Shield,
+  Video // Add Video icon
 } from 'lucide-react';
 import ThemedDashboard from '../components/ui/ThemedDashboard';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
@@ -452,6 +453,16 @@ export default function DoctorDashboard() {
                                 </button>
                               </div>
                             )}
+                            {appointment.status === 'confirmed' && (
+                              <button
+                                onClick={() => router.push(`/video-call?appointmentId=${appointment._id || appointment.id}`)}
+                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full text-xs font-medium inline-flex items-center"
+                                title="Start Video Call"
+                              >
+                                <Video className="h-3 w-3 mr-1" />
+                                Video Call
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -607,8 +618,15 @@ export default function DoctorDashboard() {
                   Create Prescription
                 </Link>
                 <Link 
-                  href="/patient-reports"
+                  href="/messaging"
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Patient Messages
+                </Link>
+                <Link 
+                  href="/patient-reports"
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <Eye className="h-4 w-4 mr-2" />
                   Review Reports

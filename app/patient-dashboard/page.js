@@ -19,7 +19,8 @@ import {
   Heart,
   Activity,
   TrendingUp,
-  Shield
+  Shield,
+  Video // Add Video icon
 } from 'lucide-react';
 import ThemedDashboard from '../components/ui/ThemedDashboard';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
@@ -343,6 +344,16 @@ export default function PatientDashboard() {
                                 {appointment.payment.status === 'paid' ? 'Paid' : 'Pending Payment'}
                               </span>
                             )}
+                            {appointment.status === 'confirmed' && (
+                              <button
+                                onClick={() => router.push(`/video-call?appointmentId=${appointment._id}`)}
+                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full text-xs font-medium inline-flex items-center"
+                                title="Start Video Call"
+                              >
+                                <Video className="h-3 w-3 mr-1" />
+                                Video Call
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -532,11 +543,18 @@ export default function PatientDashboard() {
                   Upload Report
                 </Link>
                 <Link 
-                  href="/messages"
+                  href="/messaging"
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Message Doctor
+                </Link>
+                <Link 
+                  href="/video-consultation"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
+                >
+                  <Video className="h-4 w-4 mr-2" />
+                  Video Consultation
                 </Link>
               </div>
             </div>

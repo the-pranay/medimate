@@ -45,7 +45,12 @@ export default function MyReports() {
         setLoading(true);
         setError(null);
         
-        const response = await fetch('/api/medical-records/reports');
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        const response = await fetch('/api/medical-records/reports', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch reports');
         }

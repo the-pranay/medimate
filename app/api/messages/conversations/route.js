@@ -5,62 +5,6 @@ import Message, { Conversation } from '../../../../lib/models/Message';
 import User from '../../../../lib/models/User';
 import mongoose from 'mongoose';
 
-// Simple conversation system using a single collection
-// For demo purposes, we'll use a simple structure
-
-const demoConversations = [
-  {
-    id: '1',
-    participants: ['patient1', 'doctor1'],
-    doctor: { name: 'Dr. John Smith', specialization: 'Cardiology', online: true },
-    lastMessage: { text: 'How are you feeling today?', time: '2 hours ago', sender: 'doctor' },
-    unreadCount: 0,
-    messages: [
-      {
-        id: '1',
-        text: 'Hello Doctor, I need help with my chest pain.',
-        time: '2024-01-01T10:00:00.000Z',
-        sender: 'patient',
-        senderName: 'John Doe',
-        read: true
-      },
-      {
-        id: '2',
-        text: 'I understand. Can you describe the pain?',
-        time: '2024-01-01T10:05:00.000Z',
-        sender: 'doctor',
-        senderName: 'Dr. John Smith',
-        read: true
-      }
-    ]
-  },
-  {
-    id: '2',
-    participants: ['patient1', 'doctor2'],
-    doctor: { name: 'Dr. Sarah Johnson', specialization: 'General Medicine', online: false },
-    lastMessage: { text: 'Your test results are ready.', time: '1 day ago', sender: 'doctor' },
-    unreadCount: 1,
-    messages: [
-      {
-        id: '3',
-        text: 'When will my test results be ready?',
-        time: '2024-01-01T08:00:00.000Z',
-        sender: 'patient',
-        senderName: 'John Doe',
-        read: true
-      },
-      {
-        id: '4',
-        text: 'Your test results are ready. Please check your reports.',
-        time: '2024-01-01T14:00:00.000Z',
-        sender: 'doctor',
-        senderName: 'Dr. Sarah Johnson',
-        read: false
-      }
-    ]
-  }
-];
-
 // Helper function to verify JWT token
 const verifyToken = (authorization) => {
   if (!authorization) return null;
@@ -88,22 +32,44 @@ export async function GET(request) {
       );
     }
 
-    // For demo, return static conversations
-    // In production, you would query the database based on user ID
-    const conversations = demoConversations.map(conv => ({
-      ...conv,
-      // Add user-specific data
-      _id: conv.id,
-      participantDetails: [
-        { name: 'Current User', role: decoded.role },
-        { name: conv.doctor.name, role: 'doctor' }
-      ]
-    }));
+    // Get all conversations where user is a participant
+    const conversations = await Conversation.find({
+      'participants.user': decoded.userId,
+      isActive: true
+    })
+    .populate('participants.user', 'name email role specialization')
+    .populate('lastMessage', 'content messageType createdAt')
+    .sort({ updatedAt: -1 });
+
+    // Get unread message counts for each conversation
+    const conversationData = await Promise.all(
+      conversations.map(async (conv) => {
+        const unreadCount = await Message.countDocuments({
+          conversation: conv._id,
+          recipient: decoded.userId,
+          isRead: false
+        });
+
+        const otherParticipant = conv.participants.find(
+          p => p.user._id.toString() !== decoded.userId
+        );
+
+        return {
+          _id: conv._id,
+          participants: conv.participants,
+          otherParticipant: otherParticipant?.user || null,
+          lastMessage: conv.lastMessage,
+          unreadCount,
+          updatedAt: conv.updatedAt,
+          createdAt: conv.createdAt
+        };
+      })
+    );
 
     return NextResponse.json({
       success: true,
-      data: conversations,
-      total: conversations.length,
+      data: conversationData,
+      total: conversationData.length,
     });
 
   } catch (error) {
@@ -139,30 +105,58 @@ export async function POST(request) {
       );
     }
 
-    // For demo, create a new conversation
-    const newConversation = {
-      _id: 'conv_' + Date.now(),
-      participants: [decoded.userId, participantId],
-      messages: initialMessage ? [{
-        id: 'msg_' + Date.now(),
-        text: initialMessage,
-        time: new Date().toISOString(),
-        sender: decoded.role,
-        senderName: decoded.name || 'User',
-        read: false
-      }] : [],
-      doctor: {
-        name: 'Dr. Demo',
-        specialization: 'General Medicine',
-        online: true
-      },
-      lastMessage: initialMessage ? {
-        text: initialMessage,
-        time: 'Just now',
-        sender: decoded.role
-      } : null,
-      unreadCount: 0
-    };
+    // Check if participant exists
+    const participant = await User.findById(participantId);
+    if (!participant) {
+      return NextResponse.json(
+        { success: false, message: 'Participant not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check if conversation already exists
+    const existingConversation = await Conversation.findOne({
+      'participants.user': { $all: [decoded.userId, participantId] },
+      isActive: true
+    });
+
+    if (existingConversation) {
+      return NextResponse.json({
+        success: true,
+        message: 'Conversation already exists',
+        data: existingConversation,
+      });
+    }
+
+    // Create new conversation
+    const newConversation = new Conversation({
+      participants: [
+        { user: decoded.userId, role: decoded.role },
+        { user: participantId, role: participant.role }
+      ],
+      isActive: true
+    });
+
+    await newConversation.save();
+
+    // Send initial message if provided
+    if (initialMessage) {
+      const message = new Message({
+        sender: decoded.userId,
+        recipient: participantId,
+        conversation: newConversation._id,
+        content: initialMessage,
+        messageType: 'text'
+      });
+
+      await message.save();
+      newConversation.lastMessage = message._id;
+      await newConversation.save();
+    }
+
+    // Populate for response
+    await newConversation.populate('participants.user', 'name email role specialization');
+    await newConversation.populate('lastMessage', 'content messageType createdAt');
 
     return NextResponse.json({
       success: true,
