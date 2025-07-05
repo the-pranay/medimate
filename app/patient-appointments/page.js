@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
-import { Calendar, Clock, User, MapPin, Plus } from 'lucide-react';
+import { Calendar, Clock, User, MapPin, Plus, RefreshCw } from 'lucide-react';
 
 export default function PatientAppointments() {
   const [user, setUser] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -29,11 +30,21 @@ export default function PatientAppointments() {
 
     checkAuth();
     loadAppointments();
+    
+    // Auto-refresh every 30 seconds to get updated status
+    const interval = setInterval(loadAppointments, 30000);
+    
+    return () => clearInterval(interval);
   }, [router]);
 
-  const loadAppointments = async () => {
+  const loadAppointments = async (showRefreshing = false) => {
     try {
-      setLoading(true);
+      if (showRefreshing) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       
       const response = await fetch('/api/appointments/patient', {
@@ -50,7 +61,12 @@ export default function PatientAppointments() {
       console.error('Error loading appointments:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    loadAppointments(true);
   };
 
   const handleLogout = () => {
@@ -83,13 +99,23 @@ export default function PatientAppointments() {
             <h1 className="text-3xl font-bold text-gray-900">My Appointments</h1>
             <p className="text-gray-600 mt-2">View and manage your appointments</p>
           </div>
-          <button
-            onClick={() => router.push('/book-appointment')}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Book Appointment</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
+            <button
+              onClick={() => router.push('/book-appointment')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Book Appointment</span>
+            </button>
+          </div>
         </div>
 
         {appointments.length === 0 ? (
@@ -135,12 +161,38 @@ export default function PatientAppointments() {
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       appointment.status === 'confirmed' 
                         ? 'bg-green-100 text-green-800' 
+                        : appointment.status === 'cancelled'
+                        ? 'bg-red-100 text-red-800'
                         : appointment.status === 'pending'
                         ? 'bg-yellow-100 text-yellow-800'
+                        : appointment.status === 'completed'
+                        ? 'bg-blue-100 text-blue-800'
                         : 'bg-gray-100 text-gray-800'
                     }`}>
                       {appointment.status}
                     </span>
+                    
+                    {/* Status indicator */}
+                    {appointment.status === 'confirmed' && (
+                      <div className="flex items-center text-green-600">
+                        <div className="w-2 h-2 bg-green-600 rounded-full mr-2"></div>
+                        <span className="text-sm">Confirmed by doctor</span>
+                      </div>
+                    )}
+                    
+                    {appointment.status === 'cancelled' && (
+                      <div className="flex items-center text-red-600">
+                        <div className="w-2 h-2 bg-red-600 rounded-full mr-2"></div>
+                        <span className="text-sm">Cancelled</span>
+                      </div>
+                    )}
+                    
+                    {appointment.status === 'pending' && (
+                      <div className="flex items-center text-yellow-600">
+                        <div className="w-2 h-2 bg-yellow-600 rounded-full mr-2"></div>
+                        <span className="text-sm">Awaiting confirmation</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

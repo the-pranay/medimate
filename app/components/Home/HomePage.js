@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from 'react';
 import Link from "next/link";
 import { 
   Calendar, 
@@ -36,6 +39,41 @@ import Footer from '../ui/Footer';
 import FloatingActionButton from '../ui/FloatingActionButton';
 
 export default function HomePage() {
+  const [stats, setStats] = useState({
+    totalPatients: 0,
+    totalDoctors: 0,
+    successRate: 0,
+    totalAppointments: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/homepage/stats');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setStats(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching homepage stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatNumber = (num) => {
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
+    return num.toString();
+  };
+
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-hidden relative">
       {/* Medical Background */}
@@ -121,28 +159,32 @@ export default function HomePage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               { 
-                value: "50K+", 
+                value: loading ? "..." : `${formatNumber(stats.totalPatients)}+`, 
                 label: "Happy Patients", 
                 icon: Users, 
-                description: "Trusted by thousands"
+                description: "Trusted by thousands",
+                realValue: stats.totalPatients
               },
               { 
-                value: "98%", 
+                value: loading ? "..." : `${stats.successRate}%`, 
                 label: "Success Rate", 
                 icon: CheckCircle, 
-                description: "Proven results"
+                description: "Proven results",
+                realValue: stats.successRate
               },
               { 
-                value: "24/7", 
-                label: "Support", 
-                icon: Headphones, 
-                description: "Always available"
+                value: loading ? "..." : `${formatNumber(stats.totalDoctors)}+`, 
+                label: "Expert Doctors", 
+                icon: Stethoscope, 
+                description: "Qualified professionals",
+                realValue: stats.totalDoctors
               },
               { 
-                value: "15min", 
-                label: "Avg Response", 
-                icon: Clock, 
-                description: "Quick assistance"
+                value: loading ? "..." : `${formatNumber(stats.totalAppointments)}+`, 
+                label: "Appointments", 
+                icon: Calendar, 
+                description: "Successful consultations",
+                realValue: stats.totalAppointments
               }
             ].map((stat, index) => (
               <div key={index} className="group relative">

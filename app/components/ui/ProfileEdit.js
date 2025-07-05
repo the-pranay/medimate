@@ -74,8 +74,9 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
       return;
     }
 
@@ -87,6 +88,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
 
     try {
       setPhotoUploading(true);
+      console.log('Starting photo upload for file:', file.name);
 
       // Create preview
       const reader = new FileReader();
@@ -100,6 +102,13 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
       formData.append('profilePicture', file);
 
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      
+      if (!token) {
+        toast.error('Please login again to upload photo');
+        return;
+      }
+
+      console.log('Uploading photo...');
       const response = await fetch('/api/users/upload-photo', {
         method: 'POST',
         headers: {
@@ -108,31 +117,37 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
         body: formData
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Upload response:', result);
+      const result = await response.json();
+      console.log('Upload response:', result);
+
+      if (response.ok && result.success) {
+        // Update profile state
+        setProfile(prev => ({
+          ...prev,
+          profilePicture: result.data.profilePicture
+        }));
         
-        if (result.success) {
-          setProfile(prev => ({
-            ...prev,
-            profilePicture: result.data.profilePicture
-          }));
-          toast.success('Profile photo uploaded successfully!');
-        } else {
-          throw new Error(result.message || 'Failed to upload photo');
-        }
+        // Update localStorage user data
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const updatedUser = {
+          ...currentUser,
+          profilePicture: result.data.profilePicture
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        toast.success('Profile photo uploaded successfully!');
       } else {
-        const errorResult = await response.json();
-        console.error('Upload error response:', errorResult);
-        throw new Error(errorResult.message || 'Failed to upload photo');
+        throw new Error(result.message || 'Failed to upload photo');
       }
     } catch (error) {
       console.error('Error uploading photo:', error);
-      toast.error('Failed to upload photo');
+      toast.error(`Failed to upload photo: ${error.message}`);
       // Reset preview on error
       setPhotoPreview(profile.profilePicture);
     } finally {
       setPhotoUploading(false);
+      // Reset file input
+      e.target.value = '';
     }
   };
 

@@ -48,9 +48,10 @@ export async function POST(request) {
     }
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { success: false, message: 'Invalid file type. Please upload an image.' },
+        { success: false, message: 'Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.' },
         { status: 400 }
       );
     }
@@ -67,22 +68,28 @@ export async function POST(request) {
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'profiles');
     try {
       await mkdir(uploadDir, { recursive: true });
+      console.log('Upload directory created/verified:', uploadDir);
     } catch (error) {
-      // Directory might already exist
+      console.log('Directory creation error (might already exist):', error.message);
     }
 
     // Generate unique filename
-    const fileExtension = path.extname(file.name);
+    const fileExtension = path.extname(file.name).toLowerCase();
     const uniqueFilename = `${decoded.userId}_${Date.now()}${fileExtension}`;
     const filePath = path.join(uploadDir, uniqueFilename);
+
+    console.log('Attempting to save file to:', filePath);
 
     // Convert file to buffer and save
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    
     await writeFile(filePath, buffer);
+    console.log('File saved successfully');
 
     // Update user profile with new photo URL
     const profilePictureUrl = `/uploads/profiles/${uniqueFilename}`;
+    console.log('Profile picture URL:', profilePictureUrl);
     
     const updatedUser = await User.findByIdAndUpdate(
       decoded.userId,
@@ -97,11 +104,19 @@ export async function POST(request) {
       );
     }
 
+    console.log('User updated with new profile picture');
+
     return NextResponse.json({
       success: true,
       message: 'Profile photo uploaded successfully',
       data: {
-        profilePicture: profilePictureUrl
+        profilePicture: profilePictureUrl,
+        user: {
+          id: updatedUser._id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          profilePicture: updatedUser.profilePicture
+        }
       }
     });
 
