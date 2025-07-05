@@ -5,11 +5,26 @@ import connectDB from '../../../../lib/mongodb';
 import Appointment from '../../../../lib/models/Appointment';
 import User from '../../../../lib/models/User';
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Initialize Razorpay with error handling
+let razorpay;
+try {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  
+  if (!keyId || !keySecret) {
+    console.error('Razorpay credentials not found in environment variables');
+    console.log('RAZORPAY_KEY_ID:', keyId ? 'Present' : 'Missing');
+    console.log('RAZORPAY_KEY_SECRET:', keySecret ? 'Present' : 'Missing');
+  } else {
+    razorpay = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
+    console.log('Razorpay initialized successfully');
+  }
+} catch (error) {
+  console.error('Error initializing Razorpay:', error);
+}
 
 // Helper function to verify JWT token
 const verifyToken = (authorization) => {
@@ -67,6 +82,14 @@ export async function POST(request) {
       );
     }
 
+    // Check if Razorpay is initialized
+    if (!razorpay) {
+      return NextResponse.json(
+        { success: false, message: 'Payment gateway not configured' },
+        { status: 500 }
+      );
+    }
+
     // Create Razorpay order
     const options = {
       amount: amount * 100, // Convert to paisa
@@ -86,9 +109,11 @@ export async function POST(request) {
     return NextResponse.json({
       success: true,
       data: {
+        id: order.id,
         orderId: order.id,
         amount: order.amount,
         currency: order.currency,
+        razorpayKey: process.env.RAZORPAY_KEY_ID,
         appointment: {
           id: appointment._id,
           doctorName: appointment.doctor.name,

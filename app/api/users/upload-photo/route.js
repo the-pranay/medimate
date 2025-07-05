@@ -18,11 +18,16 @@ const verifyToken = (authorization) => {
 };
 
 export async function POST(request) {
+  console.log('Upload photo API called');
+  
   try {
     await connectDB();
     
     const authorization = request.headers.get('Authorization');
+    console.log('Authorization header:', authorization ? 'Present' : 'Missing');
+    
     const decoded = verifyToken(authorization);
+    console.log('Token decoded:', decoded ? 'Success' : 'Failed');
     
     if (!decoded) {
       return NextResponse.json(
@@ -33,6 +38,7 @@ export async function POST(request) {
 
     const formData = await request.formData();
     const file = formData.get('profilePicture');
+    console.log('File received:', file ? file.name : 'No file');
     
     if (!file) {
       return NextResponse.json(
@@ -102,7 +108,11 @@ export async function POST(request) {
   } catch (error) {
     console.error('Error uploading profile photo:', error);
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { 
+        success: false, 
+        message: 'Internal server error: ' + error.message,
+        error: error.toString()
+      },
       { status: 500 }
     );
   }

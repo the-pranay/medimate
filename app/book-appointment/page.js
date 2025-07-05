@@ -199,9 +199,16 @@ export default function BookAppointment() {
         throw new Error(paymentOrderResult.message || 'Failed to create payment order');
       }
 
+      // Get Razorpay key from the payment order response or use the public key
+      const razorpayKey = paymentOrderResult.data.razorpayKey || 'rzp_test_3tENk4NwCrtnOC';
+      
+      if (!razorpayKey) {
+        throw new Error('Payment configuration not available');
+      }
+
       // Initialize Razorpay payment
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: razorpayKey,
         amount: paymentOrderResult.data.amount,
         currency: 'INR',
         name: 'MediMate',

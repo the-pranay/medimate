@@ -110,6 +110,8 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
 
       if (response.ok) {
         const result = await response.json();
+        console.log('Upload response:', result);
+        
         if (result.success) {
           setProfile(prev => ({
             ...prev,
@@ -120,7 +122,9 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
           throw new Error(result.message || 'Failed to upload photo');
         }
       } else {
-        throw new Error('Failed to upload photo');
+        const errorResult = await response.json();
+        console.error('Upload error response:', errorResult);
+        throw new Error(errorResult.message || 'Failed to upload photo');
       }
     } catch (error) {
       console.error('Error uploading photo:', error);
@@ -293,7 +297,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
               name="name"
               value={profile.name}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
               required
             />
           </div>
@@ -307,7 +311,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
               name="phone"
               value={profile.phone}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
               required
             />
           </div>
@@ -321,7 +325,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
               value={profile.address}
               onChange={handleInputChange}
               rows="3"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
             />
           </div>
         </div>
@@ -341,7 +345,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                   onChange={handleInputChange}
                   min="0"
                   max="150"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>
 
@@ -353,7 +357,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                   name="gender"
                   value={profile.gender}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 >
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -369,7 +373,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                   name="bloodGroup"
                   value={profile.bloodGroup}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 >
                   <option value="">Select Blood Group</option>
                   <option value="A+">A+</option>
@@ -397,7 +401,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                     name="emergencyContact.name"
                     value={profile.emergencyContact?.name || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
                 </div>
 
@@ -410,7 +414,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                     name="emergencyContact.phone"
                     value={profile.emergencyContact?.phone || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
                 </div>
 
@@ -423,7 +427,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                     name="emergencyContact.relationship"
                     value={profile.emergencyContact?.relationship || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
                 </div>
               </div>
@@ -444,7 +448,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                   name="specialization"
                   value={profile.specialization}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   required
                 />
               </div>
@@ -459,7 +463,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                   value={profile.experience}
                   onChange={handleInputChange}
                   min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>
 
@@ -472,7 +476,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                   name="licenseNumber"
                   value={profile.licenseNumber}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>
 
@@ -486,7 +490,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                   value={profile.consultationFee}
                   onChange={handleInputChange}
                   min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>
             </div>
@@ -514,7 +518,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                       type="text"
                       value={qualification.degree || ''}
                       onChange={(e) => handleQualificationChange(index, 'degree', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     />
                   </div>
 
@@ -526,7 +530,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                       type="text"
                       value={qualification.institute || ''}
                       onChange={(e) => handleQualificationChange(index, 'institute', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     />
                   </div>
 
@@ -538,7 +542,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                       type="number"
                       value={qualification.year || ''}
                       onChange={(e) => handleQualificationChange(index, 'year', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     />
                   </div>
 
@@ -577,7 +581,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                     <select
                       value={slot.day || 'Monday'}
                       onChange={(e) => handleSlotChange(index, 'day', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     >
                       <option value="Monday">Monday</option>
                       <option value="Tuesday">Tuesday</option>
@@ -597,7 +601,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                       type="time"
                       value={slot.startTime || '09:00'}
                       onChange={(e) => handleSlotChange(index, 'startTime', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     />
                   </div>
 
@@ -609,7 +613,7 @@ const ProfileEdit = ({ userRole = 'patient' }) => {
                       type="time"
                       value={slot.endTime || '17:00'}
                       onChange={(e) => handleSlotChange(index, 'endTime', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     />
                   </div>
 
