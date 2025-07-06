@@ -17,15 +17,32 @@ const verifyToken = (authorization) => {
 
 export async function GET(request) {
   try {
-    await connectDB();
+    // First, check database connection
+    const dbConnection = await connectDB();
+    if (!dbConnection) {
+      console.error('Database connection failed');
+      return NextResponse.json(
+        { success: false, message: 'Database connection failed' },
+        { status: 500 }
+      );
+    }
     
     const authorization = request.headers.get('Authorization');
     const decoded = verifyToken(authorization);
     
-    if (!decoded || decoded.role !== 'doctor') {
+    if (!decoded) {
+      console.error('JWT verification failed');
       return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
+        { success: false, message: 'Invalid or expired token' },
         { status: 401 }
+      );
+    }
+
+    if (decoded.role !== 'doctor') {
+      console.error('Access denied - not a doctor');
+      return NextResponse.json(
+        { success: false, message: 'Only doctors can access this endpoint' },
+        { status: 403 }
       );
     }
 
@@ -59,8 +76,9 @@ export async function GET(request) {
 
   } catch (error) {
     console.error('Get doctor appointments error:', error);
+    console.error('Error stack:', error.stack);
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { success: false, message: 'Internal server error: ' + error.message },
       { status: 500 }
     );
   }

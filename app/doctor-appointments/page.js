@@ -11,6 +11,8 @@ export default function DoctorAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
+  const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
   const refreshInterval = useRef(null);
   const router = useRouter();
 
@@ -35,15 +37,17 @@ export default function DoctorAppointments() {
 
     // Set up real-time updates for appointments
     refreshInterval.current = setInterval(() => {
-      loadAppointments();
-    }, 5000); // Refresh every 5 seconds
+      if (retryCount < 3) { // Stop auto-refresh after 3 consecutive errors
+        loadAppointments();
+      }
+    }, 10000); // Refresh every 10 seconds (less frequent)
 
     return () => {
       if (refreshInterval.current) {
         clearInterval(refreshInterval.current);
       }
     };
-  }, [router]);
+  }, [router, retryCount]);
 
   const loadAppointments = async () => {
     try {
@@ -59,9 +63,25 @@ export default function DoctorAppointments() {
       if (response.ok) {
         const data = await response.json();
         setAppointments(data.data || []);
+        setError(null);
+        setRetryCount(0); // Reset retry count on successful load
+      } else {
+        // Handle error response
+        const errorData = await response.json();
+        console.error('Failed to load appointments:', errorData.message);
+        setError(errorData.message || 'Failed to load appointments');
+        setRetryCount(prev => prev + 1);
+        
+        // If unauthorized, redirect to login
+        if (response.status === 401) {
+          router.push('/login');
+          return;
+        }
       }
     } catch (error) {
       console.error('Error loading appointments:', error);
+      setError('Network error - please check your connection');
+      setRetryCount(prev => prev + 1);
     } finally {
       setLoading(false);
     }
