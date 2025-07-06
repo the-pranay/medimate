@@ -37,7 +37,7 @@ export default function PatientReports() {
       setLoading(true);
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       
-      const response = await fetch('/api/reports/patient', {
+      const response = await fetch('/api/medical-records/reports', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -61,6 +61,36 @@ export default function PatientReports() {
     localStorage.removeItem('user');
     localStorage.removeItem('isAuthenticated');
     router.push('/login');
+  };
+
+  const handleViewReport = (report) => {
+    if (report.files && report.files.length > 0) {
+      // Open the first file in a new tab
+      const fileUrl = report.files[0].fileUrl;
+      window.open(fileUrl, '_blank');
+      toast.success('Opening report...');
+    } else {
+      toast.error('No file available for this report');
+    }
+  };
+
+  const handleDownloadReport = (report) => {
+    if (report.files && report.files.length > 0) {
+      const fileUrl = report.files[0].fileUrl;
+      const fileName = report.files[0].fileName || `Report_${report.title}_${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      // Create a temporary anchor element and trigger download
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Download started...');
+    } else {
+      toast.error('No file available for download');
+    }
   };
 
   if (loading) {
@@ -118,20 +148,16 @@ export default function PatientReports() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <button 
-                      onClick={() => {
-                        // View report functionality
-                        toast.info('View report functionality - Coming soon!');
-                      }}
-                      className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50"
+                      onClick={() => handleViewReport(report)}
+                      className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                      title="View Report"
                     >
                       <Eye className="w-4 h-4" />
                     </button>
                     <button 
-                      onClick={() => {
-                        // Download report functionality
-                        toast.info('Download report functionality - Coming soon!');
-                      }}
-                      className="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50"
+                      onClick={() => handleDownloadReport(report)}
+                      className="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 transition-colors"
+                      title="Download Report"
                     >
                       <Download className="w-4 h-4" />
                     </button>

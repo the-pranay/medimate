@@ -32,6 +32,7 @@ export default function PatientDashboard() {
   const [appointments, setAppointments] = useState([]);
   const [reports, setReports] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [prescriptions, setPrescriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -113,6 +114,13 @@ export default function PatientDashboard() {
         if (messagesResponse.ok) {
           const messagesData = await messagesResponse.json();
           setMessages(messagesData.data || []);
+        }
+
+        // Fetch prescriptions
+        const prescriptionsResponse = await fetch('/api/prescriptions', { headers });
+        if (prescriptionsResponse.ok) {
+          const prescriptionsData = await prescriptionsResponse.json();
+          setPrescriptions(prescriptionsData.data || []);
         }
 
       } catch (error) {
@@ -437,6 +445,67 @@ export default function PatientDashboard() {
                   <div className="text-center py-8">
                     <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-500">No reports available</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Recent Prescriptions */}
+            <div className="bg-white rounded-lg shadow-sm border">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-gray-900">Recent Prescriptions</h2>
+                  <Link 
+                    href="/patient-prescriptions"
+                    className="text-blue-600 hover:text-blue-500 font-medium"
+                  >
+                    View All
+                  </Link>
+                </div>
+              </div>
+              <div className="p-6">
+                {prescriptions.length > 0 ? (
+                  <div className="space-y-4">
+                    {prescriptions.slice(0, 3).map((prescription) => (
+                      <div key={prescription._id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900">
+                              {prescription.title}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              by Dr. {prescription.doctor?.name || 'Unknown Doctor'}
+                            </p>
+                            <div className="flex items-center mt-2 text-sm text-gray-500">
+                              <Calendar className="h-4 w-4 mr-1" />
+                              {new Date(prescription.prescriptionDate).toLocaleDateString()}
+                            </div>
+                            <p className="text-sm text-gray-700 mt-1">
+                              <strong>Diagnosis:</strong> {prescription.diagnosis}
+                            </p>
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-600">
+                                <strong>Medicines:</strong> {prescription.medicines.length} prescribed
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              prescription.status === 'active' ? 'bg-green-100 text-green-800' : 
+                              prescription.status === 'completed' ? 'bg-blue-100 text-blue-800' : 
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {prescription.status.charAt(0).toUpperCase() + prescription.status.slice(1)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No prescriptions available</p>
                   </div>
                 )}
               </div>

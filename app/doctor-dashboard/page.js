@@ -484,7 +484,7 @@ export default function DoctorDashboard() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-900">Reports to Review</h2>
                   <Link 
-                    href="/patient-reports"
+                    href="/doctor-reports"
                     className="text-blue-600 hover:text-blue-500 font-medium"
                   >
                     View All
@@ -637,6 +637,13 @@ export default function DoctorDashboard() {
                 >
                   <Eye className="h-4 w-4 mr-2" />
                   Review Reports
+                </Link>
+                <Link 
+                  href="/doctor-prescriptions"
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  View Prescriptions
                 </Link>
               </div>
             </div>

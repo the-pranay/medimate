@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { Calendar, Clock, User, MapPin, Plus, RefreshCw } from 'lucide-react';
@@ -13,6 +13,7 @@ export default function PatientAppointments() {
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
   const router = useRouter();
+  const retryCountRef = useRef(0);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -36,13 +37,13 @@ export default function PatientAppointments() {
     // Auto-refresh every 10 seconds (reduced frequency to prevent spam)
     // Only refresh if there's no error or if error count is low
     const interval = setInterval(() => {
-      if (retryCount < 3) { // Stop auto-refresh after 3 consecutive errors
+      if (retryCountRef.current < 3) { // Stop auto-refresh after 3 consecutive errors
         loadAppointments(true);
       }
     }, 10000);
     
     return () => clearInterval(interval);
-  }, [router, retryCount]);
+  }, [router]); // Removed retryCount from dependencies
 
   const loadAppointments = async (showRefreshing = false) => {
     try {
@@ -65,12 +66,14 @@ export default function PatientAppointments() {
         setAppointments(data.data || []);
         setError(null);
         setRetryCount(0); // Reset retry count on successful load
+        retryCountRef.current = 0; // Reset ref as well
       } else {
         // Handle error response
         const errorData = await response.json();
         console.error('Failed to load appointments:', errorData.message);
         setError(errorData.message || 'Failed to load appointments');
         setRetryCount(prev => prev + 1);
+        retryCountRef.current = retryCountRef.current + 1;
         
         // If unauthorized, redirect to login
         if (response.status === 401) {
@@ -87,6 +90,7 @@ export default function PatientAppointments() {
       console.error('Error loading appointments:', error);
       setError('Network error - please check your connection');
       setRetryCount(prev => prev + 1);
+      retryCountRef.current = retryCountRef.current + 1;
       
       // Don't clear appointments on refresh error to prevent flickering
       if (!showRefreshing) {
