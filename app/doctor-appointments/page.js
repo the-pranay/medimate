@@ -79,7 +79,8 @@ export default function DoctorAppointments() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          status: action === 'confirm' ? 'confirmed' : 'cancelled'
+          status: action === 'confirm' ? 'confirmed' : 'cancelled',
+          notes: action === 'confirm' ? 'Appointment confirmed by doctor' : 'Appointment cancelled by doctor'
         })
       });
 
@@ -170,7 +171,27 @@ export default function DoctorAppointments() {
                           <Clock className="w-4 h-4" />
                           <span>{appointment.appointmentTime}</span>
                         </div>
+                        {appointment.payment?.status === 'paid' && (
+                          <div className="flex items-center space-x-1 text-green-600">
+                            <span>💳</span>
+                            <span>₹{appointment.payment.amount}</span>
+                          </div>
+                        )}
                       </div>
+                      
+                      {/* Payment Information */}
+                      {appointment.payment?.status === 'paid' && (
+                        <div className="mt-2 p-2 bg-green-50 rounded-md">
+                          <p className="text-sm text-green-800">
+                            <strong>Payment Confirmed:</strong> ₹{appointment.payment.amount} paid on {new Date(appointment.payment.paidAt).toLocaleDateString()}
+                          </p>
+                          {appointment.payment.transactionId && (
+                            <p className="text-xs text-green-600 mt-1">
+                              Transaction ID: {appointment.payment.transactionId}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -179,14 +200,25 @@ export default function DoctorAppointments() {
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       appointment.status === 'confirmed' 
                         ? 'bg-green-100 text-green-800' 
+                        : appointment.status === 'paid'
+                        ? 'bg-blue-100 text-blue-800'
                         : appointment.status === 'cancelled'
                         ? 'bg-red-100 text-red-800'
                         : appointment.status === 'pending'
                         ? 'bg-yellow-100 text-yellow-800'
+                        : appointment.status === 'completed'
+                        ? 'bg-purple-100 text-purple-800'
                         : 'bg-gray-100 text-gray-800'
                     }`}>
-                      {appointment.status}
+                      {appointment.status === 'paid' ? 'Payment Confirmed' : appointment.status}
                     </span>
+
+                    {/* Payment Status Indicator */}
+                    {appointment.payment?.status === 'paid' && (
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        💳 Paid
+                      </span>
+                    )}
 
                     {/* Action Buttons - Only show for pending appointments */}
                     {appointment.status === 'pending' && (
@@ -202,6 +234,37 @@ export default function DoctorAppointments() {
                             <Check className="w-4 h-4" />
                           )}
                           <span className="ml-1 text-sm">Confirm</span>
+                        </button>
+                        
+                        <button
+                          onClick={() => handleAppointmentAction(appointment._id, 'cancel')}
+                          disabled={actionLoading === appointment._id}
+                          className="flex items-center px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {actionLoading === appointment._id ? (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <X className="w-4 h-4" />
+                          )}
+                          <span className="ml-1 text-sm">Cancel</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Action Buttons - For paid appointments (awaiting doctor confirmation) */}
+                    {appointment.status === 'paid' && (
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleAppointmentAction(appointment._id, 'confirm')}
+                          disabled={actionLoading === appointment._id}
+                          className="flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {actionLoading === appointment._id ? (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <Check className="w-4 h-4" />
+                          )}
+                          <span className="ml-1 text-sm">Confirm Appointment</span>
                         </button>
                         
                         <button

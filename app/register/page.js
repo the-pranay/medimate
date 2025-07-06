@@ -485,9 +485,9 @@ function RegisterForm() {
 
               <div className="mt-8 text-center">
                 <p className="text-sm text-gray-600">
-                  Already part of the squad?{' '}
+                  Already have a MediMate account?{' '}
                   <Link href="/login" className="font-medium text-transparent bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text hover:from-green-700 hover:to-blue-700 transition-all duration-300">
-                    Sign in here! 🎯
+                    Sign in here! �
                   </Link>
                 </p>
               </div>

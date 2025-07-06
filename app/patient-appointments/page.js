@@ -156,22 +156,44 @@ export default function PatientAppointments() {
                           <Clock className="w-4 h-4" />
                           <span>{appointment.appointmentTime}</span>
                         </div>
+                        {appointment.payment?.status === 'paid' && (
+                          <div className="flex items-center space-x-1 text-green-600">
+                            <span>💳</span>
+                            <span>₹{appointment.payment.amount} Paid</span>
+                          </div>
+                        )}
                       </div>
+                      
+                      {/* Payment Information */}
+                      {appointment.payment?.status === 'paid' && (
+                        <div className="mt-2 p-2 bg-green-50 rounded-md">
+                          <p className="text-sm text-green-800">
+                            <strong>Payment Confirmed:</strong> ₹{appointment.payment.amount} paid on {new Date(appointment.payment.paidAt).toLocaleDateString()}
+                          </p>
+                          {appointment.status === 'paid' && (
+                            <p className="text-sm text-blue-600 mt-1">
+                              ⏳ Awaiting doctor confirmation
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       appointment.status === 'confirmed' 
                         ? 'bg-green-100 text-green-800' 
+                        : appointment.status === 'paid'
+                        ? 'bg-blue-100 text-blue-800'
                         : appointment.status === 'cancelled'
                         ? 'bg-red-100 text-red-800'
                         : appointment.status === 'pending'
                         ? 'bg-yellow-100 text-yellow-800'
                         : appointment.status === 'completed'
-                        ? 'bg-blue-100 text-blue-800'
+                        ? 'bg-purple-100 text-purple-800'
                         : 'bg-gray-100 text-gray-800'
                     }`}>
-                      {appointment.status}
+                      {appointment.status === 'paid' ? 'Payment Confirmed' : appointment.status}
                     </span>
                     
                     {/* Status indicator */}
@@ -179,6 +201,13 @@ export default function PatientAppointments() {
                       <div className="flex items-center text-green-600">
                         <div className="w-2 h-2 bg-green-600 rounded-full mr-2"></div>
                         <span className="text-sm">Confirmed by doctor</span>
+                      </div>
+                    )}
+                    
+                    {appointment.status === 'paid' && (
+                      <div className="flex items-center text-blue-600">
+                        <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
+                        <span className="text-sm">Awaiting doctor confirmation</span>
                       </div>
                     )}
                     

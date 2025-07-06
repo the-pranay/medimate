@@ -41,7 +41,7 @@ export async function PATCH(request, { params }) {
     const { status, notes } = await request.json();
 
     // Validate status
-    const validStatuses = ['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show'];
+    const validStatuses = ['scheduled', 'confirmed', 'paid', 'in-progress', 'completed', 'cancelled', 'no-show'];
     if (!validStatuses.includes(status)) {
       return NextResponse.json(
         { success: false, message: 'Invalid appointment status' },
@@ -69,10 +69,17 @@ export async function PATCH(request, { params }) {
 
     // Update appointment status
     appointment.status = status;
+    appointment.updatedAt = new Date();
     
     // Add doctor notes if provided
     if (notes) {
       appointment.notes.doctor = notes;
+    }
+    
+    // Add confirmation timestamp when confirming paid appointment
+    if (status === 'confirmed' && appointment.payment?.status === 'paid') {
+      appointment.confirmedAt = new Date();
+      appointment.confirmedBy = decoded.userId;
     }
 
     await appointment.save();

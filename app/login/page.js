@@ -225,7 +225,7 @@ function LoginForm() {
                     </label>
                   </div>
                   <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
-                    Forgot your powers?
+                    Forgot your password?
                   </Link>
                 </div>
 
@@ -257,9 +257,9 @@ function LoginForm() {
 
               <div className="mt-8 text-center">
                 <p className="text-sm text-gray-600">
-                  New to our squad?{' '}
+                  New to MediMate?{' '}
                   <Link href="/register" className="font-medium text-transparent bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text hover:from-green-700 hover:to-blue-700 transition-all duration-300">
-                    Join the mission! 🎯
+                    Create your account! �
                   </Link>
                 </p>
               </div>

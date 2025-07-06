@@ -80,8 +80,10 @@ export async function POST(request) {
       paidAt: new Date(),
     };
 
-    // Update appointment status to confirmed after payment
-    appointment.status = 'confirmed';
+    // Update appointment status to 'paid' after successful payment
+    // Doctor will then confirm it to move to 'confirmed' status
+    appointment.status = 'paid';
+    appointment.updatedAt = new Date();
 
     await appointment.save();
 
@@ -91,11 +93,12 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      message: 'Payment verified and appointment confirmed',
+      message: 'Payment verified successfully. Appointment is now awaiting doctor confirmation.',
       data: {
         appointment: appointment,
         paymentId: razorpay_payment_id,
         orderId: razorpay_order_id,
+        status: 'paid'
       }
     });
 
