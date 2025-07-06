@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Environment Variables</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-gray-900">Environment Variables Debug</h1>
+        
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h2 class="text-xl font-semibold mb-4">Environment Check</h2>
+            <div id="env-results" class="space-y-2"></div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Actions</h2>
+            <div class="space-x-4">
+                <button onclick="testEnvVars()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Test Environment Variables
+                </button>
+                <button onclick="testAgoraConfig()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    Test Agora Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('env-results');
+            const logEntry = document.createElement('div');
+            logEntry.className = `p-2 rounded ${type === 'error' ? 'bg-red-100 text-red-800' : 
+                                                type === 'success' ? 'bg-green-100 text-green-800' : 
+                                                'bg-blue-100 text-blue-800'}`;
+            logEntry.textContent = message;
+            resultsDiv.appendChild(logEntry);
+        }
+
+        function testEnvVars() {
+            log('🔍 Testing environment variables...');
+            
+            // Test Next.js environment variables
+            fetch('/api/env-test')
+                .then(response => response.json())
+                .then(data => {
+                    log(`✅ Environment API Response: ${JSON.stringify(data)}`);
+                    
+                    if (data.agoraAppId) {
+                        log(`✅ AGORA_APP_ID: ${data.agoraAppId.substring(0, 8)}...`, 'success');
+                    } else {
+                        log('❌ AGORA_APP_ID: Not configured', 'error');
+                    }
+                    
+                    if (data.razorpayKeyId) {
+                        log(`✅ RAZORPAY_KEY_ID: ${data.razorpayKeyId.substring(0, 8)}...`, 'success');
+                    } else {
+                        log('❌ RAZORPAY_KEY_ID: Not configured', 'error');
+                    }
+                })
+                .catch(error => {
+                    log(`❌ Error testing environment variables: ${error.message}`, 'error');
+                });
+        }
+
+        function testAgoraConfig() {
+            log('🔍 Testing Agora configuration...');
+            
+            // Test Agora configuration endpoint
+            fetch('/api/agora-test')
+                .then(response => response.json())
+                .then(data => {
+                    log(`✅ Agora Test Response: ${JSON.stringify(data)}`);
+                    
+                    if (data.isValid) {
+                        log('✅ Agora configuration is valid', 'success');
+                    } else {
+                        log(`❌ Agora configuration error: ${data.error}`, 'error');
+                        if (data.suggestion) {
+                            log(`💡 Suggestion: ${data.suggestion}`, 'info');
+                        }
+                    }
+                })
+                .catch(error => {
+                    log(`❌ Error testing Agora config: ${error.message}`, 'error');
+                });
+        }
+
+        // Auto-run tests on page load
+        window.onload = function() {
+            log('🚀 Page loaded, running automatic tests...');
+            testEnvVars();
+            setTimeout(() => testAgoraConfig(), 1000);
+        };
+    </script>
+</body>
+</html>
