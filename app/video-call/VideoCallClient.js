@@ -18,10 +18,12 @@ import {
   CheckCircle 
 } from 'lucide-react';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
+import { checkAgoraConfig } from '../../lib/envValidator';
 
 export default function VideoCallClient() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [appointmentId, setAppointmentId] = useState(null);
   const [appointment, setAppointment] = useState(null);
   const [isInCall, setIsInCall] = useState(false);
@@ -39,7 +41,25 @@ export default function VideoCallClient() {
   const remoteVideoRef = useRef(null);
   const callIntervalRef = useRef(null);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('user');
+    localStorage.removeItem('isAuthenticated');
+    router.push('/login');
+  };
+
   useEffect(() => {
+    // Check environment configuration
+    const agoraConfig = checkAgoraConfig();
+    if (!agoraConfig.isValid) {
+      setError(`Configuration Error: ${agoraConfig.error}`);
+      console.error(agoraConfig.error);
+      console.error('Suggestion:', agoraConfig.suggestion);
+      return;
+    }
+
     // Initialize Agora client on the client side only
     const initAgoraClient = async () => {
       try {
@@ -49,7 +69,7 @@ export default function VideoCallClient() {
         setIsAgoraLoaded(true);
       } catch (error) {
         console.error('Failed to load Agora SDK:', error);
-        setError('Failed to load video calling service');
+        setError('Failed to load video calling service. Please check your internet connection.');
       }
     };
     
@@ -78,6 +98,7 @@ export default function VideoCallClient() {
         setUser(JSON.parse(userData));
       }
 
+      setUserRole(userRole);
       setAppointmentId(appointmentIdParam);
     };
 
@@ -119,9 +140,14 @@ export default function VideoCallClient() {
 
       if (response.ok) {
         const appointmentData = await response.json();
-        setAppointment(appointmentData);
+        if (appointmentData.success) {
+          setAppointment(appointmentData.data);
+        } else {
+          setError(`Failed to fetch appointment: ${appointmentData.message}`);
+        }
       } else {
-        setError('Failed to fetch appointment details');
+        const errorData = await response.json().catch(() => ({}));
+        setError(`Failed to fetch appointment details: ${errorData.message || response.status}`);
       }
     } catch (error) {
       console.error('Error fetching appointment:', error);
@@ -149,16 +175,19 @@ export default function VideoCallClient() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
+          appointmentId: appointmentId,
           channelName: `appointment_${appointmentId}`,
-          uid: user.id
+          uid: user.id || user._id || Date.now()
         })
       });
 
       if (!tokenResponse.ok) {
-        throw new Error('Failed to get video token');
+        const errorData = await tokenResponse.json();
+        throw new Error(errorData.message || `Failed to get video token: ${tokenResponse.status}`);
       }
 
-      const { token: agoraToken } = await tokenResponse.json();
+      const tokenData = await tokenResponse.json();
+      const { token: agoraToken } = tokenData;
 
       // Start the call in the backend
       const startResponse = await fetch(`/api/video/start/${appointmentId}`, {
@@ -169,7 +198,8 @@ export default function VideoCallClient() {
       });
 
       if (!startResponse.ok) {
-        throw new Error('Failed to start video call');
+        const errorData = await startResponse.json();
+        throw new Error(errorData.message || `Failed to start video call: ${startResponse.status}`);
       }
 
       // Join the Agora channel
@@ -283,7 +313,7 @@ export default function VideoCallClient() {
   if (!isAgoraLoaded) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <DashboardNavbar />
+        <DashboardNavbar user={user} userRole={userRole} onLogout={handleLogout} />
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -296,7 +326,7 @@ export default function VideoCallClient() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <DashboardNavbar />
+      <DashboardNavbar user={user} userRole={userRole} onLogout={handleLogout} />
       
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}

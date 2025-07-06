@@ -31,8 +31,10 @@ export default function PatientAppointments() {
     checkAuth();
     loadAppointments();
     
-    // Auto-refresh every 30 seconds to get updated status
-    const interval = setInterval(loadAppointments, 30000);
+    // Auto-refresh every 5 seconds to get updated status in real-time
+    const interval = setInterval(() => {
+      loadAppointments(true); // Show refreshing indicator
+    }, 5000);
     
     return () => clearInterval(interval);
   }, [router]);
@@ -141,7 +143,7 @@ export default function PatientAppointments() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">
-                        Dr. {appointment.doctor?.name || 'Doctor'}
+                        {appointment.doctor?.name?.startsWith('Dr. ') ? appointment.doctor.name : `Dr. ${appointment.doctor?.name || 'Doctor'}`}
                       </h3>
                       <p className="text-gray-600">{appointment.doctor?.specialization}</p>
                       <p className="text-sm text-gray-500 mt-1">{appointment.reasonForVisit}</p>

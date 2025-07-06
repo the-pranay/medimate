@@ -231,7 +231,7 @@ function RegisterForm() {
                           required
                           value={formData.name}
                           onChange={handleChange}
-                          className="w-full pl-10 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
+                          className="w-full pl-10 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                           placeholder="Enter your full name"
                         />
                         {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
@@ -305,7 +305,7 @@ function RegisterForm() {
                           required
                           value={formData.gender}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
+                          className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                         >
                           <option value="">Select</option>
                           <option value="male">Male</option>
@@ -390,7 +390,7 @@ function RegisterForm() {
                           value={formData.address}
                           onChange={handleChange}
                           rows={3}
-                          className="w-full pl-10 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
+                          className="w-full pl-10 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                           placeholder="Your address"
                         />
                       </div>
@@ -414,7 +414,7 @@ function RegisterForm() {
                             type="text"
                             value={formData.specialization}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
+                            className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                             placeholder="e.g., Cardiology, Pediatrics"
                           />
                           {errors.specialization && <p className="text-red-500 text-xs mt-1">{errors.specialization}</p>}
@@ -446,7 +446,7 @@ function RegisterForm() {
                               type="text"
                               value={formData.licenseNumber}
                               onChange={handleChange}
-                              className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
+                              className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/90"
                               placeholder="MD123456"
                             />
                             {errors.licenseNumber && <p className="text-red-500 text-xs mt-1">{errors.licenseNumber}</p>}

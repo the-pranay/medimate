@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { FileText, Download, Calendar, User, Plus, Edit } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function Prescriptions() {
   const [user, setUser] = useState(null);
@@ -142,11 +143,23 @@ export default function Prescriptions() {
                     }`}>
                       {prescription.status}
                     </span>
-                    <button className="text-blue-600 hover:text-blue-800">
+                    <button 
+                      onClick={() => {
+                        // Download prescription functionality
+                        toast.info('Download prescription functionality - Coming soon!');
+                      }}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
                       <Download className="w-5 h-5" />
                     </button>
                     {user?.role === 'doctor' && (
-                      <button className="text-gray-600 hover:text-gray-800">
+                      <button 
+                        onClick={() => {
+                          // Edit prescription functionality
+                          toast.info('Edit prescription functionality - Coming soon!');
+                        }}
+                        className="text-gray-600 hover:text-gray-800"
+                      >
                         <Edit className="w-5 h-5" />
                       </button>
                     )}

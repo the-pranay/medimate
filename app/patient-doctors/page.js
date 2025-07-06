@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { Users, Star, MapPin, Calendar, Search, Phone } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function PatientDoctors() {
   const [user, setUser] = useState(null);
@@ -114,7 +115,9 @@ export default function PatientDoctors() {
                     <Users className="w-8 h-8 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">Dr. {doctor.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {doctor.name?.startsWith('Dr. ') ? doctor.name : `Dr. ${doctor.name}`}
+                    </h3>
                     <p className="text-blue-600 font-medium">{doctor.specialization}</p>
                     <div className="flex items-center mt-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
@@ -141,7 +144,13 @@ export default function PatientDoctors() {
                     >
                       Book Now
                     </button>
-                    <button className="text-green-600 hover:text-green-800 text-sm font-medium">
+                    <button 
+                      onClick={() => {
+                        // Message doctor functionality
+                        toast.info('Message doctor functionality - Coming soon!');
+                      }}
+                      className="text-green-600 hover:text-green-800 text-sm font-medium"
+                    >
                       Message
                     </button>
                   </div>

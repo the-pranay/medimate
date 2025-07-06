@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { FileText, Download, Eye, Calendar, User } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function DoctorReports() {
   const [user, setUser] = useState(null);
@@ -114,10 +115,22 @@ export default function DoctorReports() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <button className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50">
+                    <button 
+                      onClick={() => {
+                        // View report functionality
+                        toast.info('View report functionality - Coming soon!');
+                      }}
+                      className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50"
+                    >
                       <Eye className="w-4 h-4" />
                     </button>
-                    <button className="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50">
+                    <button 
+                      onClick={() => {
+                        // Download report functionality
+                        toast.info('Download report functionality - Coming soon!');
+                      }}
+                      className="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50"
+                    >
                       <Download className="w-4 h-4" />
                     </button>
                   </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { 
   FileText, 
   Upload, 
@@ -323,10 +324,22 @@ export default function MyReports() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 ml-4">
-                      <button className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg">
+                      <button 
+                        onClick={() => {
+                          // View report functionality
+                          toast.info('View report functionality - Coming soon!');
+                        }}
+                        className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg"
+                      >
                         <Eye className="h-5 w-5" />
                       </button>
-                      <button className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg">
+                      <button 
+                        onClick={() => {
+                          // Download report functionality
+                          toast.info('Download report functionality - Coming soon!');
+                        }}
+                        className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg"
+                      >
                         <Download className="h-5 w-5" />
                       </button>
                     </div>

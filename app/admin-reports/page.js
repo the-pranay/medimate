@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { FileText, Download, TrendingUp, Users, Calendar, Activity } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminReports() {
   const [user, setUser] = useState(null);
@@ -165,7 +166,13 @@ export default function AdminReports() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-500">{report.date}</span>
-                      <button className="text-blue-600 hover:text-blue-800">
+                      <button 
+                        onClick={() => {
+                          // Download report functionality
+                          toast.info('Download report functionality - Coming soon!');
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
                         <Download className="w-4 h-4" />
                       </button>
                     </div>
@@ -181,7 +188,13 @@ export default function AdminReports() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">User Analytics</h3>
             <p className="text-gray-600 mb-4">View detailed user registration and activity reports</p>
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium">
+            <button 
+              onClick={() => {
+                // View analytics functionality
+                toast.info('User analytics functionality - Coming soon!');
+              }}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium"
+            >
               View Analytics
             </button>
           </div>
@@ -189,7 +202,13 @@ export default function AdminReports() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Appointment Reports</h3>
             <p className="text-gray-600 mb-4">Generate reports on appointment bookings and trends</p>
-            <button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium">
+            <button 
+              onClick={() => {
+                // Generate report functionality
+                toast.info('Generate appointment report functionality - Coming soon!');
+              }}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium"
+            >
               Generate Report
             </button>
           </div>
@@ -197,7 +216,13 @@ export default function AdminReports() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">System Health</h3>
             <p className="text-gray-600 mb-4">Monitor system performance and health metrics</p>
-            <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg font-medium">
+            <button 
+              onClick={() => {
+                // View metrics functionality
+                toast.info('System health metrics functionality - Coming soon!');
+              }}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg font-medium"
+            >
               View Metrics
             </button>
           </div>

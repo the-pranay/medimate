@@ -69,9 +69,18 @@ export async function POST(request) {
     const appId = process.env.NEXT_PUBLIC_AGORA_APP_ID;
     const appCertificate = process.env.AGORA_APP_CERTIFICATE;
     
+    console.log('Environment check:', {
+      appId: appId ? 'Set' : 'Missing',
+      appCertificate: appCertificate ? 'Set' : 'Missing',
+      appointmentId,
+      channelName,
+      uid
+    });
+    
     if (!appId || !appCertificate) {
+      console.error('Missing Agora configuration:', { appId: !!appId, appCertificate: !!appCertificate });
       return NextResponse.json(
-        { success: false, message: 'Agora configuration missing' },
+        { success: false, message: 'Agora configuration missing. Please check environment variables.' },
         { status: 500 }
       );
     }

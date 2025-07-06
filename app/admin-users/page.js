@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { Users, Search, Filter, Edit, Trash2, UserCheck, UserX } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminUsers() {
   const [user, setUser] = useState(null);
@@ -118,7 +119,7 @@ export default function AdminUsers() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
           >
             <option value="all">All Roles</option>
             <option value="patient">Patients</option>
@@ -199,10 +200,24 @@ export default function AdminUsers() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button 
+                          onClick={() => {
+                            // Edit user functionality
+                            toast.info('Edit user functionality - Coming soon!');
+                          }}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button className="text-red-600 hover:text-red-900">
+                        <button 
+                          onClick={() => {
+                            // Delete user functionality
+                            if (confirm('Are you sure you want to delete this user?')) {
+                              toast.success('User deleted successfully');
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-900"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>

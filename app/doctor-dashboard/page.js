@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { 
   Calendar, 
   Users, 
@@ -505,7 +506,13 @@ export default function DoctorDashboard() {
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                            <button 
+                              onClick={() => {
+                                // Review report functionality
+                                toast.info('Review report functionality - Coming soon!');
+                              }}
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+                            >
                               Review
                             </button>
                           </div>

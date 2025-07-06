@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { Users, Mail, Phone, Calendar, Search } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function DoctorPatients() {
   const [user, setUser] = useState(null);
@@ -142,10 +143,22 @@ export default function DoctorPatients() {
                   </div>
                 </div>
                 <div className="mt-4 flex space-x-2">
-                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                  <button 
+                    onClick={() => {
+                      // View patient records functionality
+                      toast.info('View patient records functionality - Coming soon!');
+                    }}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
                     View Records
                   </button>
-                  <button className="text-green-600 hover:text-green-800 text-sm font-medium">
+                  <button 
+                    onClick={() => {
+                      // Message patient functionality
+                      toast.info('Message patient functionality - Coming soon!');
+                    }}
+                    className="text-green-600 hover:text-green-800 text-sm font-medium"
+                  >
                     Message
                   </button>
                 </div>

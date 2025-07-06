@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { 
   Calendar, 
   FileText, 
@@ -409,10 +410,22 @@ export default function PatientDashboard() {
                             </p>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <button className="p-2 text-gray-400 hover:text-gray-600">
+                            <button 
+                              onClick={() => {
+                                // View report functionality
+                                toast.info('View report functionality - Coming soon!');
+                              }}
+                              className="p-2 text-gray-400 hover:text-gray-600"
+                            >
                               <Eye className="h-4 w-4" />
                             </button>
-                            <button className="p-2 text-gray-400 hover:text-gray-600">
+                            <button 
+                              onClick={() => {
+                                // Download report functionality
+                                toast.info('Download report functionality - Coming soon!');
+                              }}
+                              className="p-2 text-gray-400 hover:text-gray-600"
+                            >
                               <Download className="h-4 w-4" />
                             </button>
                           </div>
@@ -550,7 +563,7 @@ export default function PatientDashboard() {
                   Message Doctor
                 </Link>
                 <Link 
-                  href="/video-consultation"
+                  href="/video-call"
                   className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <Video className="h-4 w-4 mr-2" />

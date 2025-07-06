@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
@@ -11,6 +11,7 @@ export default function DoctorAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
+  const refreshInterval = useRef(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,6 +32,17 @@ export default function DoctorAppointments() {
 
     checkAuth();
     loadAppointments();
+
+    // Set up real-time updates for appointments
+    refreshInterval.current = setInterval(() => {
+      loadAppointments();
+    }, 5000); // Refresh every 5 seconds
+
+    return () => {
+      if (refreshInterval.current) {
+        clearInterval(refreshInterval.current);
+      }
+    };
   }, [router]);
 
   const loadAppointments = async () => {

@@ -15,6 +15,7 @@ import {
   Settings,
   ChevronRight
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function Help() {
   const [user, setUser] = useState(null);
@@ -162,7 +163,12 @@ export default function Help() {
                 <p className="text-sm text-gray-600">Available 24/7</p>
               </div>
             </div>
-            <button className="text-purple-600 font-medium hover:text-purple-800">
+            <button 
+              onClick={() => {
+                toast.info('Live chat feature coming soon!');
+              }}
+              className="text-purple-600 font-medium hover:text-purple-800"
+            >
               Start Chat
             </button>
           </div>
@@ -200,7 +206,13 @@ export default function Help() {
               <div className="space-y-4">
                 {faqs[activeCategory].map((faq, index) => (
                   <div key={index} className="border border-gray-200 rounded-lg">
-                    <button className="w-full flex items-center justify-between p-4 text-left">
+                    <button 
+                      onClick={() => {
+                        // Toggle FAQ expand/collapse functionality
+                        toast.info('FAQ expand/collapse functionality - Coming soon!');
+                      }}
+                      className="w-full flex items-center justify-between p-4 text-left"
+                    >
                       <h3 className="font-medium text-gray-900">{faq.question}</h3>
                       <ChevronRight className="w-5 h-5 text-gray-400" />
                     </button>
@@ -226,7 +238,12 @@ export default function Help() {
                 <p className="text-sm text-gray-600">Learn how to use MediMate</p>
               </div>
             </div>
-            <button className="text-blue-600 font-medium hover:text-blue-800">
+            <button 
+              onClick={() => {
+                toast.info('Video tutorials coming soon!');
+              }}
+              className="text-blue-600 font-medium hover:text-blue-800"
+            >
               Watch Tutorials
             </button>
           </div>
@@ -241,7 +258,12 @@ export default function Help() {
                 <p className="text-sm text-gray-600">Connect with other users</p>
               </div>
             </div>
-            <button className="text-green-600 font-medium hover:text-green-800">
+            <button 
+              onClick={() => {
+                toast.info('Community forum coming soon!');
+              }}
+              className="text-green-600 font-medium hover:text-green-800"
+            >
               Join Forum
             </button>
           </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { MessageCircle, Send, Search, User, Clock } from 'lucide-react';
@@ -12,6 +12,7 @@ export default function PatientMessages() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const refreshInterval = useRef(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,7 +33,21 @@ export default function PatientMessages() {
 
     checkAuth();
     loadConversations();
-  }, [router]);
+    
+    // Set up auto-refresh for real-time messaging
+    refreshInterval.current = setInterval(() => {
+      if (selectedConversation) {
+        loadMessages(selectedConversation._id);
+      }
+      loadConversations();
+    }, 3000); // Refresh every 3 seconds
+
+    return () => {
+      if (refreshInterval.current) {
+        clearInterval(refreshInterval.current);
+      }
+    };
+  }, [router, selectedConversation]);
 
   const loadConversations = async () => {
     try {
@@ -169,7 +184,9 @@ export default function PatientMessages() {
                         <User className="w-5 h-5 text-blue-600" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">Dr. {conversation.doctor.name}</p>
+                        <p className="font-medium text-gray-900">
+                          {conversation.doctor.name?.startsWith('Dr. ') ? conversation.doctor.name : `Dr. ${conversation.doctor.name}`}
+                        </p>
                         <p className="text-sm text-gray-500 truncate">{conversation.lastMessage}</p>
                       </div>
                     </div>
@@ -183,7 +200,9 @@ export default function PatientMessages() {
               {selectedConversation ? (
                 <>
                   <div className="p-4 border-b border-gray-200">
-                    <h3 className="font-semibold text-gray-900">Dr. {selectedConversation.doctor.name}</h3>
+                    <h3 className="font-semibold text-gray-900">
+                      {selectedConversation.doctor.name?.startsWith('Dr. ') ? selectedConversation.doctor.name : `Dr. ${selectedConversation.doctor.name}`}
+                    </h3>
                     <p className="text-sm text-gray-500">{selectedConversation.doctor.specialization}</p>
                   </div>
                   

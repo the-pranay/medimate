@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import { MessageCircle, Send, Search, User, Clock } from 'lucide-react';
@@ -12,6 +12,7 @@ export default function DoctorMessages() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const refreshInterval = useRef(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,7 +33,21 @@ export default function DoctorMessages() {
 
     checkAuth();
     loadConversations();
-  }, [router]);
+    
+    // Set up auto-refresh for real-time messaging
+    refreshInterval.current = setInterval(() => {
+      if (selectedConversation) {
+        loadMessages(selectedConversation._id);
+      }
+      loadConversations();
+    }, 3000); // Refresh every 3 seconds
+
+    return () => {
+      if (refreshInterval.current) {
+        clearInterval(refreshInterval.current);
+      }
+    };
+  }, [router, selectedConversation]);
 
   const loadConversations = async () => {
     try {

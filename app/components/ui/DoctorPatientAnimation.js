@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Video, User, MessageCircle, Phone, PhoneOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function DoctorPatientAnimation() {
   const [isConnected, setIsConnected] = useState(false);
@@ -35,10 +36,22 @@ export default function DoctorPatientAnimation() {
           </span>
         </div>
         <div className="flex space-x-2">
-          <button className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors">
+          <button 
+            onClick={() => {
+              // Start call functionality
+              toast.info('Start call functionality - Coming soon!');
+            }}
+            className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
+          >
             <Phone className="w-4 h-4" />
           </button>
-          <button className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors">
+          <button 
+            onClick={() => {
+              // End call functionality
+              toast.info('End call functionality - Coming soon!');
+            }}
+            className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+          >
             <PhoneOff className="w-4 h-4" />
           </button>
         </div>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -155,7 +156,19 @@ export default function Footer() {
                   placeholder="Enter your email"
                   className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
                 />
-                <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105">
+                <button 
+                  onClick={() => {
+                    // Newsletter subscription functionality
+                    const email = document.querySelector('input[type="email"]')?.value;
+                    if (email) {
+                      toast.success('Thank you for subscribing to our newsletter!');
+                      document.querySelector('input[type="email"]').value = '';
+                    } else {
+                      toast.error('Please enter a valid email address');
+                    }
+                  }}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105"
+                >
                   Subscribe
                 </button>
               </div>

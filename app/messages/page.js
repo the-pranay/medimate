@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { 
   MessageCircle, 
   Send, 
@@ -273,13 +274,31 @@ export default function Messages() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
+                    <button 
+                      onClick={() => {
+                        // Voice call functionality
+                        toast.info('Voice call functionality - Coming soon!');
+                      }}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+                    >
                       <Phone className="h-5 w-5" />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
+                    <button 
+                      onClick={() => {
+                        // Video call functionality
+                        toast.info('Video call functionality - Coming soon!');
+                      }}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+                    >
                       <Video className="h-5 w-5" />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
+                    <button 
+                      onClick={() => {
+                        // More options functionality
+                        toast.info('More options - Coming soon!');
+                      }}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+                    >
                       <MoreVertical className="h-5 w-5" />
                     </button>
                   </div>
@@ -326,6 +345,9 @@ export default function Messages() {
                 <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
                   <button
                     type="button"
+                    onClick={() => {
+                      toast.info('File attachment feature coming soon!');
+                    }}
                     className="p-2 text-gray-400 hover:text-gray-600"
                   >
                     <Paperclip className="h-5 w-5" />
@@ -340,6 +362,9 @@ export default function Messages() {
                     />
                     <button
                       type="button"
+                      onClick={() => {
+                        toast.info('Emoji picker coming soon!');
+                      }}
                       className="absolute right-2 top-2 p-1 text-gray-400 hover:text-gray-600"
                     >
                       <Smile className="h-5 w-5" />
