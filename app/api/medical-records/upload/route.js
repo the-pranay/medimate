@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 import connectDB from '../../../../lib/mongodb';
 import MedicalReport from '../../../../lib/models/MedicalReport';
 import User from '../../../../lib/models/User';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { uploadFileToCloudinary } from '../../../../lib/cloudinary';
 
 // Helper function to verify JWT token
 const verifyToken = (authorization) => {
@@ -75,25 +74,29 @@ export async function POST(request) {
       );
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'medical-reports');
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (error) {
-      // Directory might already exist
-    }
-
+    // Convert file to buffer for Cloudinary upload
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    
     // Generate unique filename
     const timestamp = Date.now();
     const originalName = file.name;
-    const extension = path.extname(originalName);
-    const filename = `${decoded.userId}_${timestamp}${extension}`;
-    const filepath = path.join(uploadDir, filename);
-
-    // Save file to disk
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filepath, buffer);
+    const extension = originalName.split('.').pop()?.toLowerCase() || 'pdf';
+    const filename = `${decoded.userId}_${timestamp}`;
+    
+    // Upload to Cloudinary
+    const uploadResult = await uploadFileToCloudinary(
+      buffer, 
+      filename, 
+      'medical-reports'
+    );
+    
+    if (!uploadResult.success) {
+      return NextResponse.json(
+        { success: false, message: 'Failed to upload file to cloud storage' },
+        { status: 500 }
+      );
+    }
 
     // Map report type to enum values
     const typeMapping = {
@@ -118,7 +121,7 @@ export async function POST(request) {
       recommendations: '',
       files: [{
         fileName: originalName,
-        fileUrl: `/uploads/medical-reports/${filename}`,
+        fileUrl: uploadResult.url,
         fileType: file.type,
         fileSize: file.size,
         uploadedAt: new Date()

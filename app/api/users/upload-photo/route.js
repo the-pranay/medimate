@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 import connectDB from '../../../../lib/mongodb';
 import User from '../../../../lib/models/User';
+import { uploadFileToCloudinary } from '../../../../lib/cloudinary';
 
 // Helper function to verify JWT token
 const verifyToken = (authorization) => {
@@ -64,31 +63,34 @@ export async function POST(request) {
       );
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'profiles');
-    try {
-      await mkdir(uploadDir, { recursive: true });
-      console.log('Upload directory created/verified:', uploadDir);
-    } catch (error) {
-      console.log('Directory creation error (might already exist):', error.message);
-    }
-
-    // Generate unique filename
-    const fileExtension = path.extname(file.name).toLowerCase();
-    const uniqueFilename = `${decoded.userId}_${Date.now()}${fileExtension}`;
-    const filePath = path.join(uploadDir, uniqueFilename);
-
-    console.log('Attempting to save file to:', filePath);
-
-    // Convert file to buffer and save
+    // Convert file to buffer for Cloudinary upload
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
-    await writeFile(filePath, buffer);
-    console.log('File saved successfully');
+    // Generate unique filename
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const uniqueFilename = `${decoded.userId}_${Date.now()}`;
+    
+    console.log('Uploading to Cloudinary...');
+    
+    // Upload to Cloudinary
+    const uploadResult = await uploadFileToCloudinary(
+      buffer, 
+      uniqueFilename, 
+      'profile-pictures'
+    );
+    
+    if (!uploadResult.success) {
+      return NextResponse.json(
+        { success: false, message: 'Failed to upload image to cloud storage' },
+        { status: 500 }
+      );
+    }
+
+    console.log('Cloudinary upload successful:', uploadResult.url);
 
     // Update user profile with new photo URL
-    const profilePictureUrl = `/uploads/profiles/${uniqueFilename}`;
+    const profilePictureUrl = uploadResult.url;
     console.log('Profile picture URL:', profilePictureUrl);
     
     const updatedUser = await User.findByIdAndUpdate(
