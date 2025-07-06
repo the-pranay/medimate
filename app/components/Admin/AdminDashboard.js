@@ -35,7 +35,6 @@ export default function AdminDashboard() {
   const [systemStatus, setSystemStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     fetchSystemStatus();
@@ -114,14 +113,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: Activity },
-    { id: 'database', label: 'Database', icon: Database },
-    { id: 'features', label: 'Features', icon: Settings },
-    { id: 'users', label: 'Users', icon: Users },
-    { id: 'monitoring', label: 'Monitoring', icon: Server }
-  ];
-
   return (
     <ThemedDashboard role="admin">
       {/* Dashboard Navigation */}
@@ -172,248 +163,152 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white/90 backdrop-blur-sm shadow-sm relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <tab.icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
-            {/* Status Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="medical-card hover:shadow-purple-500/20 transition-all duration-300">
-                <div className="flex items-center">
-                  <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-3 rounded-full">
-                    <Database className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Database Status</p>
-                    <p className="text-lg font-semibold text-purple-600">
-                      {systemStatus?.success ? 'Connected' : 'Error'}
-                    </p>
-                  </div>
+        <div className="space-y-6">
+          {/* Status Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="medical-card hover:shadow-purple-500/20 transition-all duration-300">
+              <div className="flex items-center">
+                <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-3 rounded-full">
+                  <Database className="w-6 h-6 text-white" />
                 </div>
-              </div>
-
-              <div className="medical-card hover:shadow-green-500/20 transition-all duration-300">
-                <div className="flex items-center">
-                  <div className="bg-gradient-to-r from-green-500 to-green-600 p-3 rounded-full">
-                    <Users className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Users</p>
-                    <p className="text-lg font-semibold text-green-600">
-                      {systemStatus?.data?.database?.collections?.users || 0}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="medical-card hover:shadow-yellow-500/20 transition-all duration-300">
-                <div className="flex items-center">
-                  <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-3 rounded-full">
-                    <Calendar className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Appointments</p>
-                    <p className="text-lg font-semibold text-yellow-600">
-                      {systemStatus?.data?.database?.collections?.appointments || 0}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="medical-card hover:shadow-pink-500/20 transition-all duration-300">
-                <div className="flex items-center">
-                  <div className="bg-gradient-to-r from-pink-500 to-pink-600 p-3 rounded-full">
-                    <FileText className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Medical Records</p>
-                    <p className="text-lg font-semibold text-pink-600">
-                      {systemStatus?.data?.database?.collections?.medicalRecords || 0}
-                    </p>
-                  </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Database Status</p>
+                  <p className="text-lg font-semibold text-purple-600">
+                    {systemStatus?.success ? 'Connected' : 'Error'}
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* System Health */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b">
-                <h3 className="text-lg font-medium text-gray-900">System Health</h3>
+            <div className="medical-card hover:shadow-green-500/20 transition-all duration-300">
+              <div className="flex items-center">
+                <div className="bg-gradient-to-r from-green-500 to-green-600 p-3 rounded-full">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Total Users</p>
+                  <p className="text-lg font-semibold text-green-600">
+                    {systemStatus?.data?.database?.collections?.users || 0}
+                  </p>
+                </div>
               </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">Core Features</h4>
-                    <div className="space-y-2">
-                      {systemStatus?.data?.features?.core && Object.entries(systemStatus.data.features.core).map(([key, feature]) => (
-                        <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                          <div className="flex items-center space-x-3">
-                            {getStatusIcon(feature.status)}
-                            <span className="text-sm font-medium text-gray-900 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                          </div>
-                          <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(feature.status)}`}>
-                            {feature.status}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">Optional Features</h4>
-                    <div className="space-y-2">
-                      {systemStatus?.data?.features?.optional && Object.entries(systemStatus.data.features.optional).map(([key, feature]) => (
-                        <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                          <div className="flex items-center space-x-3">
-                            {getStatusIcon(feature.status)}
-                            <span className="text-sm font-medium text-gray-900 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                          </div>
-                          <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(feature.status)}`}>
-                            {feature.status}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+            </div>
+
+            <div className="medical-card hover:shadow-yellow-500/20 transition-all duration-300">
+              <div className="flex items-center">
+                <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-3 rounded-full">
+                  <Calendar className="w-6 h-6 text-white" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Appointments</p>
+                  <p className="text-lg font-semibold text-yellow-600">
+                    {systemStatus?.data?.database?.collections?.appointments || 0}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="medical-card hover:shadow-pink-500/20 transition-all duration-300">
+              <div className="flex items-center">
+                <div className="bg-gradient-to-r from-pink-500 to-pink-600 p-3 rounded-full">
+                  <FileText className="w-6 h-6 text-white" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Medical Records</p>
+                  <p className="text-lg font-semibold text-pink-600">
+                    {systemStatus?.data?.database?.collections?.medicalRecords || 0}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-        )}
 
-        {activeTab === 'database' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b">
-                <h3 className="text-lg font-medium text-gray-900">Database Information</h3>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {systemStatus?.data?.database?.collections?.users || 0}
-                    </div>
-                    <div className="text-sm text-gray-600">Users</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
-                      {systemStatus?.data?.database?.collections?.appointments || 0}
-                    </div>
-                    <div className="text-sm text-gray-600">Appointments</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">
-                      {systemStatus?.data?.database?.collections?.medicalRecords || 0}
-                    </div>
-                    <div className="text-sm text-gray-600">Medical Records</div>
-                  </div>
-                </div>
-                
-                {systemStatus?.data?.database?.collections?.users === 0 && (
-                  <div className="mt-6 text-center">
-                    <p className="text-gray-600 mb-4">No data found in database. Initialize with sample data?</p>
-                    <button
-                      onClick={initializeDatabase}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Initialize Database
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'features' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b">
-                <h3 className="text-lg font-medium text-gray-900">Feature Status</h3>
-              </div>
-              <div className="p-6">
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-4">Core Features</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {systemStatus?.data?.features?.core && Object.entries(systemStatus.data.features.core).map(([key, feature]) => (
-                        <div key={key} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <h5 className="font-medium text-gray-900 capitalize">{key.replace(/([A-Z])/g, ' $1')}</h5>
-                            <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(feature.status)}`}>
-                              {feature.status}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600">{feature.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-4">Optional Features</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {systemStatus?.data?.features?.optional && Object.entries(systemStatus.data.features.optional).map(([key, feature]) => (
-                        <div key={key} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <h5 className="font-medium text-gray-900 capitalize">{key.replace(/([A-Z])/g, ' $1')}</h5>
-                            <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(feature.status)}`}>
-                              {feature.status}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600">{feature.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'users' && (
+          {/* System Health */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-medium text-gray-900">User Management</h3>
+              <h3 className="text-lg font-medium text-gray-900">System Health</h3>
             </div>
             <div className="p-6">
-              <p className="text-gray-600">User management features will be implemented here.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Core Features</h4>
+                  <div className="space-y-2">
+                    {systemStatus?.data?.features?.core && Object.entries(systemStatus.data.features.core).map(([key, feature]) => (
+                      <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <div className="flex items-center space-x-3">
+                          {getStatusIcon(feature.status)}
+                          <span className="text-sm font-medium text-gray-900 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                        </div>
+                        <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(feature.status)}`}>
+                          {feature.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Optional Features</h4>
+                  <div className="space-y-2">
+                    {systemStatus?.data?.features?.optional && Object.entries(systemStatus.data.features.optional).map(([key, feature]) => (
+                      <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <div className="flex items-center space-x-3">
+                          {getStatusIcon(feature.status)}
+                          <span className="text-sm font-medium text-gray-900 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                        </div>
+                        <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(feature.status)}`}>
+                          {feature.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        )}
 
-        {activeTab === 'monitoring' && (
+          {/* Database Quick Stats */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-medium text-gray-900">System Monitoring</h3>
+              <h3 className="text-lg font-medium text-gray-900">Database Overview</h3>
             </div>
             <div className="p-6">
-              <p className="text-gray-600">System monitoring and analytics will be implemented here.</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {systemStatus?.data?.database?.collections?.users || 0}
+                  </div>
+                  <div className="text-sm text-gray-600">Users</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {systemStatus?.data?.database?.collections?.appointments || 0}
+                  </div>
+                  <div className="text-sm text-gray-600">Appointments</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {systemStatus?.data?.database?.collections?.medicalRecords || 0}
+                  </div>
+                  <div className="text-sm text-gray-600">Medical Records</div>
+                </div>
+              </div>
+              
+              {systemStatus?.data?.database?.collections?.users === 0 && (
+                <div className="mt-6 text-center">
+                  <p className="text-gray-600 mb-4">No data found in database. Initialize with sample data?</p>
+                  <button
+                    onClick={initializeDatabase}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Initialize Database
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
 
         {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow mt-8">
@@ -421,24 +316,44 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
           </div>
           <div className="p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Link href="/admin-users" className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Link href="/admin-users" className="flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg hover:from-blue-100 hover:to-blue-200 transition-all shadow-sm">
                 <UserCheck className="w-5 h-5 text-blue-600 mr-3" />
                 <span className="font-medium text-gray-900">Manage Users</span>
               </Link>
-              <Link href="/admin-reports" className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
-                <FileSearch className="w-5 h-5 text-green-600 mr-3" />
+              <Link href="/admin-doctors" className="flex items-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg hover:from-green-100 hover:to-green-200 transition-all shadow-sm">
+                <Heart className="w-5 h-5 text-green-600 mr-3" />
+                <span className="font-medium text-gray-900">Manage Doctors</span>
+              </Link>
+              <Link href="/admin-patients" className="flex items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg hover:from-purple-100 hover:to-purple-200 transition-all shadow-sm">
+                <Users className="w-5 h-5 text-purple-600 mr-3" />
+                <span className="font-medium text-gray-900">Manage Patients</span>
+              </Link>
+              <Link href="/admin-reports" className="flex items-center p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg hover:from-yellow-100 hover:to-yellow-200 transition-all shadow-sm">
+                <FileSearch className="w-5 h-5 text-yellow-600 mr-3" />
                 <span className="font-medium text-gray-900">View Reports</span>
               </Link>
-              <Link href="/admin-settings" className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
-                <Cog className="w-5 h-5 text-purple-600 mr-3" />
+              <Link href="/admin-database" className="flex items-center p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-lg hover:from-indigo-100 hover:to-indigo-200 transition-all shadow-sm">
+                <Database className="w-5 h-5 text-indigo-600 mr-3" />
+                <span className="font-medium text-gray-900">Database</span>
+              </Link>
+              <Link href="/admin-features" className="flex items-center p-4 bg-gradient-to-r from-pink-50 to-pink-100 rounded-lg hover:from-pink-100 hover:to-pink-200 transition-all shadow-sm">
+                <Zap className="w-5 h-5 text-pink-600 mr-3" />
+                <span className="font-medium text-gray-900">Features</span>
+              </Link>
+              <Link href="/admin-monitoring" className="flex items-center p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg hover:from-orange-100 hover:to-orange-200 transition-all shadow-sm">
+                <Activity className="w-5 h-5 text-orange-600 mr-3" />
+                <span className="font-medium text-gray-900">Monitoring</span>
+              </Link>
+              <Link href="/admin-settings" className="flex items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg hover:from-gray-100 hover:to-gray-200 transition-all shadow-sm">
+                <Cog className="w-5 h-5 text-gray-600 mr-3" />
                 <span className="font-medium text-gray-900">Settings</span>
               </Link>
               <button
                 onClick={fetchSystemStatus}
-                className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer"
+                className="flex items-center p-4 bg-gradient-to-r from-teal-50 to-teal-100 rounded-lg hover:from-teal-100 hover:to-teal-200 transition-all shadow-sm cursor-pointer"
               >
-                <RefreshCw className="w-5 h-5 text-orange-600 mr-3" />
+                <RefreshCw className="w-5 h-5 text-teal-600 mr-3" />
                 <span className="font-medium text-gray-900">Refresh Status</span>
               </button>
             </div>

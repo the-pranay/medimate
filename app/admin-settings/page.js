@@ -59,7 +59,7 @@ export default function AdminSettings() {
 
       if (response.ok) {
         const data = await response.json();
-        setSettings(prev => ({ ...prev, ...data.data }));
+        setSettings(prev => ({ ...prev, ...data.settings }));
       }
     } catch (error) {
       console.error('Error loading settings:', error);

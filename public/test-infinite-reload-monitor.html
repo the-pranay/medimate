@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Appointments Reload Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .log-entry {
+            padding: 8px;
+            margin: 5px 0;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .metric-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Doctor Appointments Infinite Reload Monitor</h1>
+        
+        <div id="status" class="status warning">
+            ⏳ Click "Start Monitoring" to begin testing...
+        </div>
+        
+        <div>
+            <button onclick="startMonitoring()" id="startBtn">Start Monitoring</button>
+            <button onclick="stopMonitoring()" id="stopBtn" disabled>Stop Monitoring</button>
+            <button onclick="clearLogs()" id="clearBtn">Clear Logs</button>
+            <button onclick="openDoctorAppointments()" id="openPageBtn">Open Doctor Appointments Page</button>
+        </div>
+        
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-value" id="totalCalls">0</div>
+                <div class="metric-label">Total API Calls</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="callsPerSecond">0.00</div>
+                <div class="metric-label">Calls/Second</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="avgInterval">-</div>
+                <div class="metric-label">Avg Interval (ms)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="verdict">Unknown</div>
+                <div class="metric-label">Status</div>
+            </div>
+        </div>
+        
+        <h3>📊 Real-time Monitoring Log</h3>
+        <div id="logContainer" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+            <div class="log-entry">Ready to monitor API calls...</div>
+        </div>
+    </div>
+
+    <script>
+        let monitoring = false;
+        let monitoringInterval;
+        let apiCalls = [];
+        let startTime;
+        let callCount = 0;
+
+        // Original fetch function
+        const originalFetch = window.fetch;
+
+        // Override fetch to monitor API calls
+        window.fetch = function(...args) {
+            const url = args[0];
+            
+            // Check if it's the appointments API call
+            if (typeof url === 'string' && url.includes('/api/appointments/doctor')) {
+                recordApiCall(url);
+            }
+            
+            return originalFetch.apply(this, args);
+        };
+
+        function recordApiCall(url) {
+            if (!monitoring) return;
+            
+            const now = Date.now();
+            callCount++;
+            
+            const callData = {
+                number: callCount,
+                timestamp: now,
+                timeSinceStart: now - startTime,
+                url: url
+            };
+            
+            apiCalls.push(callData);
+            
+            // Log the call
+            addLogEntry(`📞 API Call #${callCount} to ${url} at ${callData.timeSinceStart}ms`);
+            
+            // Update metrics
+            updateMetrics();
+            
+            // Check for infinite reload pattern
+            checkForInfiniteReload();
+        }
+
+        function startMonitoring() {
+            monitoring = true;
+            startTime = Date.now();
+            apiCalls = [];
+            callCount = 0;
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('status').className = 'status success';
+            document.getElementById('status').textContent = '✅ Monitoring active - Watching for API calls...';
+            
+            addLogEntry('🚀 Monitoring started...');
+            
+            // Update metrics every second
+            monitoringInterval = setInterval(updateMetrics, 1000);
+        }
+
+        function stopMonitoring() {
+            monitoring = false;
+            clearInterval(monitoringInterval);
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('status').className = 'status warning';
+            document.getElementById('status').textContent = '⏹️ Monitoring stopped';
+            
+            addLogEntry('🛑 Monitoring stopped');
+            generateFinalReport();
+        }
+
+        function updateMetrics() {
+            if (!monitoring || apiCalls.length === 0) return;
+            
+            const currentTime = Date.now();
+            const duration = (currentTime - startTime) / 1000;
+            const callsPerSecond = apiCalls.length / duration;
+            
+            document.getElementById('totalCalls').textContent = apiCalls.length;
+            document.getElementById('callsPerSecond').textContent = callsPerSecond.toFixed(2);
+            
+            // Calculate average interval
+            if (apiCalls.length > 1) {
+                const intervals = [];
+                for (let i = 1; i < apiCalls.length; i++) {
+                    intervals.push(apiCalls[i].timestamp - apiCalls[i-1].timestamp);
+                }
+                const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+                document.getElementById('avgInterval').textContent = Math.round(avgInterval);
+            }
+        }
+
+        function checkForInfiniteReload() {
+            if (apiCalls.length < 2) return;
+            
+            // Check last few calls for rapid succession
+            const recentCalls = apiCalls.slice(-3);
+            const rapidCalls = [];
+            
+            for (let i = 1; i < recentCalls.length; i++) {
+                const interval = recentCalls[i].timestamp - recentCalls[i-1].timestamp;
+                if (interval < 3000) { // Less than 3 seconds
+                    rapidCalls.push(interval);
+                }
+            }
+            
+            if (rapidCalls.length > 0) {
+                document.getElementById('verdict').textContent = '❌ INFINITE RELOAD';
+                document.getElementById('verdict').style.color = '#dc3545';
+                document.getElementById('status').className = 'status error';
+                document.getElementById('status').textContent = '🚨 INFINITE RELOAD DETECTED!';
+                addLogEntry(`🚨 RAPID CALLS DETECTED: ${rapidCalls.join('ms, ')}ms intervals`);
+            } else {
+                document.getElementById('verdict').textContent = '✅ Normal';
+                document.getElementById('verdict').style.color = '#28a745';
+            }
+        }
+
+        function addLogEntry(message) {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '<div class="log-entry">Logs cleared...</div>';
+        }
+
+        function openDoctorAppointments() {
+            addLogEntry('🔗 Opening doctor appointments page...');
+            window.open('/doctor-appointments', '_blank');
+        }
+
+        function generateFinalReport() {
+            if (apiCalls.length === 0) {
+                addLogEntry('📊 No API calls detected during monitoring period');
+                return;
+            }
+            
+            const duration = (apiCalls[apiCalls.length - 1].timestamp - startTime) / 1000;
+            const callsPerSecond = apiCalls.length / duration;
+            
+            addLogEntry('📊 FINAL REPORT:');
+            addLogEntry(`   Total calls: ${apiCalls.length}`);
+            addLogEntry(`   Duration: ${duration.toFixed(1)}s`);
+            addLogEntry(`   Rate: ${callsPerSecond.toFixed(2)} calls/second`);
+            
+            // Analyze intervals
+            const intervals = [];
+            for (let i = 1; i < apiCalls.length; i++) {
+                intervals.push(apiCalls[i].timestamp - apiCalls[i-1].timestamp);
+            }
+            
+            if (intervals.length > 0) {
+                const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+                const minInterval = Math.min(...intervals);
+                const maxInterval = Math.max(...intervals);
+                
+                addLogEntry(`   Avg interval: ${Math.round(avgInterval)}ms`);
+                addLogEntry(`   Min interval: ${minInterval}ms`);
+                addLogEntry(`   Max interval: ${maxInterval}ms`);
+                
+                const rapidCalls = intervals.filter(interval => interval < 3000).length;
+                if (rapidCalls > 0) {
+                    addLogEntry(`❌ INFINITE RELOAD CONFIRMED: ${rapidCalls} rapid calls detected`);
+                } else {
+                    addLogEntry(`✅ NO INFINITE RELOAD: All intervals > 3 seconds`);
+                }
+            }
+        }
+
+        // Initialize
+        addLogEntry('🔧 Monitoring system ready');
+        addLogEntry('💡 TIP: Start monitoring, then open the doctor appointments page to test');
+    </script>
+</body>
+</html>

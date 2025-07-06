@@ -74,6 +74,62 @@ export default function AdminUsers() {
     }
   };
 
+  const toggleUserStatus = async (userId, currentStatus) => {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      
+      const response = await fetch(`/api/admin/users/${userId}/toggle`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isActive: !currentStatus }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(users.map(user => 
+          user._id === userId ? { ...user, isActive: !currentStatus } : user
+        ));
+        toast.success(`User ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+      } else {
+        throw new Error('Failed to update user status');
+      }
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      toast.error('Failed to update user status');
+    }
+  };
+
+  const deleteUser = async (userId, userEmail) => {
+    if (!confirm(`Are you sure you want to delete user: ${userEmail}?`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        toast.success('User deleted successfully');
+        loadUsers(); // Refresh the user list
+      } else {
+        const data = await response.json();
+        toast.error(data.message || 'Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Failed to delete user');
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('authToken');
@@ -201,22 +257,20 @@ export default function AdminUsers() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button 
-                          onClick={() => {
-                            // Edit user functionality
-                            toast.info('Edit user functionality - Coming soon!');
-                          }}
-                          className="text-blue-600 hover:text-blue-900"
+                          onClick={() => toggleUserStatus(user._id, user.isActive)}
+                          className={`${
+                            user.isActive 
+                              ? 'text-orange-600 hover:text-orange-900' 
+                              : 'text-green-600 hover:text-green-900'
+                          }`}
+                          title={user.isActive ? 'Deactivate user' : 'Activate user'}
                         >
-                          <Edit className="w-4 h-4" />
+                          {user.isActive ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                         </button>
                         <button 
-                          onClick={() => {
-                            // Delete user functionality
-                            if (confirm('Are you sure you want to delete this user?')) {
-                              toast.success('User deleted successfully');
-                            }
-                          }}
+                          onClick={() => deleteUser(user._id, user.email)}
                           className="text-red-600 hover:text-red-900"
+                          title="Delete user"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

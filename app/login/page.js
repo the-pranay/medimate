@@ -28,7 +28,20 @@ function LoginForm() {
     if (isAuthenticated && user && !loading && !isRedirecting) {
       console.log('🔄 Login page: Redirecting authenticated user:', user?.role || 'unknown');
       setIsRedirecting(true);
-      const redirectPath = user?.role === 'doctor' ? '/doctor-dashboard' : '/patient-dashboard';
+      let redirectPath;
+      
+      switch(user?.role) {
+        case 'doctor':
+          redirectPath = '/doctor-dashboard';
+          break;
+        case 'admin':
+          redirectPath = '/admin-dashboard';
+          break;
+        case 'patient':
+        default:
+          redirectPath = '/patient-dashboard';
+          break;
+      }
       
       // Add a small delay to prevent rapid redirects
       setTimeout(() => {
@@ -69,9 +82,19 @@ function LoginForm() {
         toast.success('Login successful!');
         
         // Redirect based on user role
-        const redirectPath = result.data.user?.role === 'doctor' 
-          ? '/doctor-dashboard' 
-          : '/patient-dashboard';
+        let redirectPath;
+        switch(result.data.user?.role) {
+          case 'doctor':
+            redirectPath = '/doctor-dashboard';
+            break;
+          case 'admin':
+            redirectPath = '/admin-dashboard';
+            break;
+          case 'patient':
+          default:
+            redirectPath = '/patient-dashboard';
+            break;
+        }
         router.push(redirectPath);
       } else {
         toast.error(result.message || 'Login failed');

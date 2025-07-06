@@ -48,10 +48,23 @@ const fallbackUsers = [
   },
   {
     _id: "temp_admin_1",
+    name: "Pranay Admin",
+    email: process.env.ADMIN_EMAIL || "thepranay2004@gmail.com", 
+    password: "$2a$12$5JJxSTSi/GQvQj5IzXscv.LHZ9RSGyzISSBiMyTtAkRVTV8jc9ajC", // password: "admin@30"
+    phone: "+91 9876543212",
+    role: "admin",
+    department: "IT",
+    permissions: ["manage_users", "manage_system", "view_reports", "manage_doctors", "manage_patients"],
+    address: "Admin Office, Mumbai",
+    isVerified: true,
+    isActive: true,
+  },
+  {
+    _id: "temp_admin_2",
     name: "Admin User",
     email: "admin@demo.com", 
     password: "$2a$12$OrwUEPscqSOsF76sE5U2N./iv/X6xMHC1PKDGJDKqKPLIHAM2nBly", // password: "demo123"
-    phone: "+91 9876543212",
+    phone: "+91 9876543213",
     role: "admin",
     department: "IT",
     permissions: ["manage_users", "manage_system", "view_reports"],
@@ -116,6 +129,92 @@ export async function POST(request) {
 
     console.log('✅ User found:', user.email, 'Mode:', usedFallback ? 'fallback' : 'database');
 
+    // Special admin access for configured admin email
+    const adminEmail = process.env.ADMIN_EMAIL || 'thepranay2004@gmail.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin@30';
+    
+    if (email === adminEmail) {
+      console.log('🔑 Special admin access granted for:', email);
+      
+      // Check if password matches admin password
+      if (password !== adminPassword) {
+        console.log('❌ Invalid admin password for:', email);
+        return NextResponse.json(
+          { success: false, message: 'Invalid credentials' },
+          { status: 401, headers: corsHeaders }
+        );
+      }
+      
+      // If user doesn't exist in database, create admin user
+      if (!user && !usedFallback) {
+        try {
+          const hashedPassword = await bcrypt.hash(adminPassword, 12);
+          user = new User({
+            name: 'Pranay Admin',
+            email: adminEmail,
+            password: hashedPassword,
+            phone: '+91 9876543212',
+            role: 'admin',
+            department: 'IT',
+            permissions: ['manage_users', 'manage_system', 'view_reports', 'manage_doctors', 'manage_patients'],
+            isVerified: true,
+            isActive: true,
+            createdAt: new Date(),
+            lastLogin: new Date()
+          });
+          await user.save();
+          console.log('✅ Created new admin user for:', email);
+        } catch (createError) {
+          console.log('⚠️ Failed to create admin user, using fallback');
+          usedFallback = true;
+          user = fallbackUsers.find(u => u.email === email);
+        }
+      }
+      
+      // Ensure admin role is set
+      if (user && user.role !== 'admin') {
+        if (!usedFallback) {
+          user.role = 'admin';
+          user.permissions = ['manage_users', 'manage_system', 'view_reports', 'manage_doctors', 'manage_patients'];
+          await user.save();
+          console.log('✅ Upgraded user to admin:', email);
+        }
+      }
+      
+      // For admin access, skip regular password validation
+      console.log(`✅ Admin login successful for: ${email}`);
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { 
+          userId: user._id, 
+          email: user.email, 
+          role: user.role 
+        },
+        process.env.JWT_SECRET || 'default_secret',
+        { expiresIn: '7d' }
+      );
+
+      // Remove password from response
+      const userResponse = usedFallback ? 
+        { ...user, password: undefined } : 
+        user.toObject();
+      delete userResponse.password;
+
+      console.log('✅ Admin login successful for:', email);
+      console.log('🔍 User role being returned:', userResponse.role);
+      console.log('🔍 Full user object:', JSON.stringify(userResponse, null, 2));
+
+      return NextResponse.json({
+        success: true,
+        message: `Admin login successful${usedFallback ? ' (fallback mode)' : ''}`,
+        data: {
+          user: userResponse,
+          token,
+        },
+      }, { headers: corsHeaders });
+    }
+
     // Check if user is active (for database users)
     if (!usedFallback && !user.isActive) {
       return NextResponse.json(
@@ -145,6 +244,7 @@ export async function POST(request) {
     }
 
     console.log(`✅ Login successful for: ${email} (${usedFallback ? 'fallback' : 'database'} mode)`);
+    console.log('🔍 User role being returned:', user.role);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -162,6 +262,8 @@ export async function POST(request) {
       { ...user, password: undefined } : 
       user.toObject();
     delete userResponse.password;
+
+    console.log('🔍 Final user object:', JSON.stringify(userResponse, null, 2));
 
     return NextResponse.json({
       success: true,
