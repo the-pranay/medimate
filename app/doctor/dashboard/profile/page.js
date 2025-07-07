@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import ProfileEdit from '../../../../components/ui/ProfileEdit';
+import ProfileEdit from '../../../components/ui/ProfileEdit';
 
 const DoctorProfilePage = () => {
   const router = useRouter();

@@ -25,9 +25,9 @@ import {
   Shield,
   Video // Add Video icon
 } from 'lucide-react';
-import ThemedDashboard from '../components/ui/ThemedDashboard';
+import ThemedDashboard from '../../components/ui/ThemedDashboard';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
-import { PageLoader } from '../components/ui/HealthcareLoaders';
+import { PageLoader } from '../../components/ui/HealthcareLoaders';
 
 export default function DoctorDashboard() {
   const router = useRouter();

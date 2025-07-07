@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
 import { Calendar, Clock, User, MapPin, Plus, Check, X, AlertCircle } from 'lucide-react';
-import { renderLoaderByPageType, renderButtonLoader } from '../utils/loaders';
+import { renderLoaderByPageType, renderButtonLoader } from '../../utils/loaders';
 
 export default function DoctorAppointments() {
   const [user, setUser] = useState(null);

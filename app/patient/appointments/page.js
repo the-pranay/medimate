@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
 import { Calendar, Clock, User, MapPin, Plus, RefreshCw } from 'lucide-react';
-import { renderLoaderByPageType, renderButtonLoader } from '../utils/loaders';
+import { renderLoaderByPageType, renderButtonLoader } from '../../utils/loaders';
 
 export default function PatientAppointments() {
   const [user, setUser] = useState(null);
