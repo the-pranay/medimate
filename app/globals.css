@@ -162,6 +162,58 @@ body {
   }
 }
 
+/* Healthcare Loader Animations */
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse-wave {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes medical-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Animation Classes */
 .animate-heartbeat { animation: heartbeat 1.5s ease-in-out infinite; }
 .animate-pulse-medical { animation: pulse-medical 2s ease-in-out infinite; }
@@ -174,6 +226,16 @@ body {
 .animate-medical-bounce-in { animation: medical-bounce-in 0.6s ease-out forwards; }
 .animate-medical-slide-in-left { animation: medical-slide-in-left 0.6s ease-out forwards; }
 .animate-medical-slide-in-right { animation: medical-slide-in-right 0.6s ease-out forwards; }
+.animate-pulse-wave {
+  animation: pulse-wave 2s linear infinite;
+  stroke-dasharray: 50;
+}
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out;
+}
 
 /* EKG Line Animation */
 .ekg-container {
@@ -497,3 +559,19 @@ body {
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
 .stagger-6 { animation-delay: 0.6s; }
+
+/* Loading overlay styles */
+.loading-overlay {
+  backdrop-filter: blur(8px);
+  background: rgba(248, 250, 252, 0.9);
+}
+
+/* Medical loader container */
+.medical-loader-container {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(99, 102, 241, 0.05);
+}

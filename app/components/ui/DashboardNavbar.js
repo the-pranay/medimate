@@ -54,46 +54,54 @@ export default function DashboardNavbar({ user, userRole, onLogout }) {
     if (onLogout) {
       onLogout();
     } else {
-      // Default logout behavior
-      localStorage.removeItem('token');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('user');
-      localStorage.removeItem('isAuthenticated');
-      router.push('/login');
+      try {
+        // Default logout behavior
+        localStorage.removeItem('token');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAuthenticated');
+        
+        // Force redirect to login page
+        window.location.href = '/login';
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Fallback redirect
+        window.location.href = '/login';
+      }
     }
   };
 
   const getDashboardLinks = () => {
     if (userRole === 'doctor') {
       return [
-        { name: 'Dashboard', href: '/doctor-dashboard', icon: Activity },
-        { name: 'Appointments', href: '/doctor-appointments', icon: Calendar },
-        { name: 'Patients', href: '/doctor-patients', icon: Users },
-        { name: 'Reports', href: '/doctor-reports', icon: FileText },
-        { name: 'Messages', href: '/doctor-messages', icon: MessageCircle },
+        { name: 'Dashboard', href: '/doctor/dashboard', icon: Activity },
+        { name: 'Appointments', href: '/doctor/appointments', icon: Calendar },
+        { name: 'Patients', href: '/doctor/patients', icon: Users },
+        { name: 'Reports', href: '/doctor/reports', icon: FileText },
+        { name: 'Messages', href: '/doctor/messages', icon: MessageCircle },
       ];
     } else if (userRole === 'patient') {
       return [
-        { name: 'Dashboard', href: '/patient-dashboard', icon: Activity },
-        { name: 'Appointments', href: '/patient-appointments', icon: Calendar },
-        { name: 'Doctors', href: '/patient-doctors', icon: Users },
-        { name: 'Reports', href: '/patient-reports', icon: FileText },
-        { name: 'Prescriptions', href: '/patient-prescriptions', icon: Pill },
-        { name: 'Messages', href: '/patient-messages', icon: MessageCircle },
+        { name: 'Dashboard', href: '/patient/dashboard', icon: Activity },
+        { name: 'Appointments', href: '/patient/appointments', icon: Calendar },
+        { name: 'Doctors', href: '/patient/doctors', icon: Users },
+        { name: 'Reports', href: '/patient/reports', icon: FileText },
+        { name: 'Prescriptions', href: '/patient/prescriptions', icon: Pill },
+        { name: 'Messages', href: '/patient/messages', icon: MessageCircle },
       ];
     } else {
       // Admin role - optimize for small screens
       return [
-        { name: 'Dashboard', href: '/admin-dashboard', icon: Activity, short: 'Home' },
-        { name: 'Users', href: '/admin-users', icon: Users, short: 'Users' },
-        { name: 'Doctors', href: '/admin-doctors', icon: Stethoscope, short: 'Docs' },
-        { name: 'Patients', href: '/admin-patients', icon: Heart, short: 'Patients' },
-        { name: 'Reports', href: '/admin-reports', icon: FileText, short: 'Reports' },
-        { name: 'Database', href: '/admin-database', icon: Database, short: 'DB' },
-        { name: 'Features', href: '/admin-features', icon: Zap, short: 'Features' },
-        { name: 'Monitoring', href: '/admin-monitoring', icon: Server, short: 'Monitor' },
-        { name: 'Settings', href: '/admin-settings', icon: Settings, short: 'Settings' },
+        { name: 'Dashboard', href: '/admin/dashboard', icon: Activity, short: 'Home' },
+        { name: 'Users', href: '/admin/users', icon: Users, short: 'Users' },
+        { name: 'Doctors', href: '/admin/doctors', icon: Stethoscope, short: 'Docs' },
+        { name: 'Patients', href: '/admin/patients', icon: Heart, short: 'Patients' },
+        { name: 'Reports', href: '/admin/reports', icon: FileText, short: 'Reports' },
+        { name: 'Database', href: '/admin/database', icon: Database, short: 'DB' },
+        { name: 'Features', href: '/admin/features', icon: Zap, short: 'Features' },
+        { name: 'Monitoring', href: '/admin/monitoring', icon: Server, short: 'Monitor' },
+        { name: 'Settings', href: '/admin/settings', icon: Settings, short: 'Settings' },
       ];
     }
   };

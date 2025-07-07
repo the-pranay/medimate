@@ -39,7 +39,23 @@ export async function GET(request) {
       );
     }
 
-    const user = await User.findById(decoded.id).select('-password');
+    let user = await User.findById(decoded.id).select('-password');
+    
+    // If user not found and this is admin email, create admin user
+    if (!user && decoded.email === adminEmail) {
+      user = new User({
+        name: 'Admin User',
+        email: adminEmail,
+        password: 'placeholder', // This won't be used since admin logs in via special auth
+        role: 'admin',
+        isActive: true,
+        isVerified: true,
+        phone: '+91 9999999999',
+        address: 'MediMate Headquarters'
+      });
+      await user.save();
+      user = await User.findById(user._id).select('-password');
+    }
     
     if (!user) {
       return NextResponse.json(
@@ -95,11 +111,26 @@ export async function PUT(request) {
     delete updateData.joinedDate;
     delete updateData.lastLogin;
 
-    const updatedUser = await User.findByIdAndUpdate(
+    let updatedUser = await User.findByIdAndUpdate(
       decoded.id,
       { ...updateData, updatedAt: new Date() },
       { new: true, select: '-password' }
     );
+
+    // If user not found and this is admin email, create admin user
+    if (!updatedUser && decoded.email === adminEmail) {
+      updatedUser = new User({
+        ...updateData,
+        email: adminEmail,
+        password: 'placeholder', // This won't be used since admin logs in via special auth
+        role: 'admin',
+        isActive: true,
+        isVerified: true,
+        updatedAt: new Date()
+      });
+      await updatedUser.save();
+      updatedUser = await User.findById(updatedUser._id).select('-password');
+    }
 
     if (!updatedUser) {
       return NextResponse.json(

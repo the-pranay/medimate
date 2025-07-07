@@ -56,9 +56,13 @@ export default function HomePage() {
       const response = await fetch('/api/homepage/stats');
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
+        if (data.success && data.data) {
           setStats(data.data);
+        } else {
+          console.error('Invalid data received from stats API');
         }
+      } else {
+        console.error('Failed to fetch stats:', response.status);
       }
     } catch (error) {
       console.error('Error fetching homepage stats:', error);
@@ -123,7 +127,7 @@ export default function HomePage() {
 
             {/* Hero Subtitle */}
             <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
-              Experience the future of healthcare with our AI-powered platform. 
+              Experience the future of healthcare with our advanced platform. 
               Connect with doctors, manage appointments, and access your medical records seamlessly.
             </p>
 
@@ -159,32 +163,32 @@ export default function HomePage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               { 
-                value: loading ? "..." : `${formatNumber(stats.totalPatients)}+`, 
+                value: loading ? "..." : `${formatNumber(stats?.totalPatients || 0)}+`, 
                 label: "Happy Patients", 
                 icon: Users, 
                 description: "Trusted by thousands",
-                realValue: stats.totalPatients
+                realValue: stats?.totalPatients || 0
               },
               { 
-                value: loading ? "..." : `${stats.successRate}%`, 
+                value: loading ? "..." : `${stats?.successRate || 0}%`, 
                 label: "Success Rate", 
                 icon: CheckCircle, 
                 description: "Proven results",
-                realValue: stats.successRate
+                realValue: stats?.successRate || 0
               },
               { 
-                value: loading ? "..." : `${formatNumber(stats.totalDoctors)}+`, 
+                value: loading ? "..." : `${formatNumber(stats?.totalDoctors || 0)}+`, 
                 label: "Expert Doctors", 
                 icon: Stethoscope, 
                 description: "Qualified professionals",
-                realValue: stats.totalDoctors
+                realValue: stats?.totalDoctors || 0
               },
               { 
-                value: loading ? "..." : `${formatNumber(stats.totalAppointments)}+`, 
+                value: loading ? "..." : `${formatNumber(stats?.totalAppointments || 0)}+`, 
                 label: "Appointments", 
                 icon: Calendar, 
                 description: "Successful consultations",
-                realValue: stats.totalAppointments
+                realValue: stats?.totalAppointments || 0
               }
             ].map((stat, index) => (
               <div key={index} className="group relative">

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Heart, Stethoscope, Users, Activity, ArrowRight, Shield, Zap, Sparkles, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
+import { renderButtonLoader } from '../utils/loaders';
 
 function RegisterForm() {
   const router = useRouter();
@@ -39,7 +40,7 @@ function RegisterForm() {
     if (isAuthenticated && user && !loading && !isRedirecting) {
       console.log('🔄 Register page: Redirecting authenticated user:', user?.role || 'unknown');
       setIsRedirecting(true);
-      const redirectPath = user?.role === 'doctor' ? '/doctor-dashboard' : '/patient-dashboard';
+      const redirectPath = user?.role === 'doctor' ? '/doctor/dashboard' : '/patient/dashboard';
       
       // Add a small delay to prevent rapid redirects
       setTimeout(() => {
@@ -474,7 +475,7 @@ function RegisterForm() {
                 >
                   <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                     {loading ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      renderButtonLoader({ color: 'white', size: 'sm' })
                     ) : (
                       <Zap className="h-5 w-5 text-white group-hover:animate-pulse" />
                     )}

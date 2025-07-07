@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, Heart, Stethoscope, ArrowRight, Shield, Users, Activity } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
+import { renderButtonLoader } from '../utils/loaders';
 
 function LoginForm() {
   const router = useRouter();
@@ -32,14 +33,14 @@ function LoginForm() {
       
       switch(user?.role) {
         case 'doctor':
-          redirectPath = '/doctor-dashboard';
+          redirectPath = '/doctor/dashboard';
           break;
         case 'admin':
-          redirectPath = '/admin-dashboard';
+          redirectPath = '/admin/dashboard';
           break;
         case 'patient':
         default:
-          redirectPath = '/patient-dashboard';
+          redirectPath = '/patient/dashboard';
           break;
       }
       
@@ -85,14 +86,14 @@ function LoginForm() {
         let redirectPath;
         switch(result.data.user?.role) {
           case 'doctor':
-            redirectPath = '/doctor-dashboard';
+            redirectPath = '/doctor/dashboard';
             break;
           case 'admin':
-            redirectPath = '/admin-dashboard';
+            redirectPath = '/admin/dashboard';
             break;
           case 'patient':
           default:
-            redirectPath = '/patient-dashboard';
+            redirectPath = '/patient/dashboard';
             break;
         }
         router.push(redirectPath);
@@ -269,7 +270,7 @@ function LoginForm() {
                 >
                   <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                     {loading ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      renderButtonLoader({ color: 'white', size: 'sm' })
                     ) : (
                       <ArrowRight className="h-5 w-5 text-white group-hover:translate-x-1 transition-transform" />
                     )}
