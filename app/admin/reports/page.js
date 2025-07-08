@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
+import { renderLoaderByPageType } from '../../utils/loaders';
 import { FileText, Download, TrendingUp, Users, Calendar, Activity, BarChart3, PieChart, LineChart, Shield, Server, Zap, CheckCircle, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -19,7 +20,11 @@ import {
 } from 'chart.js';
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+
+// This is needed to properly extend jsPDF with autoTable
+if (typeof window !== 'undefined') {
+  require('jspdf-autotable');
+}
 
 ChartJS.register(
   CategoryScale,
@@ -45,161 +50,211 @@ export default function AdminReports() {
   });
   const [loading, setLoading] = useState(true);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [autoTableLoaded, setAutoTableLoaded] = useState(false);
   const router = useRouter();
 
-  // Enhanced PDF Export Function
+  // Load autotable plugin on client side only
+  useEffect(() => {
+    const loadAutoTable = async () => {
+      try {
+        if (typeof window !== 'undefined') {
+          await require('jspdf-autotable');
+          setAutoTableLoaded(true);
+          console.log('jspdf-autotable loaded successfully');
+        }
+      } catch (error) {
+        console.error('Failed to load jspdf-autotable:', error);
+      }
+    };
+    
+    loadAutoTable();
+  }, []);
+
+  // Enhanced PDF Export Function 
   const exportToPDF = () => {
-    const doc = new jsPDF();
-    const currentDate = new Date().toLocaleDateString();
-    const currentTime = new Date().toLocaleTimeString();
-    
-    // Header with Logo Space
-    doc.setFontSize(22);
-    doc.setTextColor(40, 116, 166);
-    doc.text('MediMate System Report', 20, 30);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Generated on: ${currentDate} at ${currentTime}`, 20, 40);
-    
-    // Executive Summary
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0);
-    doc.text('Executive Summary', 20, 60);
-    
-    doc.setFontSize(11);
-    doc.setTextColor(60, 60, 60);
-    const summaryText = `This report provides a comprehensive overview of the MediMate healthcare management system,
-including user statistics, system utilization metrics, and recent activity summaries.`;
-    doc.text(summaryText, 20, 70, { maxWidth: 170 });
-    
-    // System Overview
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0);
-    doc.text('System Statistics', 20, 90);
-    
-    // Enhanced Stats Table
-    const statsData = [
-      ['Metric', 'Current Count', 'Percentage', 'Status'],
-      ['Total Users', stats.totalUsers.toString(), '100%', 'Active'],
-      ['Active Users', (stats.activeUsers || 0).toString(), `${Math.round((stats.activeUsers || 0) / stats.totalUsers * 100) || 0}%`, 'Online'],
-      ['Doctors', stats.totalDoctors.toString(), `${Math.round(stats.totalDoctors / stats.totalUsers * 100) || 0}%`, 'Available'],
-      ['Patients', stats.totalPatients.toString(), `${Math.round(stats.totalPatients / stats.totalUsers * 100) || 0}%`, 'Registered'],
-      ['Appointments', stats.totalAppointments.toString(), '-', 'Scheduled'],
-    ];
-    
-    doc.autoTable({
-      head: [statsData[0]],
-      body: statsData.slice(1),
-      startY: 100,
-      theme: 'striped',
-      headStyles: { 
-        fillColor: [40, 116, 166],
-        textColor: [255, 255, 255],
-        fontSize: 11,
-        fontStyle: 'bold'
-      },
-      bodyStyles: {
-        fontSize: 10,
-        cellPadding: 5
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245]
-      },
-      margin: { left: 20, right: 20 }
-    });
-    
-    // System Health Metrics
-    const nextY = doc.lastAutoTable.finalY + 20;
-    doc.setFontSize(16);
-    doc.text('System Health Metrics', 20, nextY);
-    
-    const healthData = [
-      ['Health Metric', 'Score', 'Status'],
-      ['User Activity Rate', `${Math.round((stats.activeUsers || 0) / stats.totalUsers * 100) || 0}%`, 'Good'],
-      ['Doctor Availability', `${stats.totalDoctors > 0 ? 'Available' : 'None'}`, stats.totalDoctors > 0 ? 'Good' : 'Alert'],
-      ['Patient Engagement', `${stats.totalPatients > 0 ? 'Active' : 'Low'}`, stats.totalPatients > 0 ? 'Good' : 'Alert'],
-      ['System Uptime', '99.9%', 'Excellent'],
-      ['Data Integrity', '100%', 'Excellent']
-    ];
-    
-    doc.autoTable({
-      head: [healthData[0]],
-      body: healthData.slice(1),
-      startY: nextY + 10,
-      theme: 'striped',
-      headStyles: { 
-        fillColor: [16, 185, 129],
-        textColor: [255, 255, 255],
-        fontSize: 11,
-        fontStyle: 'bold'
-      },
-      bodyStyles: {
-        fontSize: 10,
-        cellPadding: 5
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245]
-      },
-      margin: { left: 20, right: 20 }
-    });
-    
-    // Recent Reports Section
-    if (stats.recentReports && stats.recentReports.length > 0) {
-      const finalY = doc.lastAutoTable.finalY + 20;
-      doc.setFontSize(16);
-      doc.text('Recent Medical Reports', 20, finalY);
+    try {
+      console.log('Starting PDF export...');
       
-      const reportsData = stats.recentReports.map(report => [
-        report.title,
-        report.description,
-        report.date,
-        'Complete'
-      ]);
+      // Check if autotable plugin is loaded
+      if (!autoTableLoaded) {
+        toast.error('PDF table functionality is still loading. Please try again in a moment.');
+        return;
+      }
+      
+      // Ensure we're in the browser environment
+      if (typeof window === 'undefined') {
+        toast.error('PDF export is only available in the browser');
+        return;
+      }
+      
+      const doc = new jsPDF();
+      
+      // Verify autoTable is available
+      console.log('jsPDF instance created');
+      console.log('autoTable available:', typeof doc.autoTable);
+      
+      if (typeof doc.autoTable !== 'function') {
+        console.error('autoTable function not available on jsPDF instance');
+        toast.error('PDF table functionality not available. Please refresh the page and try again.');
+        return;
+      }
+      
+      const currentDate = new Date().toLocaleDateString();
+      const currentTime = new Date().toLocaleTimeString();
+      
+      // Header with Logo Space
+      doc.setFontSize(22);
+      doc.setTextColor(40, 116, 166);
+      doc.text('MediMate System Report', 20, 30);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Generated on: ${currentDate} at ${currentTime}`, 20, 40);
+      
+      // Executive Summary
+      doc.setFontSize(16);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Executive Summary', 20, 60);
+      
+      doc.setFontSize(11);
+      doc.setTextColor(60, 60, 60);
+      const summaryText = `This report provides a comprehensive overview of the MediMate healthcare management system,
+including user statistics, system utilization metrics, and recent activity summaries.`;
+      doc.text(summaryText, 20, 70, { maxWidth: 170 });
+      
+      // System Overview
+      doc.setFontSize(16);
+      doc.setTextColor(0, 0, 0);
+      doc.text('System Statistics', 20, 90);
+      
+      // Enhanced Stats Table
+      const statsData = [
+        ['Metric', 'Current Count', 'Percentage', 'Status'],
+        ['Total Users', stats.totalUsers?.toString() || '0', '100%', 'Active'],
+        ['Active Users', (stats.activeUsers || 0).toString(), `${Math.round((stats.activeUsers || 0) / (stats.totalUsers || 1) * 100) || 0}%`, 'Online'],
+        ['Doctors', stats.totalDoctors?.toString() || '0', `${Math.round((stats.totalDoctors || 0) / (stats.totalUsers || 1) * 100) || 0}%`, 'Available'],
+        ['Patients', stats.totalPatients?.toString() || '0', `${Math.round((stats.totalPatients || 0) / (stats.totalUsers || 1) * 100) || 0}%`, 'Registered'],
+        ['Appointments', stats.totalAppointments?.toString() || '0', '-', 'Scheduled'],
+      ];
       
       doc.autoTable({
-        head: [['Report Title', 'Description', 'Date', 'Status']],
-        body: reportsData,
-        startY: finalY + 10,
+        head: [statsData[0]],
+        body: statsData.slice(1),
+        startY: 100,
         theme: 'striped',
         headStyles: { 
-          fillColor: [139, 92, 246],
+          fillColor: [40, 116, 166],
           textColor: [255, 255, 255],
           fontSize: 11,
           fontStyle: 'bold'
         },
         bodyStyles: {
-          fontSize: 9,
-          cellPadding: 4
+          fontSize: 10,
+          cellPadding: 5
         },
         alternateRowStyles: {
           fillColor: [245, 245, 245]
         },
         margin: { left: 20, right: 20 }
       });
-    } else {
-      const finalY = doc.lastAutoTable.finalY + 20;
+      
+      // System Health Metrics
+      const nextY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 160;
       doc.setFontSize(16);
-      doc.text('Recent Medical Reports', 20, finalY);
-      doc.setFontSize(11);
-      doc.setTextColor(100, 100, 100);
-      doc.text('No recent medical reports available at this time.', 20, finalY + 15);
+      doc.text('System Health Metrics', 20, nextY);
+      
+      const healthData = [
+        ['Health Metric', 'Score', 'Status'],
+        ['User Activity Rate', `${Math.round((stats.activeUsers || 0) / (stats.totalUsers || 1) * 100) || 0}%`, 'Good'],
+        ['Doctor Availability', `${(stats.totalDoctors || 0) > 0 ? 'Available' : 'None'}`, (stats.totalDoctors || 0) > 0 ? 'Good' : 'Alert'],
+        ['Patient Engagement', `${(stats.totalPatients || 0) > 0 ? 'Active' : 'Low'}`, (stats.totalPatients || 0) > 0 ? 'Good' : 'Alert'],
+        ['System Uptime', '99.9%', 'Excellent'],
+        ['Data Integrity', '100%', 'Excellent']
+      ];
+      
+      doc.autoTable({
+        head: [healthData[0]],
+        body: healthData.slice(1),
+        startY: nextY + 10,
+        theme: 'striped',
+        headStyles: { 
+          fillColor: [16, 185, 129],
+          textColor: [255, 255, 255],
+          fontSize: 11,
+          fontStyle: 'bold'
+        },
+        bodyStyles: {
+          fontSize: 10,
+          cellPadding: 5
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        },
+        margin: { left: 20, right: 20 }
+      });
+      
+      // Recent Reports Section
+      if (stats.recentReports && stats.recentReports.length > 0) {
+        const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 220;
+        doc.setFontSize(16);
+        doc.text('Recent Medical Reports', 20, finalY);
+        
+        const reportsData = stats.recentReports.map(report => [
+          report.title || 'N/A',
+          report.description || 'N/A',
+          report.date || 'N/A',
+          'Complete'
+        ]);
+        
+        doc.autoTable({
+          head: [['Report Title', 'Description', 'Date', 'Status']],
+          body: reportsData,
+          startY: finalY + 10,
+          theme: 'striped',
+          headStyles: { 
+            fillColor: [139, 92, 246],
+            textColor: [255, 255, 255],
+            fontSize: 11,
+            fontStyle: 'bold'
+          },
+          bodyStyles: {
+            fontSize: 9,
+            cellPadding: 4
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245]
+          },
+          margin: { left: 20, right: 20 }
+        });
+      } else {
+        const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 220;
+        doc.setFontSize(16);
+        doc.text('Recent Medical Reports', 20, finalY);
+        doc.setFontSize(11);
+        doc.setTextColor(100, 100, 100);
+        doc.text('No recent medical reports available at this time.', 20, finalY + 15);
+      }
+      
+      // Footer with timestamp and branding
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.setTextColor(150, 150, 150);
+        doc.text('MediMate - Healthcare Management System', 20, doc.internal.pageSize.height - 15);
+        doc.text(`Generated: ${currentDate} ${currentTime}`, 20, doc.internal.pageSize.height - 10);
+        doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 40, doc.internal.pageSize.height - 10);
+      }
+      
+      // Save the PDF
+      console.log('Saving PDF...');
+      doc.save(`medimate-comprehensive-report-${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success('Comprehensive system report exported as PDF successfully!');
+      console.log('PDF export completed successfully');
+    } catch (error) {
+      console.error('PDF Export Error:', error);
+      toast.error('Failed to export PDF: ' + error.message);
     }
-    
-    // Footer with timestamp and branding
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.setTextColor(150, 150, 150);
-      doc.text('MediMate - Healthcare Management System', 20, doc.internal.pageSize.height - 15);
-      doc.text(`Generated: ${currentDate} ${currentTime}`, 20, doc.internal.pageSize.height - 10);
-      doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 40, doc.internal.pageSize.height - 10);
-    }
-    
-    // Save the PDF
-    doc.save(`medimate-comprehensive-report-${new Date().toISOString().split('T')[0]}.pdf`);
-    toast.success('Comprehensive system report exported as PDF successfully!');
   };
 
   // Analytics Chart Data
@@ -351,14 +406,7 @@ including user statistics, system utilization metrics, and recent activity summa
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <DashboardNavbar user={user} userRole="admin" onLogout={handleLogout} />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-        </div>
-      </div>
-    );
+    return renderLoaderByPageType('reports', <DashboardNavbar user={user} userRole="admin" onLogout={handleLogout} />);
   }
 
   const StatCard = ({ title, value, icon: Icon, color }) => (
@@ -533,10 +581,15 @@ including user statistics, system utilization metrics, and recent activity summa
               <h2 className="text-lg font-semibold text-gray-900">Recent Reports</h2>
               <button 
                 onClick={exportToPDF}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2"
+                disabled={!autoTableLoaded}
+                className={`${autoTableLoaded 
+                  ? 'bg-blue-600 hover:bg-blue-700' 
+                  : 'bg-gray-400 cursor-not-allowed'
+                } text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2`}
+                title={autoTableLoaded ? 'Export PDF report' : 'PDF functionality loading...'}
               >
                 <Download className="w-4 h-4" />
-                <span>Export All</span>
+                <span>{autoTableLoaded ? 'Export All' : 'Loading...'}</span>
               </button>
             </div>
           </div>

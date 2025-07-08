@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
+import { renderLoaderByPageType } from '../../utils/loaders';
 import { 
   BarChart3, 
   PieChart, 
@@ -253,14 +254,7 @@ export default function AdminAnalytics() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <DashboardNavbar user={user} userRole="admin" onLogout={handleLogout} />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-        </div>
-      </div>
-    );
+    return renderLoaderByPageType('admin', <DashboardNavbar user={user} userRole="admin" onLogout={handleLogout} />);
   }
 
   return (

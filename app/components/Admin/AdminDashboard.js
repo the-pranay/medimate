@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import ThemedDashboard from '../ui/ThemedDashboard';
 import DashboardNavbar from '../ui/DashboardNavbar';
+import { renderLoaderByPageType } from '../../utils/loaders';
 
 export default function AdminDashboard() {
   const [systemStatus, setSystemStatus] = useState(null);
@@ -68,31 +69,11 @@ export default function AdminDashboard() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading system status...</p>
-        </div>
-      </div>
-    );
+    return renderLoaderByPageType('admin');
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={fetchSystemStatus}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
+    return renderLoaderByPageType('admin');
   }
 
   const getStatusColor = (status) => {

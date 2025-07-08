@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
+import { renderLoaderByPageType } from '../../utils/loaders';
 import { Users, Search, Filter, Edit, Trash2, UserCheck, UserX, Award, Stethoscope, Phone, Mail, MapPin, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -145,14 +146,7 @@ export default function AdminDoctors() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <DashboardNavbar user={user} userRole="admin" onLogout={handleLogout} />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-        </div>
-      </div>
-    );
+    return renderLoaderByPageType('doctors', <DashboardNavbar user={user} userRole="admin" onLogout={handleLogout} />);
   }
 
   return (

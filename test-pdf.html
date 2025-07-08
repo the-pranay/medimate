@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Export Test</title>
+    <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable@3.8.3/dist/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <h1>PDF Export Test</h1>
+    <button onclick="testPDFExport()">Test PDF Export</button>
+    
+    <script>
+        function testPDFExport() {
+            try {
+                console.log('Testing PDF export...');
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                console.log('jsPDF instance created');
+                console.log('autoTable available:', typeof doc.autoTable);
+                console.log('Available methods:', Object.getOwnPropertyNames(doc));
+                
+                if (typeof doc.autoTable === 'function') {
+                    // Test table data
+                    const testData = [
+                        ['Name', 'Age', 'City'],
+                        ['John', '25', 'New York'],
+                        ['Jane', '30', 'Los Angeles']
+                    ];
+                    
+                    doc.text('Test Document', 20, 20);
+                    
+                    doc.autoTable({
+                        head: [testData[0]],
+                        body: testData.slice(1),
+                        startY: 30
+                    });
+                    
+                    doc.save('test-export.pdf');
+                    console.log('PDF export successful!');
+                } else {
+                    console.error('autoTable function not available');
+                    alert('autoTable function not available');
+                }
+            } catch (error) {
+                console.error('PDF Export Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
