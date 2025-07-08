@@ -293,7 +293,7 @@ export default function UploadReport() {
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
-                  onClick={() => router.push('/patient-dashboard')}
+                  onClick={() => router.push('/patient/dashboard')}
                   className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   Cancel

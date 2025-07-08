@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
-import { Users, Search, Filter, Edit, Trash2, UserCheck, UserX, Heart, Phone, Mail, MapPin, Calendar, Activity } from 'lucide-react';
+import { Users, Search, Filter, Edit, Trash2, UserCheck, UserX, Heart, Phone, Mail, MapPin, Calendar, Activity, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function AdminPatients() {
@@ -16,6 +16,10 @@ export default function AdminPatients() {
   const [bloodGroupFilter, setBloodGroupFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [statistics, setStatistics] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalPatients, setTotalPatients] = useState(0);
+  const itemsPerPage = 10;
   const router = useRouter();
 
   useEffect(() => {
@@ -35,43 +39,22 @@ export default function AdminPatients() {
     };
 
     checkAuth();
-    loadPatients();
+    loadPatients(1); // Start with first page
   }, [router]);
-
+  
   useEffect(() => {
-    let filtered = patients;
-    
-    if (searchTerm) {
-      filtered = filtered.filter(patient =>
-        patient.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.phone?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    if (user) {
+      // Reset to page 1 when any filter changes
+      loadPatients(1);
     }
-    
-    if (genderFilter !== 'all') {
-      filtered = filtered.filter(patient => patient.gender === genderFilter);
-    }
-    
-    if (bloodGroupFilter !== 'all') {
-      filtered = filtered.filter(patient => patient.bloodGroup === bloodGroupFilter);
-    }
-    
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(patient => 
-        statusFilter === 'active' ? patient.isActive : !patient.isActive
-      );
-    }
-    
-    setFilteredPatients(filtered);
-  }, [patients, searchTerm, genderFilter, bloodGroupFilter, statusFilter]);
+  }, [searchTerm, genderFilter, bloodGroupFilter, statusFilter]);
 
-  const loadPatients = async () => {
+  const loadPatients = async (page = currentPage) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       
-      const response = await fetch('/api/admin/patients', {
+      const response = await fetch(`/api/admin/patients?page=${page}&limit=${itemsPerPage}&gender=${genderFilter}&bloodGroup=${bloodGroupFilter}&status=${statusFilter}&search=${searchTerm}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -80,13 +63,50 @@ export default function AdminPatients() {
       if (response.ok) {
         const data = await response.json();
         setPatients(data.data || []);
+        setFilteredPatients(data.data || []);
         setStatistics(data.statistics || {});
+        setTotalPages(data.pagination?.total || 1);
+        setTotalPatients(data.pagination?.count || 0);
+        setCurrentPage(page);
       }
     } catch (error) {
       console.error('Error loading patients:', error);
       toast.error('Failed to load patients');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deletePatient = async (patientId) => {
+    if (!confirm('Are you sure you want to delete this patient? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      
+      const response = await fetch(`/api/admin/patients/${patientId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        toast.success('Patient deleted successfully');
+        // Update local state to remove the deleted patient
+        setPatients(prevPatients => prevPatients.filter(patient => patient._id !== patientId));
+        setFilteredPatients(prevPatients => prevPatients.filter(patient => patient._id !== patientId));
+        setStatistics(prev => ({
+          ...prev,
+          total: (prev.total || 0) - 1
+        }));
+      } else {
+        toast.error('Failed to delete patient');
+      }
+    } catch (error) {
+      console.error('Error deleting patient:', error);
+      toast.error('Failed to delete patient');
     }
   };
 
@@ -247,7 +267,7 @@ export default function AdminPatients() {
                   Gender
                 </label>
                 <select
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   value={genderFilter}
                   onChange={(e) => setGenderFilter(e.target.value)}
                 >
@@ -263,7 +283,7 @@ export default function AdminPatients() {
                   Blood Group
                 </label>
                 <select
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   value={bloodGroupFilter}
                   onChange={(e) => setBloodGroupFilter(e.target.value)}
                 >
@@ -284,7 +304,7 @@ export default function AdminPatients() {
                   Status
                 </label>
                 <select
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
@@ -371,26 +391,35 @@ export default function AdminPatients() {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => handleStatusToggle(patient._id, patient.isActive)}
-                          className={`inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white ${
-                            patient.isActive 
-                              ? 'bg-red-600 hover:bg-red-700' 
-                              : 'bg-green-600 hover:bg-green-700'
-                          } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                        >
-                          {patient.isActive ? (
-                            <>
-                              <UserX className="h-4 w-4 mr-1" />
-                              Deactivate
-                            </>
-                          ) : (
-                            <>
-                              <UserCheck className="h-4 w-4 mr-1" />
-                              Activate
-                            </>
-                          )}
-                        </button>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleStatusToggle(patient._id, patient.isActive)}
+                            className={`inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white ${
+                              patient.isActive 
+                                ? 'bg-red-600 hover:bg-red-700' 
+                                : 'bg-green-600 hover:bg-green-700'
+                            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                          >
+                            {patient.isActive ? (
+                              <>
+                                <UserX className="h-4 w-4 mr-1" />
+                                Deactivate
+                              </>
+                            ) : (
+                              <>
+                                <UserCheck className="h-4 w-4 mr-1" />
+                                Activate
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => deletePatient(patient._id)}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -398,7 +427,105 @@ export default function AdminPatients() {
               </table>
             </div>
           </div>
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <button
+                  onClick={() => currentPage > 1 && loadPatients(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => currentPage < totalPages && loadPatients(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    {totalPatients > 0 ? (
+                      <>
+                        Showing <span className="font-medium">{Math.min((currentPage - 1) * itemsPerPage + 1, totalPatients)}</span> to{' '}
+                        <span className="font-medium">{Math.min(currentPage * itemsPerPage, totalPatients)}</span> of{' '}
+                        <span className="font-medium">{totalPatients}</span> results
+                      </>
+                    ) : (
+                      <>
+                        Showing <span className="font-medium">0</span> results
+                      </>
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <button
+                      onClick={() => currentPage > 1 && loadPatients(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span className="sr-only">Previous</span>
+                      <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                    </button>
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      // Show pages around current page
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        // If 5 or fewer pages, show all
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        // Near start
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        // Near end
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        // Middle
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => loadPatients(pageNum)}
+                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                            currentPage === pageNum
+                              ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                    <button
+                      onClick={() => currentPage < totalPages && loadPatients(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span className="sr-only">Next</span>
+                      <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+        
+        {filteredPatients.length === 0 && !loading && (
+          <div className="bg-white shadow rounded-lg p-6">
+            <p className="text-center text-gray-500">
+              No patients found matching the current filters.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

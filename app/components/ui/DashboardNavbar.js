@@ -22,7 +22,8 @@ import {
   Database,
   Server,
   Zap,
-  MoreHorizontal
+  MoreHorizontal,
+  BarChart3
 } from 'lucide-react';
 
 export default function DashboardNavbar({ user, userRole, onLogout }) {
@@ -101,7 +102,7 @@ export default function DashboardNavbar({ user, userRole, onLogout }) {
         { name: 'Database', href: '/admin/database', icon: Database, short: 'DB' },
         { name: 'Features', href: '/admin/features', icon: Zap, short: 'Features' },
         { name: 'Monitoring', href: '/admin/monitoring', icon: Server, short: 'Monitor' },
-        { name: 'Settings', href: '/admin/settings', icon: Settings, short: 'Settings' },
+        { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, short: 'Analytics' },
       ];
     }
   };
@@ -246,7 +247,7 @@ export default function DashboardNavbar({ user, userRole, onLogout }) {
               {isProfileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                   <Link
-                    href={userRole === 'doctor' ? '/doctor-profile' : userRole === 'patient' ? '/patient-profile' : '/admin-profile'}
+                    href={userRole === 'doctor' ? '/doctor/profile' : userRole === 'patient' ? '/patient/profile' : '/admin/profile'}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     onClick={() => setIsProfileMenuOpen(false)}
                   >
@@ -254,7 +255,7 @@ export default function DashboardNavbar({ user, userRole, onLogout }) {
                     <span>Profile</span>
                   </Link>
                   <Link
-                    href={userRole === 'doctor' ? '/doctor-settings' : userRole === 'patient' ? '/patient-settings' : '/admin-settings'}
+                    href={userRole === 'doctor' ? '/doctor/settings' : userRole === 'patient' ? '/patient/settings' : '/admin/settings'}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     onClick={() => setIsProfileMenuOpen(false)}
                   >

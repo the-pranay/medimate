@@ -40,12 +40,12 @@ export default function AdminUsers() {
     loadUsers();
   }, [router, currentPage, roleFilter]);
 
-  const loadUsers = async () => {
+  const loadUsers = async (page = currentPage) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       
-      const response = await fetch(`/api/admin/users?page=${currentPage}&limit=${itemsPerPage}&role=${roleFilter}`, {
+      const response = await fetch(`/api/admin/users?page=${page}&limit=${itemsPerPage}&role=${roleFilter}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -53,10 +53,11 @@ export default function AdminUsers() {
 
       if (response.ok) {
         const data = await response.json();
-        setUsers(data.users || []);
-        setFilteredUsers(data.users || []);
-        setTotalPages(data.totalPages || 1);
-        setTotalUsers(data.totalUsers || 0);
+        setUsers(data.data || []);
+        setFilteredUsers(data.data || []);
+        setTotalPages(data.pagination?.total || 1);
+        setTotalUsers(data.pagination?.count || 0);
+        setCurrentPage(page);
       } else {
         toast.error('Failed to load users');
       }
@@ -164,12 +165,12 @@ export default function AdminUsers() {
   };
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    loadUsers(page);
   };
 
   const handleRoleFilterChange = (role) => {
     setRoleFilter(role);
-    setCurrentPage(1); // Reset to first page when filter changes
+    loadUsers(1); // Reset to first page when filter changes
   };
 
   if (loading) {
@@ -210,7 +211,7 @@ export default function AdminUsers() {
               <select
                 value={roleFilter}
                 onChange={(e) => handleRoleFilterChange(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
               >
                 <option value="all">All Roles</option>
                 <option value="patient">Patients</option>
@@ -327,8 +328,17 @@ export default function AdminUsers() {
                 <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm text-gray-700">
-                      Showing page <span className="font-medium">{currentPage}</span> of{' '}
-                      <span className="font-medium">{totalPages}</span>
+                      {totalUsers > 0 ? (
+                        <>
+                          Showing <span className="font-medium">{Math.min((currentPage - 1) * itemsPerPage + 1, totalUsers)}</span> to{' '}
+                          <span className="font-medium">{Math.min(currentPage * itemsPerPage, totalUsers)}</span> of{' '}
+                          <span className="font-medium">{totalUsers}</span> results
+                        </>
+                      ) : (
+                        <>
+                          Showing <span className="font-medium">0</span> results
+                        </>
+                      )}
                     </p>
                   </div>
                   <div>

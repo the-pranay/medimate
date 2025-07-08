@@ -90,7 +90,7 @@ export default function VideoCallClient() {
       }
 
       if (!appointmentIdParam) {
-        router.push('/patient-dashboard');
+        router.push('/patient/dashboard');
         return;
       }
 
@@ -260,7 +260,7 @@ export default function VideoCallClient() {
       setRemoteUser(null);
 
       // Redirect back to dashboard
-      router.push(user?.role === 'patient' ? '/patient-dashboard' : '/doctor-dashboard');
+      router.push(user?.role === 'patient' ? '/patient/dashboard' : '/doctor/dashboard');
 
     } catch (error) {
       console.error('Error ending call:', error);

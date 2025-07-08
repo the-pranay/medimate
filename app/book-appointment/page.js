@@ -285,7 +285,7 @@ export default function BookAppointment() {
             if (verifyResponse.ok) {
               const verifyResult = await verifyResponse.json();
               if (verifyResult.success) {
-                router.push('/patient-dashboard?message=Appointment booked and paid successfully!');
+                router.push('/patient/dashboard?message=Appointment booked and paid successfully!');
               } else {
                 throw new Error('Payment verification failed');
               }
@@ -517,7 +517,7 @@ export default function BookAppointment() {
               <select
                 value={selectedSpecialization}
                 onChange={(e) => setSelectedSpecialization(e.target.value)}
-                className="w-full px-4 py-3 border text-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border text-gray-900 bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
               >
                 {specializations.map((spec) => (
                   <option key={spec} value={spec}>{spec}</option>

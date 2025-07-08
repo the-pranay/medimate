@@ -302,11 +302,11 @@
         }
 
         function openDoctorDashboard() {
-            document.getElementById('dashboardFrame').src = '/doctor-dashboard';
+            document.getElementById('dashboardFrame').src = '/doctor/dashboard';
         }
 
         function openPatientDashboard() {
-            document.getElementById('dashboardFrame').src = '/patient-dashboard';
+            document.getElementById('dashboardFrame').src = '/patient/dashboard';
         }
 
         function openRegisterPage() {
@@ -348,7 +348,7 @@
 
             // Step 4: Try to load dashboard
             output.textContent += 'Step 4: Loading doctor dashboard...\n';
-            document.getElementById('dashboardFrame').src = '/doctor-dashboard';
+            document.getElementById('dashboardFrame').src = '/doctor/dashboard';
             
             // Step 5: Wait and check for errors
             setTimeout(() => {

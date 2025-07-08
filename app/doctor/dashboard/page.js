@@ -80,7 +80,7 @@ export default function DoctorDashboard() {
         
         if (role && role !== 'doctor') {
           console.log('🔍 Doctor Dashboard: User is not a doctor, redirecting to correct dashboard');
-          const redirectPath = role === 'patient' ? '/patient-dashboard' : '/login';
+          const redirectPath = role === 'patient' ? '/patient/dashboard' : '/login';
           router.push(redirectPath);
           return;
         }
@@ -104,7 +104,7 @@ export default function DoctorDashboard() {
             // Double-check that this is actually a doctor
             if (doctorData.data.role !== 'doctor') {
               console.log('🔍 Doctor Dashboard: Profile shows user is not a doctor, redirecting');
-              const redirectPath = doctorData.data.role === 'patient' ? '/patient-dashboard' : '/login';
+              const redirectPath = doctorData.data.role === 'patient' ? '/patient/dashboard' : '/login';
               router.push(redirectPath);
               return;
             }
@@ -487,7 +487,7 @@ export default function DoctorDashboard() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-900">Reports to Review</h2>
                   <Link 
-                    href="/doctor-reports"
+                    href="/doctor/reports"
                     className="text-blue-600 hover:text-blue-500 font-medium"
                   >
                     View All
@@ -564,7 +564,7 @@ export default function DoctorDashboard() {
                 </div>
               </div>
               <Link 
-                href="/doctor/dashboard/profile"
+                href="/doctor/profile"
                 className="mt-4 w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-lg text-sm font-medium inline-block text-center"
               >
                 Edit Profile
@@ -577,7 +577,7 @@ export default function DoctorDashboard() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">Recent Messages</h3>
                   <Link 
-                    href="/messages"
+                    href="/doctor/messages"
                     className="text-blue-600 hover:text-blue-500 font-medium text-sm"
                   >
                     View All
@@ -614,35 +614,35 @@ export default function DoctorDashboard() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <Link 
-                  href="/manage-appointments"
+                  href="/doctor/appointments"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <Calendar className="h-4 w-4 mr-2" />
                   Manage Schedule
                 </Link>
                 <Link 
-                  href="/create-prescription"
+                  href="/doctor/prescriptions/create"
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Create Prescription
                 </Link>
                 <Link 
-                  href="/messaging"
+                  href="/doctor/messages"
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Patient Messages
                 </Link>
                 <Link 
-                  href="/patient-reports"
+                  href="/doctor/reports"
                   className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <Eye className="h-4 w-4 mr-2" />
                   Review Reports
                 </Link>
                 <Link 
-                  href="/doctor-prescriptions"
+                  href="/doctor/prescriptions"
                   className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <FileText className="h-4 w-4 mr-2" />

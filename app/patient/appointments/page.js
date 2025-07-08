@@ -13,6 +13,10 @@ export default function PatientAppointments() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalAppointments, setTotalAppointments] = useState(0);
+  const itemsPerPage = 10;
   const router = useRouter();
   const retryCountRef = useRef(0);
 
@@ -56,7 +60,7 @@ export default function PatientAppointments() {
       
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       
-      const response = await fetch('/api/appointments/patient', {
+      const response = await fetch(`/api/appointments/patient?page=${currentPage}&limit=${itemsPerPage}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -65,6 +69,8 @@ export default function PatientAppointments() {
       if (response.ok) {
         const data = await response.json();
         setAppointments(data.data || []);
+        setTotalPages(data.totalPages || 1);
+        setTotalAppointments(data.totalCount || 0);
         setError(null);
         setRetryCount(0); // Reset retry count on successful load
         retryCountRef.current = 0; // Reset ref as well
@@ -116,6 +122,17 @@ export default function PatientAppointments() {
     localStorage.removeItem('isAuthenticated');
     router.push('/login');
   };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Update the useEffect to include currentPage dependency
+  useEffect(() => {
+    if (user) {
+      loadAppointments();
+    }
+  }, [currentPage]);
 
   if (loading) {
     return renderLoaderByPageType('appointments', <DashboardNavbar user={user} userRole="patient" onLogout={handleLogout} />);
@@ -297,6 +314,44 @@ export default function PatientAppointments() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-between">
+            <div className="text-sm text-gray-700">
+              Showing page {currentPage} of {totalPages} ({totalAppointments} total appointments)
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-3 py-2 text-sm font-medium rounded-md ${
+                    currentPage === i + 1
+                      ? 'text-blue-600 bg-blue-50 border border-blue-500'
+                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>

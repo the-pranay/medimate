@@ -87,8 +87,8 @@ export async function GET(request) {
       pagination: {
         page,
         limit,
-        total: totalDoctors,
-        totalPages: Math.ceil(totalDoctors / limit),
+        total: Math.ceil(totalDoctors / limit),
+        count: totalDoctors,
         hasNext: page < Math.ceil(totalDoctors / limit),
         hasPrev: page > 1,
       },

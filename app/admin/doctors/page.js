@@ -79,6 +79,34 @@ export default function AdminDoctors() {
     }
   };
 
+  const deleteDoctor = async (doctorId) => {
+    if (!confirm('Are you sure you want to delete this doctor? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      
+      const response = await fetch(`/api/admin/doctors/${doctorId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        toast.success('Doctor deleted successfully');
+        loadDoctors(currentPage);
+        setTotalDoctors(prev => prev - 1);
+      } else {
+        toast.error('Failed to delete doctor');
+      }
+    } catch (error) {
+      console.error('Error deleting doctor:', error);
+      toast.error('Failed to delete doctor');
+    }
+  };
+
   const handleStatusToggle = async (doctorId, currentStatus) => {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
@@ -97,7 +125,7 @@ export default function AdminDoctors() {
 
       if (response.ok) {
         toast.success(`Doctor ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
-        loadDoctors();
+        loadDoctors(currentPage);
       } else {
         toast.error('Failed to update doctor status');
       }
@@ -236,7 +264,7 @@ export default function AdminDoctors() {
                   Specialization
                 </label>
                 <select
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   value={specializationFilter}
                   onChange={(e) => setSpecializationFilter(e.target.value)}
                 >
@@ -255,7 +283,7 @@ export default function AdminDoctors() {
                   Status
                 </label>
                 <select
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
@@ -337,26 +365,35 @@ export default function AdminDoctors() {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => handleStatusToggle(doctor._id, doctor.isActive)}
-                          className={`inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white ${
-                            doctor.isActive 
-                              ? 'bg-red-600 hover:bg-red-700' 
-                              : 'bg-green-600 hover:bg-green-700'
-                          } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                        >
-                          {doctor.isActive ? (
-                            <>
-                              <UserX className="h-4 w-4 mr-1" />
-                              Deactivate
-                            </>
-                          ) : (
-                            <>
-                              <UserCheck className="h-4 w-4 mr-1" />
-                              Activate
-                            </>
-                          )}
-                        </button>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleStatusToggle(doctor._id, doctor.isActive)}
+                            className={`inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white ${
+                              doctor.isActive 
+                                ? 'bg-red-600 hover:bg-red-700' 
+                                : 'bg-green-600 hover:bg-green-700'
+                            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                          >
+                            {doctor.isActive ? (
+                              <>
+                                <UserX className="h-4 w-4 mr-1" />
+                                Deactivate
+                              </>
+                            ) : (
+                              <>
+                                <UserCheck className="h-4 w-4 mr-1" />
+                                Activate
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => deleteDoctor(doctor._id)}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -386,9 +423,17 @@ export default function AdminDoctors() {
                 <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm text-gray-700">
-                      Showing <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span> to{' '}
-                      <span className="font-medium">{Math.min(currentPage * itemsPerPage, totalDoctors)}</span> of{' '}
-                      <span className="font-medium">{totalDoctors}</span> results
+                      {totalDoctors > 0 ? (
+                        <>
+                          Showing <span className="font-medium">{Math.min((currentPage - 1) * itemsPerPage + 1, totalDoctors)}</span> to{' '}
+                          <span className="font-medium">{Math.min(currentPage * itemsPerPage, totalDoctors)}</span> of{' '}
+                          <span className="font-medium">{totalDoctors}</span> results
+                        </>
+                      ) : (
+                        <>
+                          Showing <span className="font-medium">0</span> results
+                        </>
+                      )}
                     </p>
                   </div>
                   <div>

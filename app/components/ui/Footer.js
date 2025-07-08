@@ -90,7 +90,7 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/patient-dashboard" className="hover:text-blue-300 transition-colors flex items-center group">
+                  <Link href="/patient/dashboard" className="hover:text-blue-300 transition-colors flex items-center group">
                     <span className="mr-2 group-hover:scale-110 transition-transform">🏠</span>
                     Dashboard
                   </Link>
@@ -103,7 +103,7 @@ export default function Footer() {
               <h4 className="font-semibold text-white mb-6 text-lg">For Doctors</h4>
               <ul className="space-y-3 text-gray-300">
                 <li>
-                  <Link href="/doctor-dashboard" className="hover:text-green-300 transition-colors flex items-center group">
+                  <Link href="/doctor/dashboard" className="hover:text-green-300 transition-colors flex items-center group">
                     <span className="mr-2 group-hover:scale-110 transition-transform">🩺</span>
                     Dashboard
                   </Link>
@@ -115,7 +115,7 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/patient-reports" className="hover:text-green-300 transition-colors flex items-center group">
+                  <Link href="/patient/reports" className="hover:text-green-300 transition-colors flex items-center group">
                     <span className="mr-2 group-hover:scale-110 transition-transform">📊</span>
                     Patient Reports
                   </Link>

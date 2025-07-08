@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
 import { Settings, Save, Globe, Shield, Bell, Database, Mail } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminSettings() {
   const [user, setUser] = useState(null);
@@ -83,13 +84,16 @@ export default function AdminSettings() {
       });
 
       if (response.ok) {
-        alert('Settings saved successfully!');
+        const data = await response.json();
+        setSettings(prev => ({ ...prev, ...data.settings }));
+        toast.success('Settings updated successfully!');
       } else {
-        alert('Failed to save settings');
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to save settings');
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      alert('Failed to save settings');
+      toast.error('Failed to save settings: ' + error.message);
     } finally {
       setSaving(false);
     }
@@ -133,7 +137,7 @@ export default function AdminSettings() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-pink-100">
       <DashboardNavbar user={user} userRole="admin" onLogout={handleLogout} />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -157,7 +161,7 @@ export default function AdminSettings() {
                   type="text"
                   value={settings.siteName}
                   onChange={(e) => handleInputChange('siteName', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 bg-white shadow-sm"
                 />
               </div>
               

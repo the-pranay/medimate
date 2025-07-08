@@ -17,7 +17,7 @@ const verifyToken = (authorization) => {
   }
 };
 
-// GET all medical reports (admin only)
+// GET system statistics and reports (admin only)
 export async function GET(request) {
   try {
     await connectDB();
@@ -40,81 +40,60 @@ export async function GET(request) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type');
-    const status = searchParams.get('status');
-    const doctorId = searchParams.get('doctorId');
-    const patientId = searchParams.get('patientId');
-    const page = parseInt(searchParams.get('page')) || 1;
-    const limit = parseInt(searchParams.get('limit')) || 20;
-
-    let query = {};
-
-    // Filter by type
-    if (type && type !== 'all') {
-      query.type = type;
+    // Get user statistics
+    const totalUsers = await User.countDocuments();
+    const totalDoctors = await User.countDocuments({ role: 'doctor' });
+    const totalPatients = await User.countDocuments({ role: 'patient' });
+    
+    // Get appointment statistics
+    let totalAppointments = 0;
+    try {
+      totalAppointments = await Appointment.countDocuments();
+    } catch (error) {
+      console.log('Appointment model might not exist yet:', error.message);
     }
 
-    // Filter by status
-    if (status && status !== 'all') {
-      query.status = status;
+    // Get recent reports/medical records
+    let recentReports = [];
+    try {
+      const medicalRecords = await MedicalRecord.find()
+        .populate('patient', 'name')
+        .populate('doctor', 'name')
+        .sort({ createdAt: -1 })
+        .limit(5);
+
+      recentReports = medicalRecords.map(record => ({
+        title: `Medical Report - ${record.patient?.name || 'Unknown Patient'}`,
+        description: `Report by Dr. ${record.doctor?.name || 'Unknown Doctor'}`,
+        date: record.createdAt.toLocaleDateString(),
+        id: record._id
+      }));
+    } catch (error) {
+      console.log('MedicalRecord model might not exist yet:', error.message);
     }
 
-    // Filter by doctor
-    if (doctorId) {
-      query.doctor = doctorId;
-    }
-
-    // Filter by patient
-    if (patientId) {
-      query.patient = patientId;
-    }
-
-    const skip = (page - 1) * limit;
-
-    const reports = await MedicalRecord.find(query)
-      .populate('patient', 'name email phone age gender')
-      .populate('doctor', 'name email specialization')
-      .populate('appointment', 'appointmentDate appointmentTime')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const totalReports = await MedicalRecord.countDocuments(query);
-
-    // Get report statistics
+    // System statistics
     const stats = {
-      total: totalReports,
-      pending: await MedicalRecord.countDocuments({ status: 'pending' }),
-      approved: await MedicalRecord.countDocuments({ status: 'approved' }),
-      rejected: await MedicalRecord.countDocuments({ status: 'rejected' }),
-      byType: await MedicalRecord.aggregate([
-        {
-          $group: {
-            _id: '$type',
-            count: { $sum: 1 }
-          }
-        }
-      ]),
-      recent: await MedicalRecord.countDocuments({
-        createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
-      })
+      totalUsers,
+      totalDoctors,
+      totalPatients,
+      totalAppointments,
+      recentReports,
+      // Additional stats
+      activeUsers: await User.countDocuments({ isActive: true }),
+      verifiedUsers: await User.countDocuments({ isVerified: true }),
+      activeDoctors: await User.countDocuments({ role: 'doctor', isActive: true }),
+      activePatients: await User.countDocuments({ role: 'patient', isActive: true }),
     };
 
     return NextResponse.json({
       success: true,
-      data: reports,
-      pagination: {
-        current: page,
-        total: Math.ceil(totalReports / limit),
-        limit,
-        count: totalReports
-      },
-      stats
+      data: stats,
+      message: 'System statistics retrieved successfully'
     });
 
   } catch (error) {
-    console.error('Get reports error:', error);
+    console.error('Get system statistics error:', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error: ' + error.message },
       { status: 500 }
