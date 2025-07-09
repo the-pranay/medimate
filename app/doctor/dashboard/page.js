@@ -85,6 +85,20 @@ export default function DoctorDashboard() {
           return;
         }
         
+        // Check if doctor is verified
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            if (user.role === 'doctor' && !user.isVerified) {
+              console.log('🔍 Doctor Dashboard: Doctor not verified, redirecting to pending page');
+              router.push('/doctor/verification-pending');
+              return;
+            }
+          } catch (e) {
+            console.error('🔍 Doctor Dashboard: Error parsing user from localStorage:', e);
+          }
+        }
+        
         console.log('🔍 Doctor Dashboard: Auth check passed, fetching data...');
 
         const headers = {

@@ -432,6 +432,10 @@ export default function AdminDashboard() {
                 <Heart className="w-5 h-5 text-green-600 mr-3" />
                 <span className="font-medium text-gray-900">Manage Doctors</span>
               </Link>
+              <Link href="/admin/doctors/verify" className="flex items-center p-4 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-lg hover:from-emerald-100 hover:to-emerald-200 transition-all shadow-sm">
+                <Shield className="w-5 h-5 text-emerald-600 mr-3" />
+                <span className="font-medium text-gray-900">Verify Doctors</span>
+              </Link>
               <Link href="/admin/patients" className="flex items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg hover:from-purple-100 hover:to-purple-200 transition-all shadow-sm">
                 <Users className="w-5 h-5 text-purple-600 mr-3" />
                 <span className="font-medium text-gray-900">Manage Patients</span>

@@ -4,13 +4,14 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
-import { Calendar, Clock, User, MapPin, Plus, Check, X, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, User, MapPin, Plus, Check, X, AlertCircle, RefreshCw } from 'lucide-react';
 import { renderLoaderByPageType, renderButtonLoader } from '../../utils/loaders';
 
 export default function DoctorAppointments() {
   const [user, setUser] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
@@ -30,30 +31,31 @@ export default function DoctorAppointments() {
       }
 
       if (userData) {
-        setUser(JSON.parse(userData));
+        const user = JSON.parse(userData);
+        setUser(user);
+        
+        // Check if doctor is verified
+        if (user.role === 'doctor' && !user.isVerified) {
+          router.push('/doctor/verification-pending');
+          return;
+        }
       }
     };
 
     checkAuth();
     loadAppointments();
 
-    // Set up real-time updates for appointments
-    refreshInterval.current = setInterval(() => {
-      if (retryCountRef.current < 3) { // Stop auto-refresh after 3 consecutive errors
-        loadAppointments();
-      }
-    }, 10000); // Refresh every 10 seconds (less frequent)
-
-    return () => {
-      if (refreshInterval.current) {
-        clearInterval(refreshInterval.current);
-      }
-    };
+    // Removed auto-refresh to prevent unnecessary API calls
+    return () => {};
   }, [router]); // Removed retryCount from dependencies
 
-  const loadAppointments = async () => {
+  const loadAppointments = async (showRefreshing = false) => {
     try {
-      setLoading(true);
+      if (showRefreshing) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       
       const response = await fetch('/api/appointments/doctor', {
@@ -89,7 +91,14 @@ export default function DoctorAppointments() {
       retryCountRef.current = retryCountRef.current + 1;
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    setRetryCount(0); // Reset retry count on manual refresh
+    retryCountRef.current = 0;
+    loadAppointments(true);
   };
 
   const handleAppointmentAction = async (appointmentId, action) => {
@@ -156,8 +165,24 @@ export default function DoctorAppointments() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Appointments</h1>
-          <p className="text-gray-600 mt-2">Manage your patient appointments</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">My Appointments</h1>
+              <p className="text-gray-600 mt-2">Manage your patient appointments</p>
+            </div>
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {refreshing ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              ) : (
+                <RefreshCw className="w-4 h-4 mr-2" />
+              )}
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
         </div>
 
         {appointments.length === 0 ? (

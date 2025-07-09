@@ -100,7 +100,11 @@ function RegisterForm() {
       const result = await registerUser(formData);
       
       if (result.success) {
-        toast.success('Registration successful! Welcome to MediMate!');
+        if (formData.role === 'doctor') {
+          toast.success('Registration successful! Your account is pending admin verification. You will be notified once approved.');
+        } else {
+          toast.success('Registration successful! Welcome to MediMate!');
+        }
         // Don't manually redirect - let the useEffect handle it based on user role
         // The useEffect will automatically redirect to the appropriate dashboard
       } else {

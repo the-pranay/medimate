@@ -66,7 +66,7 @@ export async function GET(request) {
 
     const appointments = await Appointment.find(query)
       .populate('patient', 'name email phone age gender')
-      .sort({ appointmentDate: 1, appointmentTime: 1 });
+      .sort({ appointmentDate: -1, appointmentTime: -1 });
 
     return NextResponse.json({
       success: true,

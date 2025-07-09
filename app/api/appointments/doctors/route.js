@@ -13,7 +13,7 @@ export async function GET(request) {
     const availability = searchParams.get('availability');
     const rating = searchParams.get('rating');
 
-    let query = { role: 'doctor', isActive: true };
+    let query = { role: 'doctor', isActive: true, isVerified: true };
 
     // Apply filters
     if (specialization) {

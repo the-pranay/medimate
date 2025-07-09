@@ -9,6 +9,10 @@ const nextConfig = {
   env: {
     SKIP_BUILD_STATIC_GENERATION: process.env.SKIP_BUILD_STATIC_GENERATION || 'false',
   },
+  // Optimize chunk loading for development
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
   // Webpack configuration for PDF libraries
   webpack: (config, { isServer }) => {
     if (!isServer) {

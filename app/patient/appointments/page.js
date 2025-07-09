@@ -39,15 +39,8 @@ export default function PatientAppointments() {
     checkAuth();
     loadAppointments();
     
-    // Auto-refresh every 10 seconds (reduced frequency to prevent spam)
-    // Only refresh if there's no error or if error count is low
-    const interval = setInterval(() => {
-      if (retryCountRef.current < 3) { // Stop auto-refresh after 3 consecutive errors
-        loadAppointments(true);
-      }
-    }, 10000);
-    
-    return () => clearInterval(interval);
+    // Removed auto-refresh to prevent unnecessary API calls
+    return () => {};
   }, [router]); // Removed retryCount from dependencies
 
   const loadAppointments = async (showRefreshing = false) => {

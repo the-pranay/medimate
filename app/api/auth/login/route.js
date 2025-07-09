@@ -223,6 +223,14 @@ export async function POST(request) {
       );
     }
 
+    // Check if doctor is verified (for database users)
+    if (!usedFallback && user.role === 'doctor' && !user.isVerified) {
+      return NextResponse.json(
+        { success: false, message: 'Your doctor account is pending verification by admin. Please wait for approval.' },
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {

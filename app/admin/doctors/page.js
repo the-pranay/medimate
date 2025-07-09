@@ -6,6 +6,7 @@ import DashboardNavbar from '../../components/ui/DashboardNavbar';
 import { renderLoaderByPageType } from '../../utils/loaders';
 import { Users, Search, Filter, Edit, Trash2, UserCheck, UserX, Award, Stethoscope, Phone, Mail, MapPin, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { DoctorStatusBadge } from '../../components/ui/DoctorStatusBadge';
 
 export default function AdminDoctors() {
   const [user, setUser] = useState(null);
@@ -345,18 +346,16 @@ export default function AdminDoctors() {
                         <div className="text-sm text-gray-500">Fee: ₹{doctor.consultationFee}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          doctor.isActive 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {doctor.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                        {doctor.isVerified && (
-                          <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                            Verified
+                        <div className="flex flex-col space-y-2">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            doctor.isActive 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {doctor.isActive ? 'Active' : 'Inactive'}
                           </span>
-                        )}
+                          <DoctorStatusBadge doctor={doctor} size="xs" />
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">

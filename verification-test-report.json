@@ -1,0 +1,152 @@
+{
+  "timestamp": "2025-07-09T15:11:19.390Z",
+  "results": {
+    "passed": 20,
+    "failed": 3,
+    "warnings": 0,
+    "tests": [
+      {
+        "name": "File Check: Admin API - Get Pending Doctors",
+        "status": "PASS",
+        "message": "File exists: app/api/admin/doctors/pending/route.js",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "File Check: Admin API - Verify Doctor",
+        "status": "PASS",
+        "message": "File exists: app/api/admin/doctors/[doctorId]/route.js",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "File Check: Admin Verification Page",
+        "status": "PASS",
+        "message": "File exists: app/admin/doctors/verify/page.js",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "File Check: Doctor Pending Page",
+        "status": "PASS",
+        "message": "File exists: app/doctor/verification-pending/page.js",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "File Check: User Model",
+        "status": "PASS",
+        "message": "File exists: lib/models/User.js",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "File Check: Login API",
+        "status": "PASS",
+        "message": "File exists: app/api/auth/login/route.js",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "File Check: Registration API",
+        "status": "PASS",
+        "message": "File exists: app/api/auth/register/route.js",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Pending Doctors API - Query Logic",
+        "status": "FAIL",
+        "message": "Missing: \"role: 'doctor', isVerified: false\"",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Verify Doctor API - Approval Logic",
+        "status": "FAIL",
+        "message": "Missing: \"isVerified: true\"",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Login API - Verification Check",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Registration API - Default Verification Status",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "User Model - VerifiedBy Field",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "User Model - VerifiedAt Field",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "User Model - RejectedBy Field",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "User Model - RejectionReason Field",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Admin UI - Doctor Action Handler",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Doctor Pending UI - Page Implementation",
+        "status": "FAIL",
+        "message": "Missing: \"verification-pending\"",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Admin Dashboard - Verification Link",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Registration - Verification Message",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Doctor Dashboard - Verification Check",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Doctor Appointments - Verification Check",
+        "status": "PASS",
+        "message": "Found required content",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "File Check: Package.json for server test",
+        "status": "PASS",
+        "message": "File exists: package.json",
+        "timestamp": "8:41:19 pm"
+      },
+      {
+        "name": "Server Test Preparation",
+        "status": "PASS",
+        "message": "Ready to test server endpoints (manual step required)",
+        "timestamp": "8:41:19 pm"
+      }
+    ]
+  },
+  "environment": {
+    "nodeVersion": "v22.11.0",
+    "platform": "win32"
+  }
+}

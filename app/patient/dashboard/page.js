@@ -310,7 +310,7 @@ export default function PatientDashboard() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-900">Upcoming Appointments</h2>
                   <Link 
-                    href="/patient/appointments/book"
+                    href="/book-appointment"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center"
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -377,7 +377,7 @@ export default function PatientDashboard() {
                     <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-500">No upcoming appointments</p>
                     <Link 
-                      href="/patient/appointments/book"
+                      href="/book-appointment"
                       className="text-blue-600 hover:text-blue-500 font-medium"
                     >
                       Book your first appointment
@@ -615,14 +615,14 @@ export default function PatientDashboard() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <Link 
-                  href="/patient/appointments/book"
+                  href="/book-appointment"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <Calendar className="h-4 w-4 mr-2" />
                   Book Appointment
                 </Link>
                 <Link 
-                  href="/patient/reports/upload"
+                  href="/upload-report"
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <FileText className="h-4 w-4 mr-2" />
