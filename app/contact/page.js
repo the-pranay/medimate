@@ -24,6 +24,28 @@ export default function ContactPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!formData.name.trim()) {
+      toast.error('Please enter your name');
+      return;
+    }
+    
+    if (!formData.email.trim() || !formData.email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    
+    if (!formData.subject.trim()) {
+      toast.error('Please enter a subject');
+      return;
+    }
+    
+    if (!formData.message.trim()) {
+      toast.error('Please enter your message');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -34,6 +56,8 @@ export default function ContactPage() {
         },
         body: JSON.stringify(formData),
       });
+
+      const result = await response.json();
 
       if (response.ok) {
         toast.success('Message sent successfully! We\'ll get back to you soon.', {
@@ -46,11 +70,11 @@ export default function ContactPage() {
         });
         setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
-        throw new Error('Failed to send message');
+        throw new Error(result.error || 'Failed to send message');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Failed to send message. Please try again.', {
+      toast.error(`Failed to send message: ${error.message}`, {
         duration: 5000,
         icon: '❌',
         style: {

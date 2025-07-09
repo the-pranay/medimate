@@ -196,14 +196,14 @@ export default function Footer() {
           {/* Bottom Bar */}
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm mb-4 md:mb-0">
-              © {currentYear} MediMate. All rights reserved. 
+              © {currentYear} MediMate. All rights reserved. Developed by
               <a 
                 href="https://github.com/the-pranay" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-blue-400 hover:text-blue-300 transition-colors ml-1"
               >
-                Developed by the-pranay
+                the-pranay
               </a>
             </div>
             <div className="flex items-center space-x-6 text-sm text-gray-400">

@@ -170,11 +170,11 @@ export default function HomePage() {
                 realValue: stats?.totalPatients || 0
               },
               { 
-                value: loading ? "..." : `${stats?.successRate || 0}%`, 
+                value: loading ? "..." : "99%", 
                 label: "Success Rate", 
                 icon: CheckCircle, 
                 description: "Proven results",
-                realValue: stats?.successRate || 0
+                realValue: 99
               },
               { 
                 value: loading ? "..." : `${formatNumber(stats?.totalDoctors || 0)}+`, 
