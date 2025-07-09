@@ -9,12 +9,15 @@ import toast, { Toaster } from 'react-hot-toast';
 export default function FloatingActionButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is authenticated
+    // Check if user is authenticated and get role
     const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    const role = localStorage.getItem('userRole');
     setIsAuthenticated(!!token);
+    setUserRole(role);
   }, []);
 
   const handleActionClick = (href, label) => {
@@ -36,29 +39,66 @@ export default function FloatingActionButton() {
     router.push(href);
   };
 
-  const actions = [
-    {
-      icon: Calendar,
-      label: 'Book Appointment',
-      href: '/book-appointment',
-      color: 'from-blue-500 to-blue-600',
-      hoverColor: 'hover:from-blue-600 hover:to-blue-700'
-    },
-    {
-      icon: MessageCircle,
-      label: 'Telemedicine',
-      href: '/messages',
-      color: 'from-emerald-500 to-teal-600',
-      hoverColor: 'hover:from-emerald-600 hover:to-teal-700'
-    },
-    {
-      icon: FileText,
-      label: 'Health Records',
-      href: '/my-reports',
-      color: 'from-purple-500 to-indigo-600',
-      hoverColor: 'hover:from-purple-600 hover:to-indigo-700'
+  const getActionsForRole = () => {
+    const baseActions = [
+      {
+        icon: Calendar,
+        label: 'Book Appointment',
+        href: '/book-appointment',
+        color: 'from-blue-500 to-blue-600',
+        hoverColor: 'hover:from-blue-600 hover:to-blue-700'
+      }
+    ];
+
+    if (userRole === 'patient') {
+      return [
+        ...baseActions,
+        {
+          icon: MessageCircle,
+          label: 'Messages',
+          href: '/patient/messages',
+          color: 'from-emerald-500 to-teal-600',
+          hoverColor: 'hover:from-emerald-600 hover:to-teal-700'
+        },
+        {
+          icon: FileText,
+          label: 'Health Records',
+          href: '/patient/reports',
+          color: 'from-purple-500 to-indigo-600',
+          hoverColor: 'hover:from-purple-600 hover:to-indigo-700'
+        }
+      ];
+    } else if (userRole === 'doctor') {
+      return [
+        {
+          icon: Calendar,
+          label: 'Appointments',
+          href: '/doctor/appointments',
+          color: 'from-blue-500 to-blue-600',
+          hoverColor: 'hover:from-blue-600 hover:to-blue-700'
+        },
+        {
+          icon: MessageCircle,
+          label: 'Messages',
+          href: '/doctor/messages',
+          color: 'from-emerald-500 to-teal-600',
+          hoverColor: 'hover:from-emerald-600 hover:to-teal-700'
+        },
+        {
+          icon: FileText,
+          label: 'Patient Records',
+          href: '/doctor/patients',
+          color: 'from-purple-500 to-indigo-600',
+          hoverColor: 'hover:from-purple-600 hover:to-indigo-700'
+        }
+      ];
     }
-  ];
+
+    // Default actions for non-authenticated or unknown roles
+    return baseActions;
+  };
+
+  const actions = getActionsForRole();
 
   const handleMainFabClick = () => {
     if (!isAuthenticated) {

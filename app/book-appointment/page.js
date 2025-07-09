@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -420,7 +420,7 @@ export default function BookAppointment() {
               <ul className="text-sm text-gray-600 space-y-2">
                 {error.suggestions.map((suggestion, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
+                    <span className="text-blue-500 mr-2 mt-1">ΓÇó</span>
                     <span>{suggestion}</span>
                   </li>
                 ))}
@@ -552,7 +552,7 @@ export default function BookAppointment() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-semibold text-gray-900">₹{doctor?.consultationFee || '0'}</p>
+                      <p className="text-lg font-semibold text-gray-900">Γé╣{doctor?.consultationFee || '0'}</p>
                       <p className="text-sm text-green-600">{doctor?.availability || 'Available'}</p>
                       <p className="text-xs text-gray-500">{doctor?.experience || '0'} years exp.</p>
                     </div>
@@ -724,7 +724,7 @@ export default function BookAppointment() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-800">Consultation Fee:</span>
-                      <span className="font-medium text-gray-800">₹{selectedDoctor.consultationFee}</span>
+                      <span className="font-medium text-gray-800">Γé╣{selectedDoctor.consultationFee}</span>
                     </div>
                   </div>
                 </div>
@@ -803,7 +803,7 @@ export default function BookAppointment() {
             <div className="border-t pt-6">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-lg font-semibold text-gray-900">Total Amount</span>
-                <span className="text-2xl font-bold text-blue-600">₹{selectedDoctor.consultationFee}</span>
+                <span className="text-2xl font-bold text-blue-600">Γé╣{selectedDoctor.consultationFee}</span>
               </div>
               
               <button

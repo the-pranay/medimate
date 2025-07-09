@@ -116,7 +116,7 @@ export default function UploadReport() {
         
         setTimeout(() => {
           alert('Report uploaded successfully!');
-          router.push('/my-reports');
+          router.push('/patient/reports');
         }, 1000);
       } else {
         throw new Error('Upload failed');

@@ -9,7 +9,6 @@ import {
   Stethoscope, 
   Calendar, 
   Users, 
-  ChevronDown,
   Shield,
   Phone,
   Mail
@@ -18,7 +17,6 @@ import { Button } from '../ui/Button';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isServicesOpen, setIsServicesOpen] = useState(false);
 
   return (
     <nav className="bg-white/95 backdrop-blur-lg border-b border-blue-100 sticky top-0 z-50 shadow-lg">
@@ -58,59 +56,10 @@ export default function Navbar() {
               <span className="text-gray-700 hover:text-blue-600 font-medium transition-colors group-hover:text-blue-600">Features</span>
             </Link>
             
-            {/* Services Dropdown */}
-            <div className="relative group">
-              <button 
-                className="nav-link flex items-center space-x-2 text-gray-700 hover:text-blue-600 font-medium transition-colors"
-                onMouseEnter={() => setIsServicesOpen(true)}
-                onMouseLeave={() => setIsServicesOpen(false)}
-              >
-                <Users className="w-4 h-4 text-green-600" />
-                <span>Services</span>
-                <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
-              </button>
-              
-              {/* Enhanced Dropdown Menu */}
-              <div 
-                className={`absolute top-full left-0 mt-3 w-80 bg-white/95 backdrop-blur-lg border border-blue-100 rounded-2xl shadow-xl transition-all duration-300 ${
-                  isServicesOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2'
-                }`}
-                onMouseEnter={() => setIsServicesOpen(true)}
-                onMouseLeave={() => setIsServicesOpen(false)}
-              >
-                <div className="p-6 space-y-4">
-                  <Link href="/book-appointment" className="flex items-center space-x-4 p-4 rounded-xl hover:bg-blue-50/80 transition-colors group">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Calendar className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900">Book Appointment</div>
-                      <div className="text-sm text-gray-600">Schedule with specialists</div>
-                    </div>
-                  </Link>
-                  
-                  <Link href="/my-reports" className="flex items-center space-x-4 p-4 rounded-xl hover:bg-green-50/80 transition-colors group">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Shield className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900">Health Records</div>
-                      <div className="text-sm text-gray-600">Secure medical data</div>
-                    </div>
-                  </Link>
-                  
-                  <Link href="/messages" className="flex items-center space-x-4 p-4 rounded-xl hover:bg-purple-50/80 transition-colors group">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Users className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900">Telemedicine</div>
-                      <div className="text-sm text-gray-600">Virtual consultations</div>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-            </div>
+            <Link href="/services" className="nav-link group flex items-center space-x-2">
+              <Users className="w-4 h-4 text-green-600" />
+              <span className="text-gray-700 hover:text-blue-600 font-medium transition-colors group-hover:text-blue-600">Services</span>
+            </Link>
             
             <Link href="/about" className="nav-link group flex items-center space-x-2">
               <Heart className="w-4 h-4 text-red-500" />
@@ -162,14 +111,9 @@ export default function Navbar() {
               <span className="font-medium text-gray-700">Features</span>
             </Link>
             
-            <Link href="/book-appointment" className="flex items-center space-x-3 p-3 rounded-xl hover:bg-green-50 transition-colors">
-              <Calendar className="w-5 h-5 text-green-500" />
-              <span className="font-medium text-gray-700">Book Appointment</span>
-            </Link>
-            
-            <Link href="/my-reports" className="flex items-center space-x-3 p-3 rounded-xl hover:bg-purple-50 transition-colors">
-              <Shield className="w-5 h-5 text-purple-500" />
-              <span className="font-medium text-gray-700">Health Records</span>
+            <Link href="/services" className="flex items-center space-x-3 p-3 rounded-xl hover:bg-green-50 transition-colors">
+              <Users className="w-5 h-5 text-green-500" />
+              <span className="font-medium text-gray-700">Services</span>
             </Link>
             
             <Link href="/about" className="flex items-center space-x-3 p-3 rounded-xl hover:bg-pink-50 transition-colors">

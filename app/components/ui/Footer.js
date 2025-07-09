@@ -72,25 +72,25 @@ export default function Footer() {
               <h4 className="font-semibold text-white mb-6 text-lg">For Patients</h4>
               <ul className="space-y-3 text-gray-300">
                 <li>
-                  <Link href="/book-appointment" className="hover:text-blue-300 transition-colors flex items-center group">
+                  <Link href="/login" className="hover:text-blue-300 transition-colors flex items-center group">
                     <span className="mr-2 group-hover:scale-110 transition-transform">📅</span>
                     Book Appointment
                   </Link>
                 </li>
                 <li>
-                  <Link href="/my-reports" className="hover:text-blue-300 transition-colors flex items-center group">
+                  <Link href="/login" className="hover:text-blue-300 transition-colors flex items-center group">
                     <span className="mr-2 group-hover:scale-110 transition-transform">📄</span>
                     My Reports
                   </Link>
                 </li>
                 <li>
-                  <Link href="/messages" className="hover:text-blue-300 transition-colors flex items-center group">
+                  <Link href="/login" className="hover:text-blue-300 transition-colors flex items-center group">
                     <span className="mr-2 group-hover:scale-110 transition-transform">💬</span>
                     Telemedicine
                   </Link>
                 </li>
                 <li>
-                  <Link href="/patient/dashboard" className="hover:text-blue-300 transition-colors flex items-center group">
+                  <Link href="/login" className="hover:text-blue-300 transition-colors flex items-center group">
                     <span className="mr-2 group-hover:scale-110 transition-transform">🏠</span>
                     Dashboard
                   </Link>
