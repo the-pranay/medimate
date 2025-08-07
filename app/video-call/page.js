@@ -2,9 +2,9 @@
 
 import dynamic from 'next/dynamic';
 
-// Dynamically import the VideoCallClient component with SSR disabled
-const VideoCallClient = dynamic(
-  () => import('./VideoCallClient'),
+// Dynamically import the SimpleVideoCall component with SSR disabled
+const SimpleVideoCall = dynamic(
+  () => import('./SimpleVideoCall'),
   { 
     ssr: false,
     loading: () => (
@@ -19,5 +19,5 @@ const VideoCallClient = dynamic(
 );
 
 export default function VideoCall() {
-  return <VideoCallClient />;
+  return <SimpleVideoCall />;
 }

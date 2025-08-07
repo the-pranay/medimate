@@ -2,9 +2,9 @@
 
 import dynamic from 'next/dynamic';
 
-// Dynamically import the RealTimeMessaging component with SSR disabled
-const RealTimeMessaging = dynamic(
-  () => import('./RealTimeMessaging'),
+// Dynamically import the ImprovedMessaging component with SSR disabled
+const ImprovedMessaging = dynamic(
+  () => import('./ImprovedMessaging'),
   { 
     ssr: false,
     loading: () => (
@@ -19,5 +19,5 @@ const RealTimeMessaging = dynamic(
 );
 
 export default function Messaging() {
-  return <RealTimeMessaging />;
+  return <ImprovedMessaging />;
 }

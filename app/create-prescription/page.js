@@ -131,7 +131,7 @@ export default function CreatePrescription() {
 
       if (response.ok) {
         alert('Prescription created successfully!');
-        router.push('/prescriptions');
+        router.push('/doctor/prescriptions');
       } else {
         alert('Failed to create prescription');
       }

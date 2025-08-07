@@ -635,7 +635,7 @@ export default function DoctorDashboard() {
                   Manage Schedule
                 </Link>
                 <Link 
-                  href="/doctor/prescriptions/create"
+                  href="/create-prescription"
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center"
                 >
                   <FileText className="h-4 w-4 mr-2" />
