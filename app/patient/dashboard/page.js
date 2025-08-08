@@ -161,7 +161,7 @@ export default function PatientDashboard() {
            appointmentDate.getFullYear() === today.getFullYear();
   });
 
-  const recentReports = reports.slice(0, 3);
+  const recentReports = reports.filter(r => r && r._id).slice(0, 3);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -321,7 +321,7 @@ export default function PatientDashboard() {
               <div className="p-6">
                 {upcomingAppointments.length > 0 ? (
                   <div className="space-y-4">
-                    {upcomingAppointments.map((appointment) => (
+                    {upcomingAppointments.filter(appointment => appointment && appointment._id).map((appointment) => (
                       <div key={appointment._id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
@@ -333,7 +333,7 @@ export default function PatientDashboard() {
                             </p>
                             <div className="flex items-center mt-2 text-sm text-gray-500">
                               <Calendar className="h-4 w-4 mr-1" />
-                              {new Date(appointment.appointmentDate).toLocaleDateString()} at {appointment.appointmentTime}
+                              {appointment.appointmentDate ? new Date(appointment.appointmentDate).toLocaleDateString() : 'Date TBD'} at {appointment.appointmentTime || 'Time TBD'}
                             </div>
                             <p className="text-sm text-gray-600 mt-1">
                               {appointment.reasonForVisit || appointment.type || 'Consultation'}
@@ -345,8 +345,8 @@ export default function PatientDashboard() {
                             )}
                           </div>
                           <div className="flex items-center space-x-2">
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status)}`}>
-                              {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status || 'scheduled')}`}>
+                              {appointment.status ? (appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)) : 'Scheduled'}
                             </span>
                             {appointment.payment && (
                               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -403,7 +403,7 @@ export default function PatientDashboard() {
               <div className="p-6">
                 {recentReports.length > 0 ? (
                   <div className="space-y-4">
-                    {recentReports.map((report) => (
+                    {recentReports.filter(report => report && report._id).map((report) => (
                       <div key={report._id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
@@ -415,7 +415,7 @@ export default function PatientDashboard() {
                             </p>
                             <div className="flex items-center mt-2 text-sm text-gray-500">
                               <FileText className="h-4 w-4 mr-1" />
-                              {new Date(report.createdAt).toLocaleDateString()} • {report.reportType}
+                              {report.createdAt ? new Date(report.createdAt).toLocaleDateString() : 'Date unknown'} • {report.reportType || 'Report'}
                             </div>
                             <p className="text-sm text-gray-600 mt-1">
                               {report.diagnosis || report.notes || 'No details available'}
@@ -470,26 +470,26 @@ export default function PatientDashboard() {
               <div className="p-6">
                 {prescriptions.length > 0 ? (
                   <div className="space-y-4">
-                    {prescriptions.slice(0, 3).map((prescription) => (
+                    {prescriptions.slice(0, 3).filter(p => p && p._id).map((prescription) => (
                       <div key={prescription._id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <h3 className="font-semibold text-gray-900">
-                              {prescription.title}
+                              {prescription.title || 'Prescription'}
                             </h3>
                             <p className="text-sm text-gray-600">
                               by Dr. {prescription.doctor?.name || 'Unknown Doctor'}
                             </p>
                             <div className="flex items-center mt-2 text-sm text-gray-500">
                               <Calendar className="h-4 w-4 mr-1" />
-                              {new Date(prescription.prescriptionDate).toLocaleDateString()}
+                              {prescription.prescriptionDate ? new Date(prescription.prescriptionDate).toLocaleDateString() : 'Date not available'}
                             </div>
                             <p className="text-sm text-gray-700 mt-1">
-                              <strong>Diagnosis:</strong> {prescription.diagnosis}
+                              <strong>Diagnosis:</strong> {prescription.diagnosis || 'Not specified'}
                             </p>
                             <div className="mt-2">
                               <p className="text-xs text-gray-600">
-                                <strong>Medicines:</strong> {prescription.medicines.length} prescribed
+                                <strong>Medicines:</strong> {prescription.medicines?.length || 0} prescribed
                               </p>
                             </div>
                           </div>
@@ -577,11 +577,11 @@ export default function PatientDashboard() {
               <div className="p-6">
                 {messages.length > 0 ? (
                   <div className="space-y-4">
-                    {messages.slice(0, 3).map((conversation) => (
+                    {messages.slice(0, 3).filter(conv => conv && conv._id).map((conversation) => (
                       <div key={conversation._id} className={`p-3 rounded-lg ${conversation.unreadCount > 0 ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}>
                         <div className="flex items-center justify-between mb-2">
                           <p className="font-medium text-sm text-gray-900">
-                            {conversation.participantDetails?.find(p => p.role === 'doctor')?.name || 'Doctor'}
+                            {conversation.participantDetails?.find(p => p?.role === 'doctor')?.name || 'Doctor'}
                           </p>
                           <span className="text-xs text-gray-500">
                             {conversation.lastMessage?.timestamp ? 
