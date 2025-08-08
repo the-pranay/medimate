@@ -87,7 +87,8 @@ export default function ImprovedMessaging() {
   // Socket.IO initialization
   useEffect(() => {
     if (user && user._id) {
-      const socketInstance = io('http://localhost:3001');
+      const socketServerUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3001';
+      const socketInstance = io(socketServerUrl);
       setSocket(socketInstance);
 
       socketInstance.on('connect', () => {
