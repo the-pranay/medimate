@@ -578,7 +578,7 @@ export default function DoctorDashboard() {
                 </div>
               </div>
               <Link 
-                href="/doctor/profile"
+                href="/doctor/edit"
                 className="mt-4 w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-lg text-sm font-medium inline-block text-center"
               >
                 Edit Profile
